@@ -1,64 +1,66 @@
-import Image from "next/image";
+import Navbar from "@/components/navbar";
+
+const sections = [
+  { id: "projects", title: "Projects", description: "A selection of my work." },
+  { id: "skills", title: "Skills & Tools", description: "Technologies and tools I use." },
+  { id: "about", title: "About Me", description: "A short introduction about me." },
+  { id: "contact", title: "Contact Me", description: "Let’s connect." },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="min-h-screen bg-[color:var(--color-background)] text-[color:var(--color-dark-text)]">
+      <Navbar />
+
+      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 lg:px-8">
+        <section
+          id="home"
+          className="rounded-[2rem] border border-[color:var(--color-highlight)] bg-[color:var(--color-surface)] p-8 shadow-sm lg:p-12"
+        >
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <span className="inline-flex rounded-full bg-[color:var(--color-highlight)] px-3 py-1 text-sm font-medium text-[color:var(--color-primary)]">
+                Creative developer & designer
+              </span>
+              <h1 className="mt-5 text-4xl font-semibold leading-tight sm:text-5xl">
+                Hello, I&apos;m <span className="text-[color:var(--color-primary)]">Douaa Amani Benharroud</span>
+              </h1>
+              <p className="mt-4 max-w-xl text-lg text-[color:var(--color-dark-text)]/80">
+                I build polished web experiences with thoughtful visuals, strong structure, and a calm, modern feel.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[color:var(--color-highlight)] bg-[color:var(--color-background)] p-5">
+              <p className="text-sm font-medium text-[color:var(--color-primary)]">Current focus</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className="rounded-full bg-[color:var(--color-primary)] px-3 py-1 text-sm text-[color:var(--color-surface)]">
+                  UI Design
+                </span>
+                <span className="rounded-full bg-[color:var(--color-accent-gold)] px-3 py-1 text-sm text-[color:var(--color-dark-text)]">
+                  Frontend
+                </span>
+                <span className="rounded-full bg-[color:var(--color-secondary)] px-3 py-1 text-sm text-[color:var(--color-surface)]">
+                  Next.js
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {sections.map((section) => (
+          <section
+            key={section.id}
+            id={section.id}
+            className="rounded-2xl border border-[color:var(--color-highlight)] bg-[color:var(--color-surface)] p-8 shadow-sm"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <h2 className="text-2xl font-semibold text-[color:var(--color-primary)]">
+              {section.title}
+            </h2>
+            <p className="mt-3 text-[color:var(--color-dark-text)]/80">
+              {section.description}
+            </p>
+          </section>
+        ))}
       </main>
     </div>
   );
