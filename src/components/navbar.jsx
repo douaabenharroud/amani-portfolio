@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Geist } from "next/font/google";
-
-const geist = Geist({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-});
+import { createPortal } from "react-dom";
 
 const navigation = [
   { name: "Home", href: "#home" },
@@ -70,28 +65,82 @@ function SignatureUnderline() {
   );
 }
 
+function SunIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="5" />
+      <path strokeLinecap="round" d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <path strokeLinecap="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isScrolling, setIsScrolling] = useState(false);
   const [isContactActive, setIsContactActive] = useState(false);
   const [userClickedContact, setUserClickedContact] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const scrollTimeout = useRef(null);
+  const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [hoveredLink, setHoveredLink] = useState(null);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    if (!isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (headerRef.current) {
+        setHeaderHeight(headerRef.current.getBoundingClientRect().height);
+      }
+    };
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Don't update active section during smooth scroll
       if (isScrolling) return;
-      
-      const sections = navigation.map(item => item.href.replace("#", ""));
-      
+
+      const sections = navigation.map((item) => item.href.replace("#", ""));
+
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
           if (rect.top <= 100 && rect.bottom >= 100) {
             setActiveSection(section);
-            // Only update isContactActive if user hasn't manually clicked it
             if (!userClickedContact || section !== "contact") {
               setIsContactActive(section === "contact");
             }
@@ -112,7 +161,6 @@ export default function Navbar() {
     };
   }, [isScrolling, userClickedContact]);
 
-  // Reset userClickedContact when scrolling to a different section naturally
   useEffect(() => {
     if (activeSection !== "contact") {
       setUserClickedContact(false);
@@ -132,244 +180,273 @@ export default function Navbar() {
     const targetId = href.replace("#", "");
     const element = document.getElementById(targetId);
     if (element) {
-      // Set scrolling state to true to prevent active section updates during scroll
       setIsScrolling(true);
-      
-      // Immediately set active section to the clicked one
       setActiveSection(targetId);
-      
-      // Check if the clicked section is "contact"
+
       if (targetId === "contact") {
-        // Toggle contact active state only if it's already active
-        if (userClickedContact && isContactActive) {
-          // If already active and user clicked, don't toggle - keep it active
-          setIsContactActive(true);
-        } else {
-          // First time clicking or coming from another section
-          setIsContactActive(true);
-          setUserClickedContact(true);
-        }
+        setIsContactActive(true);
+        setUserClickedContact(true);
       } else {
         setIsContactActive(false);
         setUserClickedContact(false);
       }
-      
+
       element.scrollIntoView({ behavior: "smooth" });
-      
-      // Clear any existing timeout
+
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
       }
-      
-      // Re-enable scroll detection after smooth scroll completes
+
       scrollTimeout.current = setTimeout(() => {
         setIsScrolling(false);
-      }, 800); // Slightly longer than the scroll animation
-      
+      }, 800);
+
       window.history.pushState(null, "", href);
       closeMenu();
     }
   };
 
-  // Check if any navigation item is active
-  const isAnyNavActive = navigation.some(item => isActive(item.href));
+  const isAnyNavActive = navigation.some((item) => isActive(item.href));
+
+  const getLinkStyles = (item) => {
+    const active = isActive(item.href);
+    const isContact = item.name === "Contact Me";
+    const isHovered = hoveredLink === item.name;
+
+    if (isContact) {
+      const isActiveContact = isContactActive || active;
+      return {
+        fontFamily: isActiveContact ? 'var(--font-heading)' : "inherit",
+        display: "inline-block",
+        padding: isActiveContact ? "4px 20px" : "8px 20px",
+        borderRadius: "9999px",
+        border: "1px solid",
+        borderColor: isActiveContact ? "var(--color-primary)" : "transparent",
+        backgroundColor: isActiveContact ? "transparent" : "var(--color-primary)",
+        color: isActiveContact ? "var(--color-primary)" : "var(--color-text-light)",
+        transition: "all 0.3s ease",
+        fontWeight: isActiveContact ? "600" : "500",
+        fontSize: isActiveContact ? "0.875rem" : "0.875rem", // FIXED: same size for both states
+        textTransform: isActiveContact ? "uppercase" : "none",
+        letterSpacing: isActiveContact ? "0.05em" : "normal",
+        cursor: "pointer",
+        outline: "none",
+        minWidth: isActiveContact ? "auto" : "auto",
+        minHeight: isActiveContact ? "auto" : "auto",
+        ...(isHovered && !isActiveContact && {
+          backgroundColor: "var(--button-primary-hover)",
+          transform: "scale(1.02)",
+          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+        }),
+        ...(isHovered && isActiveContact && {
+          color: "var(--color-text-light)",
+          backgroundColor: "var(--color-primary)",
+          transform: "scale(1.02)",
+          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+        }),
+      };
+    }
+
+    return {
+      fontFamily: active ? 'var(--font-heading)' : "inherit",
+      color: isHovered ? "var(--color-link)" : (active ? "var(--color-primary)" : "var(--color-text-secondary)"),
+      paddingBottom: active ? "4px" : "0",
+      fontWeight: active ? "600" : "400",
+      fontSize: active ? "1.125rem" : "0.875rem",
+      letterSpacing: "0.05em",
+      cursor: "pointer",
+      outline: "none",
+      transition: "color 0.2s ease"
+    };
+  };
+
+  const getMobileLinkStyles = (item) => {
+    const active = isActive(item.href);
+    const isContact = item.name === "Contact Me";
+    const isHovered = hoveredLink === item.name;
+
+    if (isContact) {
+      const isActiveContact = isContactActive || active;
+      return {
+        fontFamily: isActiveContact ? 'var(--font-heading)' : "inherit",
+        display: "inline-block",
+        padding: isActiveContact ? "4px 20px" : "8px 20px",
+        borderRadius: "9999px",
+        border: "1px solid",
+        borderColor: isActiveContact ? "var(--color-primary)" : "transparent",
+        backgroundColor: isActiveContact ? "transparent" : "var(--color-primary)",
+        color: isActiveContact ? "var(--color-primary)" : "var(--color-text-light)",
+        transition: "all 0.3s ease",
+        fontWeight: isActiveContact ? "600" : "500",
+        fontSize: isActiveContact ? "0.875rem" : "0.875rem", // FIXED: same size for both states
+        textTransform: isActiveContact ? "uppercase" : "none",
+        letterSpacing: isActiveContact ? "0.05em" : "normal",
+        cursor: "pointer",
+        outline: "none",
+        minWidth: isActiveContact ? "auto" : "120px",
+        minHeight: isActiveContact ? "auto" : "40px",
+        ...(isHovered && !isActiveContact && {
+          backgroundColor: "var(--button-primary-hover)",
+          transform: "scale(1.02)",
+          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+        }),
+        ...(isHovered && isActiveContact && {
+          color: "var(--color-text-light)",
+          backgroundColor: "var(--color-primary)",
+          transform: "scale(1.02)",
+          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+        }),
+      };
+    }
+
+    return {
+      fontFamily: active ? 'var(--font-heading)' : "inherit",
+      color: isHovered ? "var(--color-link)" : (active ? "var(--color-primary)" : "var(--color-text-secondary)"),
+      fontWeight: active ? "600" : "400",
+      fontSize: active ? "1.5rem" : "0.875rem",
+      letterSpacing: active ? "0.05em" : "normal",
+      padding: "4px 0",
+      outline: "none",
+      transition: "color 0.2s ease"
+    };
+  };
+
+  const dropdownContent = (
+    <div className="flex flex-col items-center py-6 px-4 gap-4" style={{ fontWeight: 400 }}>
+      {navigation.map((item) => {
+        return (
+          <a
+            key={item.name}
+            href={item.href}
+            onClick={(e) => handleLinkClick(e, item.href)}
+            className="relative w-full text-center"
+            style={getMobileLinkStyles(item)}
+            onMouseEnter={() => setHoveredLink(item.name)}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            {item.name}
+          </a>
+        );
+      })}
+      
+      <button
+        onClick={toggleDarkMode}
+        className="mt-2 p-3 rounded-full transition flex items-center gap-2"
+        style={{
+          color: "var(--color-text-secondary)",
+          backgroundColor: "var(--color-surface)",
+          border: "1px solid var(--border-light)",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = "var(--color-primary)";
+          e.currentTarget.style.backgroundColor = "var(--color-surface-alt)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = "var(--border-light)";
+          e.currentTarget.style.backgroundColor = "var(--color-surface)";
+        }}
+      >
+        {isDarkMode ? <SunIcon /> : <MoonIcon />}
+        <span className="text-sm">{isDarkMode ? "Light Mode" : "Dark Mode"}</span>
+      </button>
+    </div>
+  );
 
   return (
-    <header className={`sticky top-0 z-50 border-b border-[var(--color-highlight)] bg-transparent backdrop-blur-md ${geist.className}`}>
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
-        {/* Logo - Changes font when nav items are active */}
-        <Link 
-          href="/" 
-          className="flex items-center uppercase gap-1 text-lg font-bold  tracking-wide text-[var(--color-primary)] transition hover:text-[var(--color-secondary)]" 
-          style={{ 
-            fontFamily: isAnyNavActive ? 'Caveat, "Comic Neue", cursive' : 'Playfair Display, serif',
-            fontSize: isAnyNavActive ? '1.5rem' : '1.125rem'
-          }}
-        >
-          <span className="relative inline-block">
-            Douaa
-            <span className="absolute -top-2 -right-4">
-              <FourPointedStar />
+    <>
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-50 border-b border-[var(--border-light)] bg-[var(--color-background)]/80 backdrop-blur-md"
+      >
+        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
+          <Link
+            href="/"
+            className="flex items-center uppercase gap-1 text-lg font-bold tracking-wide text-[var(--color-primary)] transition hover:text-[var(--color-secondary)]"
+            style={{
+              fontFamily: isAnyNavActive ? 'var(--font-heading)' : 'var(--font-accent)',
+              fontSize: isAnyNavActive ? "1.5rem" : "1.125rem",
+              outline: "none"
+            }}
+          >
+            <span className="relative inline-block">
+              Douaa
+              <span className="absolute -top-2 -right-4">
+                <FourPointedStar />
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
 
-        {/* Desktop Navigation - Geist */}
-        <div className="hidden  md:flex flex-wrap items-center justify-end gap-4 text-sm sm:gap-6" style={{ fontWeight: 550 }}>
-          {navigation.map((item) => {
-            const active = isActive(item.href);
-            const isContact = item.name === "Contact Me";
-            
-            return isContact ? (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleLinkClick(e, item.href)}
-                className={`relative contact-button ${isContactActive ? 'contact-button-active' : 'contact-button-inactive'}`}
-                style={{
-                  fontFamily: 'inherit',
-                }}
-              >
-                {item.name}
-              </a>
-            ) : (
-              <a
-                key={item.name}
-                href={item.href}
-                onClick={(e) => handleLinkClick(e, item.href)}
-                className={`relative transition ${
-                  active
-                    ? "text-[var(--color-primary)] uppercase"
-                    : "text-[var(--color-dark-text)] hover:text-[var(--color-primary)] uppercase"
-                }`}
-                style={{
-                  fontFamily: active ? 'Caveat, "Comic Neue", cursive' : 'inherit',
-                  paddingBottom: active ? '4px' : '0'
-                }}
-              >
-                <span className={active ? 'text-l' : ''}>
-                  {item.name}
-                </span>
-                {active && <SignatureUnderline />}
-              </a>
-            );
-          })}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={toggleMenu}
-          className="md:hidden p-2 text-[var(--color-dark-text)] transition hover:text-[var(--color-primary)]"
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <CloseIcon /> : <MenuIcon />}
-        </button>
-
-        {/* Mobile Navigation Dropdown - Geist */}
-        <div 
-          className={`md:hidden absolute top-full left-0 right-0 overflow-hidden transition-all duration-400 ease-in-out bg-transparent backdrop-blur-md border-b border-[var(--color-highlight)] ${
-            isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <div className="flex flex-col items-center py-6 px-4 gap-4" style={{ fontWeight: 550 }}>
+          <div
+            className="hidden md:flex flex-wrap items-center justify-end gap-4 text-sm sm:gap-6"
+            style={{ fontWeight: 400 }}
+          >
             {navigation.map((item) => {
-              const active = isActive(item.href);
-              const isContact = item.name === "Contact Me";
-              
-              return isContact ? (
+              return (
                 <a
                   key={item.name}
                   href={item.href}
                   onClick={(e) => handleLinkClick(e, item.href)}
-                  className={`relative contact-button w-full text-center ${isContactActive ? 'contact-button-active' : 'contact-button-inactive'}`}
-                  style={{
-                    fontFamily: 'inherit',
-                  }}
+                  className="relative transition"
+                  style={getLinkStyles(item)}
+                  onMouseEnter={() => setHoveredLink(item.name)}
+                  onMouseLeave={() => setHoveredLink(null)}
                 >
-                  {item.name}
-                </a>
-              ) : (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  onClick={(e) => handleLinkClick(e, item.href)}
-                  className={`relative transition text-base w-full text-center py-2 rounded-lg ${
-                    active
-                      ? "text-[var(--color-primary)] bg-[var(--color-highlight)]/20"
-                      : "text-[var(--color-dark-text)] hover:text-[var(--color-primary)] hover:bg-[var(--color-highlight)]/10"
-                  }`}
-                  style={{
-                    fontFamily: active ? 'Caveat, "Comic Neue", cursive' : 'inherit',
-                  }}
-                >
-                  <span className={active ? 'text-2xl' : ''}>
-                    {item.name}
-                  </span>
+                  <span>{item.name}</span>
+                  {isActive(item.href) && item.name !== "Contact Me" && <SignatureUnderline />}
                 </a>
               );
             })}
+            
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-full transition ml-2"
+              aria-label="Toggle dark mode"
+              style={{
+                color: "var(--color-text-secondary)",
+                backgroundColor: "var(--color-surface)",
+                outline: "none",
+                border: "1px solid var(--border-light)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "var(--color-primary)";
+                e.currentTarget.style.backgroundColor = "var(--color-surface-alt)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-light)";
+                e.currentTarget.style.backgroundColor = "var(--color-surface)";
+              }}
+            >
+              {isDarkMode ? <SunIcon /> : <MoonIcon />}
+            </button>
           </div>
-        </div>
-      </nav>
 
-      <style jsx global>{`
-        /* Contact button base styles */
-        .contact-button {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 120px;
-          min-height: 40px;
-          padding: 8px 20px;
-          border-radius: 9999px;
-          font-weight: 500;
-          transition: all 0.3s ease;
-          position: relative;
-        }
-        
-        /* Inactive state - gradient background */
-        .contact-button-inactive {
-          background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 30%, #EC4899 60%, #F472B6 80%, #FFFFFF 100%);
-          background-size: 200% 200%;
-          animation: gradientMove 4s ease-in-out infinite;
-          color: white;
-          border: none;
-        }
-        
-        /* Active state - transparent with gradient border using pseudo-element */
-        .contact-button-active {
-          position: relative;
-          background: transparent;
-          color: transparent;
-          background-clip: text;
-          -webkit-background-clip: text;
-          background-image: linear-gradient(135deg, #4F46E5, #7C3AED, #EC4899, #F472B6, #FFFFFF);
-          background-size: 200% 200%;
-          animation: gradientMove 4s ease-in-out infinite;
-        }
-        
-        /* Gradient border using ::before pseudo-element */
-        .contact-button-active::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          border-radius: 9999px;
-          padding: 2px;
-          background: linear-gradient(135deg, #4F46E5, #7C3AED, #EC4899, #F472B6, #FFFFFF);
-          background-size: 200% 200%;
-          animation: gradientMove 4s ease-in-out infinite;
-          -webkit-mask: 
-            linear-gradient(#fff 0 0) content-box, 
-            linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask: 
-            linear-gradient(#fff 0 0) content-box, 
-            linear-gradient(#fff 0 0);
-          mask-composite: exclude;
-        }
-        
-        /* Hover effects */
-        .contact-button-inactive:hover,
-        .contact-button-active:hover {
-          transform: scale(1.05);
-          box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
-        }
-        
-        @keyframes gradientMove {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-      `}</style>
-    </header>
+          <button
+            onClick={toggleMenu}
+            className="md:hidden p-2 text-[var(--color-text-secondary)] transition hover:text-[var(--color-link)]"
+            aria-label="Toggle menu"
+            style={{ outline: "none" }}
+          >
+            {isOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </nav>
+      </header>
+
+      {isOpen &&
+        createPortal(
+          <div
+            className="fixed left-0 right-0 z-40 overflow-hidden bg-[var(--color-background)]/80 backdrop-blur-md border-b border-[var(--border-light)]"
+            style={{
+              top: `${headerHeight}px`,
+              maxHeight: "calc(100vh - 80px)",
+              opacity: isOpen ? 1 : 0,
+              transform: isOpen ? "translateY(0)" : "translateY(-10px)",
+              transition: "opacity 0.3s ease, transform 0.3s ease",
+            }}
+          >
+            {dropdownContent}
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
