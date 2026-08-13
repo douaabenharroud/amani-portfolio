@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mechanical Bird — Sit to Flight Animation</title>
+<style>
+  :root{
+    --bg1:#1b1f2a;
+    --bg2:#2c3346;
+    --panel:#ffffff14;
+    --panel-border:#ffffff26;
+    --accent:#9db4ff;
+    --text:#eef1ff;
+    --text-dim:#aab1c9;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 30% 20%, #3a4262 0%, transparent 55%),
+      radial-gradient(circle at 80% 80%, #262c40 0%, transparent 50%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+  }
+  .stage{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:18px;
+    padding:28px 32px 24px;
+    background: var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:20px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+  }
+  h1{
+    margin:0;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--accent);
+  }
+  .canvas-wrap{
+    position:relative;
+    width:360px;
+    height:392px;
+    border-radius:14px;
+    background:
+      linear-gradient(180deg, #ffffff08, transparent 40%),
+      repeating-linear-gradient(45deg, #ffffff05 0 12px, transparent 12px 24px);
+    border:1px solid var(--panel-border);
+    overflow:hidden;
+  }
+  canvas{
+    position:absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    image-rendering:auto;
+  }
+  .ground{
+    position:absolute;
+    left:0; right:0; bottom:14%;
+    height:1px;
+    background: linear-gradient(90deg, transparent, #ffffff30, transparent);
+  }
+  .controls{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    width:100%;
+    max-width:360px;
+  }
+  button{
+    appearance:none;
+    border:1px solid var(--panel-border);
+    background: linear-gradient(180deg, #ffffff20, #ffffff08);
+    color: var(--text);
+    width:40px; height:40px;
+    border-radius:10px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: transform .12s ease, background .2s ease;
+    flex-shrink:0;
+  }
+  button:hover{ background: linear-gradient(180deg,#ffffff30,#ffffff10); }
+  button:active{ transform: scale(0.92); }
+  button svg{ width:16px; height:16px; fill:var(--text); }
+
+  .speed{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .speed label{
+    font-size:11px;
+    color:var(--text-dim);
+    display:flex;
+    justify-content:space-between;
+  }
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:2px;
+    background:#ffffff2a;
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--accent);
+    cursor:pointer;
+    box-shadow:0 0 0 4px #9db4ff30;
+  }
+  .status{
+    font-size:11px;
+    color:var(--text-dim);
+    letter-spacing:0.04em;
+    min-width:70px;
+    text-align:right;
+  }
+  .status b{ color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <h1>Sit &rarr; Launch &rarr; Fly</h1>
+
+  <div class="canvas-wrap">
+    <div class="ground"></div>
+    <canvas id="birdCanvas" width="360" height="392"></canvas>
+  </div>
+
+  <div class="controls">
+    <button id="playPause" title="Play / Pause">
+      <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+    <div class="speed">
+      <label><span>Speed</span><span id="fpsLabel">10 fps</span></label>
+      <input type="range" id="fpsSlider" min="4" max="40" value="10" step="1">
+    </div>
+    <div class="status">Frame <b id="frameNum">1</b>/20</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- Sprite sheet: 5 columns x 4 rows = 20 frames, one continuous cycle ----
+  // Frames 1-10  : perched bird winding up and launching off its pedestal
+  // Frames 11-20 : full wingbeat cycle in flight
+  // Each frame was individually content-cropped (not grid-cropped) from the
+  // source sheets, so every frame contains exactly ONE complete bird with no
+  // clipped wingtips/tails and no bleed from the neighboring pose.
+  const COLS = 5;
+  const ROWS = 4;
+  const TOTAL_FRAMES = COLS * ROWS;
+  const FRAME_W = 340;
+  const FRAME_H = 336;
+
+  const img = new Image();
+  img.src = "base64.txt"
+  const canvas = document.getElementById('birdCanvas');
+  const ctx = canvas.getContext('2d');
+
+  let currentFrame = 0;
+  let playing = true;
+  let fps = 10;
+  let lastTime = 0;
+  const frameNumEl = document.getElementById('frameNum');
+  const fpsLabel = document.getElementById('fpsLabel');
+
+  function drawFrame(index){
+    const col = index % COLS;
+    const row = Math.floor(index / COLS);
+    const sx = col * FRAME_W;
+    const sy = row * FRAME_H;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // scale the source frame to fill the canvas while preserving aspect ratio
+    const scale = Math.min(canvas.width / FRAME_W, canvas.height / FRAME_H);
+    const dw = FRAME_W * scale;
+    const dh = FRAME_H * scale;
+    const dx = (canvas.width - dw) / 2;
+    const dy = (canvas.height - dh) / 2;
+
+    ctx.drawImage(img, sx, sy, FRAME_W, FRAME_H, dx, dy, dw, dh);
+    frameNumEl.textContent = index + 1;
+  }
+
+  function loop(timestamp){
+    if (playing){
+      const interval = 1000 / fps;
+      if (timestamp - lastTime >= interval){
+        drawFrame(currentFrame);
+        // Play frames 1-15 (sit -> launch -> into flight) once, then loop frame 9 through
+        // frame 16 forever (index 8 to index 15)
+        const FLY_START = 8;  // index of frame 9
+        const FLY_END = 15;   // index of frame 16 (inclusive)
+        currentFrame = currentFrame + 1;
+        if (currentFrame > FLY_END) currentFrame = FLY_START;
+        lastTime = timestamp;
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  img.onload = function(){
+    drawFrame(0);
+    requestAnimationFrame(loop);
+  };
+
+  // ---- controls ----
+  const playPauseBtn = document.getElementById('playPause');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+
+  playPauseBtn.addEventListener('click', function(){
+    playing = !playing;
+    playIcon.style.display = playing ? 'none' : 'block';
+    pauseIcon.style.display = playing ? 'block' : 'none';
+  });
+
+  const fpsSlider = document.getElementById('fpsSlider');
+  fpsSlider.addEventListener('input', function(){
+    fps = Number(fpsSlider.value);
+    fpsLabel.textContent = fps + " fps";
+  });
+})();
+</script>
+
+</body>
+</html>

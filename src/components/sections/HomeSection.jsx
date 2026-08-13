@@ -11,9 +11,36 @@ export default function HomeSection() {
   const [scatteredLights, setScatteredLights] = useState([]);
   const [isScattering, setIsScattering] = useState(false);
   const [scrollOffset, setScrollOffset] = useState(0);
+  const [isResetting, setIsResetting] = useState(false);
+  const [flightPaths, setFlightPaths] = useState([]);
+  const [originalPositions, setOriginalPositions] = useState([]);
+  const [fireflyStates, setFireflyStates] = useState({});
+  const [lightingUpFireflies, setLightingUpFireflies] = useState({});
   const sectionRef = useRef(null);
   const lastScrollY = useRef(0);
   const initialScrollY = useRef(0);
+  const resetTimeoutRef = useRef(null);
+  const cooldownRef = useRef(false);
+  const cooldownTimeoutRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const departureProgressRef = useRef({});
+  const offScreenRef = useRef({});
+
+  // Store initial positions on mount
+  const INITIAL_POSITIONS = [
+    { top: 75, left: 83 },
+    { top: 70, left: 86 },
+    { top: 60, left: 88 },
+    { top: 26, left: 84 },
+    { top: 15, left: 85 },
+    { top: 40, left: 82 },
+    { top: 58, left: 95 },
+    { top: 18, left: 87 },
+    { top: 50, left: 83 },
+    { top: 25, left: 90 },
+    { top: 21, left: 80 },
+    { top: 48, left: 87 },
+  ];
 
   useEffect(() => {
     // Check initial theme
@@ -59,27 +86,149 @@ export default function HomeSection() {
 
   // Initialize light positions - messy natural cluster around pole
   useEffect(() => {
-    const initialPositions = [
-      { top: 75, left: 83 },
-      { top: 70, left: 86 },
-      { top: 60, left: 88 },
-      { top: 26, left: 84 },
-      { top: 15, left: 85 },
-      { top: 40, left: 82 },
-      { top: 58, left: 95 },
-      { top: 18, left: 87 },
-      { top: 50, left: 83 },
-      { top: 25, left: 90 },
-      { top: 21, left: 80 },
-      { top: 48, left: 87 },
-    ];
-    setLightPositions(initialPositions);
+    setLightPositions(INITIAL_POSITIONS);
+    setOriginalPositions(INITIAL_POSITIONS);
+    
+    // Initialize firefly states
+    const states = {};
+    const lightingUp = {};
+    INITIAL_POSITIONS.forEach((_, index) => {
+      states[index] = {
+        isOffScreen: false,
+        departureTime: 0,
+        destTop: 0,
+        destLeft: 0,
+        type: 'static',
+        isLit: false,
+      };
+      lightingUp[index] = false;
+    });
+    setFireflyStates(states);
+    setLightingUpFireflies(lightingUp);
+    
+    // Generate unique flight paths for each firefly
+    const paths = INITIAL_POSITIONS.map((pos, index) => {
+      const wobbleAmplitude = 2 + Math.random() * 4;
+      const wobbleSpeed = 0.02 + Math.random() * 0.03;
+      const phase = Math.random() * Math.PI * 2;
+      
+      return {
+        wobbleAmplitude,
+        wobbleSpeed,
+        phase,
+        originTop: pos.top,
+        originLeft: pos.left,
+        destTop: 0,
+        destLeft: 0,
+        departureTime: 0,
+      };
+    });
+    setFlightPaths(paths);
   }, []);
+
+  // Function to reset fireflies to original positions with smooth animation
+  const resetFireflies = () => {
+    // Clear any existing timeouts
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+    }
+    if (cooldownTimeoutRef.current) {
+      clearTimeout(cooldownTimeoutRef.current);
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    // Set cooldown to prevent immediate re-scattering
+    cooldownRef.current = true;
+    
+    // Clear cooldown after 4 seconds
+    cooldownTimeoutRef.current = setTimeout(() => {
+      cooldownRef.current = false;
+    }, 4000);
+
+    setIsResetting(true);
+    
+    // Reset to original positions
+    setLightPositions(INITIAL_POSITIONS);
+    
+    // Reset departure progress and off-screen status
+    departureProgressRef.current = {};
+    offScreenRef.current = {};
+    
+    // Reset firefly states
+    const states = {};
+    INITIAL_POSITIONS.forEach((_, index) => {
+      states[index] = {
+        isOffScreen: false,
+        departureTime: 0,
+        destTop: 0,
+        destLeft: 0,
+        type: 'static',
+        isLit: false,
+      };
+    });
+    setFireflyStates(states);
+    setLightingUpFireflies({});
+    
+    // After a short delay, clear the scattered state
+    resetTimeoutRef.current = setTimeout(() => {
+      setScatteredLights([]);
+      setIsScattering(false);
+      setHoveredLight(null);
+      setScrollOffset(0);
+      setIsResetting(false);
+    }, 100);
+  };
+
+  // Check if a firefly is off-screen
+  const isOffScreen = (top, left) => {
+    // Consider off-screen if outside the viewport with some margin
+    const margin = 10;
+    return top < -margin || top > 110 || left < -margin || left > 110;
+  };
+
+  // Generate bee-like wobble path for a firefly
+  const generateWobblePath = (baseTop, baseLeft, time, pathIndex, progress = 1) => {
+    const path = flightPaths[pathIndex] || {
+      wobbleAmplitude: 3,
+      wobbleSpeed: 0.025,
+      phase: 0,
+    };
+    
+    // Scale wobble based on progress (less wobble when starting)
+    const progressScale = Math.min(progress * 1.5, 1);
+    
+    // If firefly is off-screen, gradually reduce wobble to make it fade away
+    const offScreenFactor = fireflyStates[pathIndex]?.isOffScreen ? 0.5 : 1;
+    
+    // Create figure-8 or zigzag pattern
+    const wobbleX = Math.sin(time * path.wobbleSpeed + path.phase) * path.wobbleAmplitude * progressScale * offScreenFactor;
+    const wobbleY = Math.cos(time * path.wobbleSpeed * 1.3 + path.phase * 0.7) * path.wobbleAmplitude * 0.8 * progressScale * offScreenFactor;
+    
+    // Add some randomness
+    const randomJitter = 0.3 * progressScale * offScreenFactor;
+    const jitterX = (Math.sin(time * 0.1 + pathIndex) * 0.5) * randomJitter;
+    const jitterY = (Math.cos(time * 0.12 + pathIndex * 1.2) * 0.5) * randomJitter;
+    
+    // Gentle drift in a direction (reduced when off-screen)
+    const driftScale = fireflyStates[pathIndex]?.isOffScreen ? 0.2 : 1;
+    const driftX = Math.sin(time * 0.005 + pathIndex) * 0.5 * driftScale;
+    const driftY = Math.cos(time * 0.007 + pathIndex * 0.8) * 0.5 * driftScale;
+    
+    return {
+      top: baseTop + wobbleY + jitterY + driftY,
+      left: baseLeft + wobbleX + jitterX + driftX,
+    };
+  };
 
   // Scroll-triggered scattering with bottom-following effect
   useEffect(() => {
     const handleScroll = () => {
       if (!sectionRef.current || !isDark) return;
+      
+      // Skip if in cooldown period
+      if (cooldownRef.current) return;
       
       const rect = sectionRef.current.getBoundingClientRect();
       const sectionTop = rect.top;
@@ -88,6 +237,12 @@ export default function HomeSection() {
       
       // Check if section is in view
       const isInView = sectionTop < windowHeight && sectionBottom > 0;
+      
+      // Reset fireflies when section comes back into view and is scattering
+      if (isInView && isDark && isScattering) {
+        resetFireflies();
+        return;
+      }
       
       if (!isInView) return;
       
@@ -100,7 +255,7 @@ export default function HomeSection() {
       } else {
         // Trigger scatter on significant scroll
         const scrollDelta = Math.abs(currentScrollY - lastScrollY.current);
-        if (scrollDelta > 50) {
+        if (scrollDelta > 80) {
           initialScrollY.current = currentScrollY;
           triggerScatter();
         }
@@ -113,94 +268,266 @@ export default function HomeSection() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isDark, isScattering]);
 
-  // Function to trigger scatter effect
+  // Animation loop for bee-like movement
+  useEffect(() => {
+    let time = 0;
+    let startTime = Date.now();
+    
+    const animate = () => {
+      time += 1;
+      const elapsed = (Date.now() - startTime) / 1000;
+      
+      if (isScattering && !isResetting) {
+        setLightPositions(prev => {
+          return prev.map((pos, index) => {
+            // Only animate scattered fireflies
+            if (scatteredLights.includes(index)) {
+              // Get the original position for this firefly
+              const origin = originalPositions[index] || INITIAL_POSITIONS[index];
+              
+              // Calculate departure progress
+              const departureTime = flightPaths[index]?.departureTime || 0;
+              const timeSinceDeparture = Math.max(0, elapsed - departureTime);
+              const progress = Math.min(timeSinceDeparture / 2, 1);
+              
+              // Store progress for this firefly
+              departureProgressRef.current[index] = progress;
+              
+              // Check if firefly is off-screen
+              const isOff = isOffScreen(pos.top, pos.left);
+              if (isOff) {
+                offScreenRef.current[index] = true;
+                // Update firefly state
+                setFireflyStates(prev => ({
+                  ...prev,
+                  [index]: {
+                    ...prev[index],
+                    isOffScreen: true,
+                  }
+                }));
+              }
+              
+              // If firefly is off-screen, freeze it in place (don't animate further)
+              if (offScreenRef.current[index]) {
+                return pos;
+              }
+              
+              // Generate wobble based on current position
+              const wobble = generateWobblePath(
+                pos.top, 
+                pos.left, 
+                time, 
+                index, 
+                progress
+              );
+              
+              return {
+                ...pos,
+                top: wobble.top,
+                left: wobble.left,
+              };
+            }
+            return pos;
+          });
+        });
+      }
+      
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    
+    if (isScattering && !isResetting) {
+      animate();
+    } else {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    }
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isScattering, isResetting, scatteredLights, originalPositions]);
+
+  // Function to trigger scatter effect with lighting up phase
   const triggerScatter = () => {
+    // Don't trigger if in cooldown
+    if (cooldownRef.current) return;
     if (isScattering) return;
     
     setIsScattering(true);
     setScrollOffset(0);
+    const startTime = Date.now() / 1000;
     
-    // Base destinations - bottom-bound ones will have scroll offset added
+    // Base destinations - each firefly gets a unique destination
     const baseFlightPaths = [
-      { top: -15, left: -10, type: 'static' },      // Off screen top-left
-      { top: -20, left: 50, type: 'static' },        // Off screen top-center
-      { top: -10, left: 110, type: 'static' },       // Off screen top-right
-      { top: 50, left: -15, type: 'static' },        // Off screen middle-left
-      { top: 50, left: 115, type: 'static' },        // Off screen middle-right
-      { top: 110, left: 20, type: 'scroll' },        // Off screen bottom-left (follows scroll)
-      { top: 115, left: 60, type: 'scroll' },        // Off screen bottom-center (follows scroll)
-      { top: 105, left: 90, type: 'scroll' },        // Off screen bottom-right (follows scroll)
-      { top: -25, left: 80, type: 'static' },        // Off screen top (high)
-      { top: -8, left: 105, type: 'static' },        // Off screen right-top
-      { top: 30, left: -20, type: 'static' },        // Off screen far left
-      { top: 80, left: 110, type: 'scroll' },        // Off screen right-bottom (follows scroll)
+      { top: -15, left: -10, type: 'static' },
+      { top: -20, left: 50, type: 'static' },
+      { top: -10, left: 110, type: 'static' },
+      { top: 50, left: -15, type: 'static' },
+      { top: 50, left: 115, type: 'static' },
+      { top: 110, left: 20, type: 'scroll' },
+      { top: 115, left: 60, type: 'scroll' },
+      { top: 105, left: 90, type: 'scroll' },
+      { top: -25, left: 80, type: 'static' },
+      { top: -8, left: 105, type: 'static' },
+      { top: 30, left: -20, type: 'static' },
+      { top: 80, left: 110, type: 'scroll' },
     ];
     
-    // Create domino effect with increasing delays
+    // Staggered scatter with lighting up phase
     lightPositions.forEach((light, i) => {
-      const delay = i * 200; // 200ms between each light
+      const lightingDelay = 100 + i * 120;
+      const moveDelay = lightingDelay + 400 + Math.random() * 300;
       
+      // Step 1: Light up the firefly
       setTimeout(() => {
-        setScatteredLights(prev => [...prev, i]);
+        setLightingUpFireflies(prev => ({
+          ...prev,
+          [i]: true
+        }));
         
-        setLightPositions(prev => {
-          const newPositions = [...prev];
-          const basePath = baseFlightPaths[i];
-          // For bottom-bound fireflies, the top position will be adjusted by scroll offset later
-          newPositions[i] = { 
-            top: basePath.top, 
-            left: basePath.left,
-            type: basePath.type 
-          };
-          return newPositions;
-        });
-      }, delay);
+        setFireflyStates(prev => ({
+          ...prev,
+          [i]: {
+            ...prev[i],
+            isLit: true,
+          }
+        }));
+        
+        // Step 2: Start movement after a delay (with a soft glow pulse)
+        setTimeout(() => {
+          setScatteredLights(prev => [...prev, i]);
+          
+          setFlightPaths(prev => {
+            const newPaths = [...prev];
+            if (newPaths[i]) {
+              newPaths[i].departureTime = (Date.now() / 1000) - startTime;
+            }
+            return newPaths;
+          });
+          
+          setLightPositions(prev => {
+            const newPositions = [...prev];
+            const basePath = baseFlightPaths[i % baseFlightPaths.length];
+            const randomOffset = 2 + Math.random() * 5;
+            const origin = originalPositions[i] || INITIAL_POSITIONS[i];
+            
+            const destTop = basePath.top + (Math.random() - 0.5) * randomOffset;
+            const destLeft = basePath.left + (Math.random() - 0.5) * randomOffset;
+            
+            setFireflyStates(prev => ({
+              ...prev,
+              [i]: {
+                ...prev[i],
+                destTop: destTop,
+                destLeft: destLeft,
+                type: basePath.type,
+                isLit: true,
+              }
+            }));
+            
+            newPositions[i] = { 
+              top: origin.top + (Math.random() - 0.5) * randomOffset,
+              left: origin.left + (Math.random() - 0.5) * randomOffset,
+              type: basePath.type,
+              destTop: destTop,
+              destLeft: destLeft,
+            };
+            return newPositions;
+          });
+        }, moveDelay);
+      }, lightingDelay);
     });
   };
 
   // Handle light hover - scatter completely off-screen in various directions
   const handleLightHover = (index) => {
+    if (cooldownRef.current) return;
     if (isScattering) return;
     
     setIsScattering(true);
     setHoveredLight(index);
     setScrollOffset(0);
     initialScrollY.current = window.scrollY;
+    const startTime = Date.now() / 1000;
     
-    // Base destinations - bottom-bound ones will have scroll offset added
     const baseFlightPaths = [
-      { top: -15, left: -10, type: 'static' },      // Off screen top-left
-      { top: -20, left: 50, type: 'static' },        // Off screen top-center
-      { top: -10, left: 110, type: 'static' },       // Off screen top-right
-      { top: 50, left: -15, type: 'static' },        // Off screen middle-left
-      { top: 50, left: 115, type: 'static' },        // Off screen middle-right
-      { top: 110, left: 20, type: 'scroll' },        // Off screen bottom-left (follows scroll)
-      { top: 115, left: 60, type: 'scroll' },        // Off screen bottom-center (follows scroll)
-      { top: 105, left: 90, type: 'scroll' },        // Off screen bottom-right (follows scroll)
-      { top: -25, left: 80, type: 'static' },        // Off screen top (high)
-      { top: -8, left: 105, type: 'static' },        // Off screen right-top
-      { top: 30, left: -20, type: 'static' },        // Off screen far left
-      { top: 80, left: 110, type: 'scroll' },        // Off screen right-bottom (follows scroll)
+      { top: -15, left: -10, type: 'static' },
+      { top: -20, left: 50, type: 'static' },
+      { top: -10, left: 110, type: 'static' },
+      { top: 50, left: -15, type: 'static' },
+      { top: 50, left: 115, type: 'static' },
+      { top: 110, left: 20, type: 'scroll' },
+      { top: 115, left: 60, type: 'scroll' },
+      { top: 105, left: 90, type: 'scroll' },
+      { top: -25, left: 80, type: 'static' },
+      { top: -8, left: 105, type: 'static' },
+      { top: 30, left: -20, type: 'static' },
+      { top: 80, left: 110, type: 'scroll' },
     ];
     
-    // Create domino effect with increasing delays
     lightPositions.forEach((light, i) => {
-      const delay = i * 200; // 200ms between each light
+      const lightingDelay = 100 + i * 120;
+      const moveDelay = lightingDelay + 400 + Math.random() * 300;
       
       setTimeout(() => {
-        setScatteredLights(prev => [...prev, i]);
+        setLightingUpFireflies(prev => ({
+          ...prev,
+          [i]: true
+        }));
         
-        setLightPositions(prev => {
-          const newPositions = [...prev];
-          const basePath = baseFlightPaths[i];
-          newPositions[i] = { 
-            top: basePath.top, 
-            left: basePath.left,
-            type: basePath.type 
-          };
-          return newPositions;
-        });
-      }, delay);
+        setFireflyStates(prev => ({
+          ...prev,
+          [i]: {
+            ...prev[i],
+            isLit: true,
+          }
+        }));
+        
+        setTimeout(() => {
+          setScatteredLights(prev => [...prev, i]);
+          
+          setFlightPaths(prev => {
+            const newPaths = [...prev];
+            if (newPaths[i]) {
+              newPaths[i].departureTime = (Date.now() / 1000) - startTime;
+            }
+            return newPaths;
+          });
+          
+          setLightPositions(prev => {
+            const newPositions = [...prev];
+            const basePath = baseFlightPaths[i % baseFlightPaths.length];
+            const randomOffset = 2 + Math.random() * 5;
+            const origin = originalPositions[i] || INITIAL_POSITIONS[i];
+            
+            const destTop = basePath.top + (Math.random() - 0.5) * randomOffset;
+            const destLeft = basePath.left + (Math.random() - 0.5) * randomOffset;
+            
+            setFireflyStates(prev => ({
+              ...prev,
+              [i]: {
+                ...prev[i],
+                destTop: destTop,
+                destLeft: destLeft,
+                type: basePath.type,
+                isLit: true,
+              }
+            }));
+            
+            newPositions[i] = { 
+              top: origin.top + (Math.random() - 0.5) * randomOffset,
+              left: origin.left + (Math.random() - 0.5) * randomOffset,
+              type: basePath.type,
+              destTop: destTop,
+              destLeft: destLeft,
+            };
+            return newPositions;
+          });
+        }, moveDelay);
+      }, lightingDelay);
     });
   };
 
@@ -263,15 +590,49 @@ export default function HomeSection() {
         
         {/* Fairy lights - dark mode only */}
         {isDark && lightPositions.map((light, index) => {
-          const isHovered = hoveredLight === index;
           const isScattered = scatteredLights.includes(index);
+          const isResettingNow = isResetting && !isScattered;
+          const isOffScreenNow = offScreenRef.current[index] || false;
+          const progress = departureProgressRef.current[index] || 0;
+          const isLightingUp = lightingUpFireflies[index] || false;
+          const isLit = fireflyStates[index]?.isLit || false;
           
-          // Calculate actual top position with scroll offset for bottom-bound fireflies
           let displayTop = light.top;
           if (isScattered && light.type === 'scroll') {
-            // Convert scroll pixels to percentage (adjust divisor based on your needs)
             const scrollPercentage = (scrollOffset / window.innerHeight) * 100;
             displayTop = light.top + scrollPercentage;
+          }
+          
+          if (isOffScreenNow) {
+            return null;
+          }
+          
+          let glowIntensity = 0;
+          let color = '#EED4D1';
+          let glowColor = 'rgba(238, 212, 209, 0.3)';
+          
+          if (isLightingUp && !isScattered) {
+            glowIntensity = 0.3 + (Math.random() * 0.3);
+            color = '#FFD700';
+            glowColor = `rgba(255, 215, 0, ${0.3 + Math.random() * 0.5})`;
+          } else if (isScattered || isResettingNow) {
+            glowIntensity = 0.6 + Math.random() * 0.4;
+            color = '#FFD700';
+            glowColor = `rgba(255, 215, 0, ${0.3 + Math.random() * 0.4})`;
+          } else {
+            glowIntensity = 0.6 + Math.random() * 0.4;
+            color = '#EED4D1';
+            glowColor = 'rgba(238, 212, 209, 0.3)';
+          }
+          
+          const shouldPulse = isLightingUp || isScattered || isResettingNow;
+          const pulseDuration = isLightingUp ? '1.5s' : '2s';
+          
+          let size = 2 + Math.random() * 2;
+          if (isLightingUp && !isScattered) {
+            size = 4 + Math.random() * 3;
+          } else if (isScattered || isResettingNow) {
+            size = 4 + Math.random() * 3;
           }
           
           return (
@@ -282,14 +643,14 @@ export default function HomeSection() {
                 top: `${displayTop}%`,
                 left: `${light.left}%`,
                 transform: 'scaleX(-1)',
-                transition: isScattered && light.type === 'scroll' 
-                  ? 'left 3s cubic-bezier(0.34, 0.2, 0.64, 1)' 
-                  : 'all 3s cubic-bezier(0.34, 0.2, 0.64, 1)',
-                transitionDelay: isScattered ? '0s' : `${index * 0.05}s`,
+                transitionProperty: isResettingNow ? 'all' : 'none',
+                transitionDuration: isResettingNow ? '3s' : '0s',
+                transitionTimingFunction: isResettingNow ? 'cubic-bezier(0.34, 1.2, 0.64, 1)' : 'ease',
+                transitionDelay: isResettingNow ? `${index * 0.05}s` : '0s',
               }}
             >
-              {/* Larger invisible hover area */}
-              {!isScattered && (
+              {/* Larger invisible hover area - only when not scattered */}
+              {!isScattering && !isResetting && !isLightingUp && (
                 <div 
                   className="absolute cursor-pointer"
                   style={{
@@ -303,31 +664,37 @@ export default function HomeSection() {
                 />
               )}
               
-              {/* Fairy light with trailing effect */}
+              {/* Fairy light with glow effect */}
               <div className="relative">
                 <div 
-                  className="rounded-full transition-all duration-1000"
+                  className="rounded-full"
                   style={{
-                    width: isScattered ? `${5 + Math.random() * 2}px` : `${2 + Math.random() * 2}px`,
-                    height: isScattered ? `${3 + Math.random() * 2}px` : `${2 + Math.random() * 2}px`,
-                    backgroundColor: isScattered ? '#FFD700' : '#EED4D1',
-                    boxShadow: isScattered 
-                      ? '0 0 6px 2px rgba(255, 215, 0, 0.6), 0 0 12px 4px rgba(255, 215, 0, 0.3), 0 0 20px 8px rgba(255, 215, 0, 0.1)'
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    backgroundColor: color,
+                    boxShadow: isLightingUp || isScattered || isResettingNow
+                      ? `0 0 ${8 + glowIntensity * 8}px ${3 + glowIntensity * 3}px ${glowColor}, 0 0 ${16 + glowIntensity * 12}px ${6 + glowIntensity * 4}px ${glowColor}, 0 0 ${30 + glowIntensity * 20}px ${12 + glowIntensity * 8}px ${glowColor}`
                       : '0 0 4px 2px rgba(238, 212, 209, 0.3), 0 0 8px 3px rgba(238, 212, 209, 0.1)',
-                    opacity: isScattered ? 0.5 + Math.random() * 0.3 : 0.6 + Math.random() * 0.4,
+                    opacity: glowIntensity,
+                    animation: shouldPulse ? `pulse ${pulseDuration} ease-in-out infinite` : 'none',
+                    transform: isLightingUp && !isScattered ? 'scale(1.3)' : 'scale(1)',
+                    transitionProperty: 'transform, box-shadow, background-color',
+                    transitionDuration: '0.5s',
+                    transitionTimingFunction: 'ease-out',
                   }}
                 />
-                {/* Trail effect when scattered */}
-                {isScattered && (
+                {/* Glow trail for scattered fireflies */}
+                {(isScattered || isLightingUp) && (
                   <div 
-                    className="absolute top-0 left-0 rounded-full"
+                    className="absolute rounded-full"
                     style={{
-                      width: '2px',
-                      height: '2px',
-                      backgroundColor: '#FFD700',
-                      opacity: 0.2,
-                      transform: `translate(${-3 + Math.random() * 6}px, ${-3 + Math.random() * 6}px)`,
-                      filter: 'blur(1px)',
+                      width: '1px',
+                      height: '1px',
+                      backgroundColor: isLightingUp ? '#FFD700' : '#FFD700',
+                      opacity: isLightingUp ? 0.3 : 0.15,
+                      transform: `translate(${-5 + Math.random() * 10}px, ${-5 + Math.random() * 10}px)`,
+                      filter: 'blur(2px)',
+                      animation: 'twinkle 3s ease-in-out infinite',
                     }}
                   />
                 )}
@@ -338,13 +705,13 @@ export default function HomeSection() {
         
         {/* Content - not flipped */}
         <div className="relative z-10 w-full px-6 lg:px-16 py-8 md:py-12 lg:py-16">
-          <div className="max-w-[90rem] mx-auto relative">
+          <div className="max-w-[60rem] mx-auto relative">
             {/* Soft light effect behind text - only in light mode */}
             {!isDark && (
               <div className="absolute -inset-6 md:-inset-10 bg-gradient-to-r from-[#EED4D1]/50 via-[#EED4D1]/30 to-transparent rounded-3xl blur-lg"></div>
             )}
             
-            <div className="relative max-w-5xl">
+            <div className="relative max-w-3xl">
               <h1 className={`font-heading text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-semibold leading-tight ${isDark ? 'text-white' : 'text-[#323C31]'}`}>
                 Where <span style={{ fontFamily: 'Symphony, serif' }} className="text-[#AF6384]">thoughtful</span> design meets <span style={{ fontFamily: 'Symphony, serif' }} className="text-[#AF6384]">intelligent</span> technology
               </h1>
@@ -374,49 +741,30 @@ export default function HomeSection() {
         </div>
       </section>
 
-      {/* Lace connector - three on desktop, one on mobile */}
-      <div className="relative flex justify-center z-20 overflow-hidden">
-        <div className="flex w-full gap-0">
-          {/* Mobile: single lace */}
-          <img 
-            src="/lace.png" 
-            alt=""
-            className="block sm:hidden w-full h-auto"
-            style={{
-              filter: isDark ? 'brightness(0.8)' : 'none',
-              transform: 'scaleX(-1)',
-            }}
-          />
-          {/* Desktop: three laces */}
-          <img 
-            src="/lace.png" 
-            alt=""
-            className="hidden sm:block flex-1 h-auto min-w-[33.333%]"
-            style={{
-              filter: isDark ? 'brightness(0.8)' : 'none',
-              transform: 'scaleX(-1)',
-            }}
-          />
-          <img 
-            src="/lace.png" 
-            alt=""
-            className="hidden sm:block flex-1 h-auto min-w-[33.333%]"
-            style={{
-              filter: isDark ? 'brightness(0.8)' : 'none',
-              transform: 'scaleX(-1)',
-            }}
-          />
-          <img 
-            src="/lace.png" 
-            alt=""
-            className="hidden sm:block flex-1 h-auto min-w-[33.333%]"
-            style={{
-              filter: isDark ? 'brightness(0.8)' : 'none',
-              transform: 'scaleX(-1)',
-            }}
-          />
-        </div>
+      {/* Single lace connector - full width */}
+      <div className="relative flex justify-center z-20 overflow-hidden w-full">
+        <img 
+          src="/lace.png" 
+          alt=""
+          className="w-full h-auto"
+          style={{
+            filter: isDark ? 'brightness(0.8)' : 'none',
+            transform: 'scaleX(-1)',
+          }}
+        />
       </div>
+
+      {/* Add CSS animations */}
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
     </>
   );
 }
