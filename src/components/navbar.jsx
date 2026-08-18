@@ -89,6 +89,7 @@ export default function Navbar() {
   const [isContactActive, setIsContactActive] = useState(false);
   const [userClickedContact, setUserClickedContact] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isNavVisible, setIsNavVisible] = useState(false);
   const scrollTimeout = useRef(null);
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -105,6 +106,15 @@ export default function Navbar() {
       setIsDarkMode(false);
       document.documentElement.classList.remove('dark');
     }
+  }, []);
+
+  // Trigger navbar animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsNavVisible(true);
+    }, 50);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const toggleDarkMode = () => {
@@ -226,7 +236,7 @@ export default function Navbar() {
         color: isActiveContact ? "var(--color-primary)" : "var(--color-text-light)",
         transition: "all 0.3s ease",
         fontWeight: isActiveContact ? "600" : "500",
-        fontSize: isActiveContact ? "0.875rem" : "0.875rem", // FIXED: same size for both states
+        fontSize: isActiveContact ? "0.875rem" : "0.875rem",
         textTransform: isActiveContact ? "uppercase" : "none",
         letterSpacing: isActiveContact ? "0.05em" : "normal",
         cursor: "pointer",
@@ -278,7 +288,7 @@ export default function Navbar() {
         color: isActiveContact ? "var(--color-primary)" : "var(--color-text-light)",
         transition: "all 0.3s ease",
         fontWeight: isActiveContact ? "600" : "500",
-        fontSize: isActiveContact ? "0.875rem" : "0.875rem", // FIXED: same size for both states
+        fontSize: isActiveContact ? "0.875rem" : "0.875rem",
         textTransform: isActiveContact ? "uppercase" : "none",
         letterSpacing: isActiveContact ? "0.05em" : "normal",
         cursor: "pointer",
@@ -356,7 +366,11 @@ export default function Navbar() {
     <>
       <header
         ref={headerRef}
-        className="sticky top-0 z-50 border-b border-[var(--border-light)] bg-[var(--color-background)]/80 backdrop-blur-md"
+        className="sticky top-0 z-50 border-b border-[var(--border-light)] bg-[var(--color-background)]/80 backdrop-blur-md transition-all duration-700 ease-out"
+        style={{
+          opacity: isNavVisible ? 1 : 0,
+          transform: isNavVisible ? 'translateY(0)' : 'translateY(-20px)',
+        }}
       >
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
           <Link
