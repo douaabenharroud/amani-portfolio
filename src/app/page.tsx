@@ -12,13 +12,10 @@ export default function Home() {
 
       <main>
         <HomeSection />
-        
-        <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-12 lg:px-8">
-          <ProjectsSection />
-          <SkillsSection />
-          <AboutSection />
+        <AboutSection />
+        <ProjectsSection />
+        <SkillsSection />
           <ContactSection />
-        </div>
       </main>
     </div>
   );

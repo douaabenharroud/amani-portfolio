@@ -18,6 +18,7 @@ export default function HomeSection() {
   const [lightingUpFireflies, setLightingUpFireflies] = useState({});
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(true);
+  const [hoveredButton, setHoveredButton] = useState(null);
   const sectionRef = useRef(null);
   const lastScrollY = useRef(0);
   const initialScrollY = useRef(0);
@@ -68,7 +69,7 @@ export default function HomeSection() {
       document.body.style.top = '';
       document.body.style.left = '';
       setIsAnimating(false);
-    }, 1400); // Slightly longer than animation
+    }, 1400);
     
     return () => {
       clearTimeout(timer);
@@ -574,6 +575,47 @@ export default function HomeSection() {
     });
   };
 
+  // Button styles matching the navbar "Contact Me" button
+  const getButtonStyles = (buttonName, isPrimary = false) => {
+    const isHovered = hoveredButton === buttonName;
+    
+    if (isPrimary) {
+      // Primary button - filled background like navbar Contact Me in inactive state
+      return {
+        backgroundColor: isHovered ? 'var(--button-primary-hover)' : 'var(--color-primary)',
+        color: isHovered ? 'var(--color-text-light)' : 'var(--color-text-light)',
+        border: '1px solid transparent',
+        transform: isHovered ? 'scale(1.02)' : 'scale(1)',
+        boxShadow: isHovered ? '0 10px 20px -8px rgba(67, 32, 51, 0.35)' : 'none',
+        transition: 'all 0.3s ease',
+        fontFamily: 'var(--font-body)',
+        fontWeight: '500',
+        fontSize: '0.875rem',
+        padding: '8px 20px',
+        borderRadius: '9999px',
+        cursor: 'pointer',
+        outline: 'none',
+      };
+    } else {
+      // Secondary button - outlined like navbar Contact Me in active state
+      return {
+        backgroundColor: isHovered ? 'var(--color-primary)' : 'transparent',
+        color: isHovered ? 'var(--color-text-light)' : 'var(--color-primary)',
+        border: '1px solid var(--color-primary)',
+        transform: isHovered ? 'scale(1.02)' : 'scale(1)',
+        boxShadow: isHovered ? '0 10px 20px -8px rgba(67, 32, 51, 0.35)' : 'none',
+        transition: 'all 0.3s ease',
+        fontFamily: 'var(--font-body)',
+        fontWeight: '500',
+        fontSize: '0.875rem',
+        padding: '8px 20px',
+        borderRadius: '9999px',
+        cursor: 'pointer',
+        outline: 'none',
+      };
+    }
+  };
+
   return (
     <>
       {/* Wrapper div that animates as one unit */}
@@ -722,35 +764,35 @@ export default function HomeSection() {
           })}
           
           {/* Content - not flipped */}
-          <div className="relative z-10 w-full px-6 lg:px-16 py-8 md:py-12 lg:py-16">
-            <div className="max-w-[60rem] mx-auto relative">
+          <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-8 md:py-12 lg:py-16 xl:py-20">
+            <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto lg:mx-0 lg:ml-[5%] xl:ml-[8%] 2xl:ml-[10%]">
               {/* Soft light effect behind text - only in light mode */}
               {!isDark && (
-                <div className="absolute -inset-6 md:-inset-10 bg-gradient-to-r from-[#EED4D1]/50 via-[#EED4D1]/30 to-transparent rounded-3xl blur-lg"></div>
+                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 bg-gradient-to-r from-[#EED4D1]/30 via-[#EED4D1]/15 to-transparent rounded-2xl md:rounded-3xl blur-xl md:blur-2xl"></div>
               )}
               
-              <div className="relative max-w-3xl">
-                <h1 className={`font-heading text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-semibold leading-tight ${isDark ? 'text-white' : 'text-[#323C31]'}`}>
+              <div className="relative max-w-3xl xl:max-w-4xl 2xl:max-w-5xl">
+                <h1 className={`font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-semibold leading-tight ${isDark ? 'text-white' : 'text-[#432033]'}`}>
                   Where <span style={{ fontFamily: 'Symphony, serif' }} className="text-[#AF6384]">thoughtful</span> design meets <span style={{ fontFamily: 'Symphony, serif' }} className="text-[#AF6384]">intelligent</span> technology
                 </h1>
-                <p className={`font-body mt-3 md:mt-4 lg:mt-6 max-w-xl text-sm md:text-base lg:text-lg xl:text-xl ${isDark ? 'text-white/80' : 'text-[#323C31]/80'}`}>
+                <p className={`font-body mt-3 md:mt-4 lg:mt-6 max-w-xl lg:max-w-2xl xl:max-w-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl ${isDark ? 'text-white/80' : 'text-[#432033]/80'}`}>
                   I design and build modern websites, AI-powered applications, and visual identities that help startups and businesses stand out. Every project combines strategy, engineering, and design to create experiences people actually enjoy using.
                 </p>
                 
-                {/* CTA Buttons */}
-                <div className="mt-4 md:mt-6 lg:mt-8 flex flex-wrap gap-2 md:gap-3">
-                  <button className={`font-body px-3 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg font-medium text-xs md:text-sm transition-colors ${
-                    isDark 
-                      ? 'bg-white text-[#323C31] hover:bg-gray-200' 
-                      : 'bg-[#323C31] text-white hover:bg-[#2A3329]'
-                  }`}>
+                {/* CTA Buttons - styled like navbar Contact Me */}
+                <div className="mt-4 md:mt-6 lg:mt-8 xl:mt-10 flex flex-wrap gap-3 md:gap-4">
+                  <button
+                    style={getButtonStyles('primary', true)}
+                    onMouseEnter={() => setHoveredButton('primary')}
+                    onMouseLeave={() => setHoveredButton(null)}
+                  >
                     View Exhibition
                   </button>
-                  <button className={`font-body px-3 md:px-4 lg:px-5 py-1.5 md:py-2 lg:py-2.5 rounded-lg font-medium text-xs md:text-sm transition-colors ${
-                    isDark 
-                      ? 'border border-white text-white hover:bg-white hover:text-[#323C31]' 
-                      : 'border border-[#323C31] text-[#323C31] hover:bg-[#323C31] hover:text-white'
-                  }`}>
+                  <button
+                    style={getButtonStyles('secondary', false)}
+                    onMouseEnter={() => setHoveredButton('secondary')}
+                    onMouseLeave={() => setHoveredButton(null)}
+                  >
                     Let's Build Something
                   </button>
                 </div>
@@ -758,19 +800,6 @@ export default function HomeSection() {
             </div>
           </div>
         </section>
-
-        {/* Single lace connector - full width */}
-        <div className="relative flex justify-center z-20 overflow-hidden w-full">
-          <img 
-            src="/lace.png" 
-            alt=""
-            className="w-full h-auto"
-            style={{
-              filter: isDark ? 'brightness(0.8)' : 'none',
-              transform: 'scaleX(-1)',
-            }}
-          />
-        </div>
       </div>
 
       {/* Add CSS animations */}
