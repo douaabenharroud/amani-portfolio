@@ -10,9 +10,29 @@ export default function AboutSection() {
   const [isHovered, setIsHovered] = useState(false);
   const [particleTargets, setParticleTargets] = useState({});
   const [isVisible, setIsVisible] = useState(false);
+  const [particlesEntered, setParticlesEntered] = useState(false);
   const animationFrameRef = useRef(null);
   const sectionRef = useRef(null);
   const contentRef = useRef(null);
+  const hasAnimatedRef = useRef(false);
+  const particlesGeneratedRef = useRef(false);
+  const wasInViewRef = useRef(false);
+
+  // Store initial positions - matching home section count (12)
+  const INITIAL_POSITIONS = [
+    { top: 75, left: 83 },
+    { top: 70, left: 86 },
+    { top: 60, left: 88 },
+    { top: 26, left: 84 },
+    { top: 15, left: 85 },
+    { top: 40, left: 82 },
+    { top: 58, left: 95 },
+    { top: 18, left: 87 },
+    { top: 50, left: 83 },
+    { top: 25, left: 90 },
+    { top: 21, left: 80 },
+    { top: 48, left: 87 },
+  ];
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
@@ -26,48 +46,101 @@ export default function AboutSection() {
       attributeFilter: ['class']
     });
     
-    const generateParticles = () => {
-      const newParticles = [];
-      const targets = {};
-      
-      for (let i = 0; i < 25; i++) {
-        const size = 1.5 + Math.random() * 2.5;
-        const top = 5 + Math.random() * 90;
-        const left = 5 + Math.random() * 90;
-        const delay = Math.random() * 8;
-        const duration = 8 + Math.random() * 10;
-        const opacity = 0.3 + Math.random() * 0.5;
+    // Only generate particles once
+    if (!particlesGeneratedRef.current) {
+      particlesGeneratedRef.current = true;
+      const generateParticles = () => {
+        const newParticles = [];
+        const targets = {};
         
-        newParticles.push({ 
-          id: i, 
-          size, 
-          top, 
-          left, 
-          delay, 
-          duration, 
-          opacity,
-          speed: 0.02 + Math.random() * 0.03,
-          wanderRadius: 3 + Math.random() * 8,
+        // Use the same positions as home section
+        INITIAL_POSITIONS.forEach((pos, i) => {
+          const size = 1.5 + Math.random() * 2.5;
+          // Start from sides (left or right)
+          const side = Math.random() > 0.5 ? 'left' : 'right';
+          const startLeft = side === 'left' ? -5 - Math.random() * 15 : 105 + Math.random() * 15;
+          const startTop = 5 + Math.random() * 90;
+          const delay = Math.random() * 5;
+          const duration = 8 + Math.random() * 10;
+          const opacity = 0.3 + Math.random() * 0.5;
+          
+          newParticles.push({ 
+            id: i, 
+            size, 
+            top: startTop, 
+            left: startLeft,
+            delay, 
+            duration, 
+            opacity,
+            speed: 0.02 + Math.random() * 0.03,
+            wanderRadius: 3 + Math.random() * 8,
+            targetTop: pos.top + (Math.random() - 0.5) * 5,
+            targetLeft: pos.left + (Math.random() - 0.5) * 5,
+          });
+          
+          targets[i] = { top: startTop, left: startLeft };
         });
         
-        targets[i] = { top, left };
-      }
+        setParticleTargets(targets);
+        return newParticles;
+      };
       
-      setParticleTargets(targets);
-      return newParticles;
-    };
+      setParticles(generateParticles());
+    }
     
-    setParticles(generateParticles());
-    
-    // Intersection Observer for scroll reveal animation
+    // Intersection Observer for scroll reveal animation and light control
     const scrollObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
+        const isInView = entry.isIntersecting;
+        
+        // Turn off light when section is not in view
+        if (!isInView) {
+          setIsLightOn(false);
+          setHasBeenHovered(false);
+        }
+        
+        if (isInView) {
           setIsVisible(true);
+          hasAnimatedRef.current = true;
+          
+          // Trigger particle entrance when section becomes visible
+          if (!particlesEntered && particles.length > 0) {
+            setParticlesEntered(true);
+            // Move particles from sides to their target positions
+            const newTargets = {};
+            particles.forEach((particle) => {
+              newTargets[particle.id] = {
+                top: particle.targetTop || 5 + Math.random() * 90,
+                left: particle.targetLeft || 5 + Math.random() * 90
+              };
+            });
+            
+            // Delay before particles start entering
+            setTimeout(() => {
+              setParticleTargets(newTargets);
+            }, 500);
+          }
+        } else {
+          setIsVisible(false);
+          hasAnimatedRef.current = false;
+          setParticlesEntered(false);
+          
+          // Reset particles to sides when scrolled away
+          if (particles.length > 0) {
+            const resetTargets = {};
+            particles.forEach((particle) => {
+              const side = Math.random() > 0.5 ? 'left' : 'right';
+              resetTargets[particle.id] = {
+                top: 5 + Math.random() * 90,
+                left: side === 'left' ? -5 - Math.random() * 15 : 105 + Math.random() * 15
+              };
+            });
+            setParticleTargets(resetTargets);
+          }
         }
       });
     }, { 
-      threshold: 0.15,
+      threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
     });
     
@@ -106,7 +179,7 @@ export default function AboutSection() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [hasBeenHovered]);
+  }, [hasBeenHovered, particles, particlesEntered]);
 
   // Smooth random movement when light is on
   useEffect(() => {
@@ -128,27 +201,29 @@ export default function AboutSection() {
       frameCount++;
 
       if (frameCount % 30 === 0) {
-        const newTargets = { ...particleTargets };
-        
-        particles.forEach((particle) => {
-          const currentTarget = newTargets[particle.id] || { top: particle.top, left: particle.left };
+        setParticleTargets(prevTargets => {
+          const newTargets = { ...prevTargets };
           
-          const angle = Math.random() * Math.PI * 2;
-          const distance = particle.wanderRadius * (0.3 + Math.random() * 0.7);
+          particles.forEach((particle) => {
+            const currentTarget = newTargets[particle.id] || { top: particle.top, left: particle.left };
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = particle.wanderRadius * (0.3 + Math.random() * 0.7);
+            
+            let newTop = currentTarget.top + Math.sin(angle) * distance * 0.5;
+            let newLeft = currentTarget.left + Math.cos(angle) * distance * 0.5;
+            
+            newTop = Math.max(5, Math.min(95, newTop));
+            newLeft = Math.max(5, Math.min(95, newLeft));
+            
+            newTargets[particle.id] = {
+              top: newTop,
+              left: newLeft
+            };
+          });
           
-          let newTop = currentTarget.top + Math.sin(angle) * distance * 0.5;
-          let newLeft = currentTarget.left + Math.cos(angle) * distance * 0.5;
-          
-          newTop = Math.max(5, Math.min(95, newTop));
-          newLeft = Math.max(5, Math.min(95, newLeft));
-          
-          newTargets[particle.id] = {
-            top: newTop,
-            left: newLeft
-          };
+          return newTargets;
         });
-        
-        setParticleTargets(newTargets);
       }
 
       animationFrameRef.current = requestAnimationFrame(animateParticles);
@@ -162,9 +237,17 @@ export default function AboutSection() {
         animationFrameRef.current = null;
       }
     };
-  }, [isLightOn, particles, particleTargets]);
+  }, [isLightOn, particles]);
 
   const handleLightToggle = () => {
+    // Only turn on light if section is visible
+    if (sectionRef.current) {
+      const rect = sectionRef.current.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+      
+      if (!isInView) return;
+    }
+    
     if (!hasBeenHovered) {
       setIsLightOn(true);
       setHasBeenHovered(true);
@@ -225,8 +308,8 @@ export default function AboutSection() {
         }}
       />
 
-      {/* Lace overlay at top - matches home section's elegant style */}
-      <div className="absolute top-0 left-0 w-full pointer-events-none z-5 opacity-30">
+      {/* Lace overlay at top - Behind content */}
+      <div className="absolute top-0 left-0 w-full pointer-events-none z-0 opacity-30">
         <img 
           src="/lace.png" 
           alt="Lace decoration" 
@@ -235,8 +318,8 @@ export default function AboutSection() {
         />
       </div>
 
-      {/* Decorative elements - soft, matching home section's fairy light aesthetic */}
-      <div className="absolute inset-0 pointer-events-none">
+      {/* Decorative elements - Behind content */}
+      <div className="absolute inset-0 pointer-events-none z-0">
         <div 
           className="absolute top-0 right-0 w-1/3 h-1/3 rounded-full blur-3xl"
           style={{
@@ -263,10 +346,12 @@ export default function AboutSection() {
         ></div>
       </div>
 
-      {/* Delicate fairy dust particles - realistic firefly movement */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {/* Delicate fairy dust particles - Over lace */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-5">
         {particles.map((particle) => {
           const target = particleTargets[particle.id] || { top: particle.top, left: particle.left };
+          // Slower transition for each particle (3-5 seconds)
+          const transitionDuration = 3.5 + Math.random() * 2.5;
           return (
             <div
               key={particle.id}
@@ -285,21 +370,22 @@ export default function AboutSection() {
                   : `0 0 ${particle.size * 3}px ${particle.size * 0.8}px rgba(212, 135, 168, 0.6),
                      0 0 ${particle.size * 6}px ${particle.size * 1.5}px rgba(212, 135, 168, 0.25)`,
                 filter: 'blur(0.3px)',
-                transition: 'top 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 1s ease, background-color 1s ease',
+                transition: `top ${transitionDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94), left ${transitionDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 1s ease, background-color 1s ease`,
+                willChange: 'top, left',
               }}
             />
           );
         })}
       </div>
 
-      {/* Content - Two column layout with responsive sizing */}
+      {/* Content - Over everything */}
       <div 
         ref={contentRef}
         className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-16 xl:gap-20 items-center min-h-[calc(100vh-8rem)]">
           
-          {/* Right - Photo with Frame - First on mobile (order-1), second on desktop (md:order-2) */}
+          {/* Right - Photo with Frame */}
           <div 
             className={`order-1 md:order-2 flex justify-center items-center transition-all duration-1000 ease-out ${
               isVisible 
@@ -313,7 +399,7 @@ export default function AboutSection() {
           >
             <div className="relative w-full max-w-[220px] sm:max-w-[260px] md:max-w-[320px] lg:max-w-[420px] xl:max-w-[480px] 2xl:max-w-[520px] mx-auto">
               
-              {/* PICTURE LIGHT - Realistic on/off behavior */}
+              {/* Picture Light */}
               <>
                 {/* Linear LED fixture - Light bar */}
                 <div 
@@ -380,7 +466,6 @@ export default function AboutSection() {
                 {/* BEAM - Only active in dark mode when light is on */}
                 {isDark && isLightOn && (
                   <>
-                    {/* Layer 1: Core illumination - Vertical trapezoid */}
                     <div 
                       className="absolute z-5 pointer-events-none transition-all duration-1000"
                       style={{
@@ -405,7 +490,6 @@ export default function AboutSection() {
                       }}
                     />
                     
-                    {/* Layer 2: Wide glow - Extended vertically */}
                     <div 
                       className="absolute z-4 pointer-events-none transition-all duration-1000"
                       style={{
@@ -429,7 +513,6 @@ export default function AboutSection() {
                       }}
                     />
                     
-                    {/* Layer 3: Ambient spill - Very wide and warm */}
                     <div 
                       className="absolute z-3 pointer-events-none transition-all duration-1000"
                       style={{
@@ -451,7 +534,6 @@ export default function AboutSection() {
                       }}
                     />
                     
-                    {/* Wall glow - Behind the painting, warm */}
                     <div 
                       className="absolute z-2 pointer-events-none transition-all duration-1000"
                       style={{
@@ -473,7 +555,6 @@ export default function AboutSection() {
                       }}
                     />
                     
-                    {/* LED diffuser glow - Warm */}
                     <div 
                       className="absolute z-10 pointer-events-none transition-all duration-700"
                       style={{
@@ -492,7 +573,7 @@ export default function AboutSection() {
                 )}
               </>
 
-              {/* Soft glow behind frame - More prominent when light is on */}
+              {/* Soft glow behind frame */}
               <div 
                 className="absolute inset-0 z-0 rounded-full blur-2xl transition-all duration-1000"
                 style={{
@@ -505,7 +586,7 @@ export default function AboutSection() {
                 }}
               />
               
-              {/* Photo - positioned behind frame with clip */}
+              {/* Photo */}
               <div 
                 className="absolute inset-0 z-0 overflow-hidden transition-all duration-1000"
                 style={{ 
@@ -532,7 +613,7 @@ export default function AboutSection() {
                 />
               </div>
               
-              {/* Frame - on top with higher z-index */}
+              {/* Frame */}
               <img 
                 src="/frame.png" 
                 alt="Frame" 
@@ -548,7 +629,7 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* Left - Text Content - Second on mobile (order-2), first on desktop (md:order-1) */}
+          {/* Left - Text Content */}
           <div 
             className={`order-2 md:order-1 transition-all duration-1000 ease-out ${
               isVisible 
@@ -590,7 +671,7 @@ export default function AboutSection() {
               I care about products that don't just look good—they solve real problems, improve how people work, and make technology feel effortless. Every decision, from strategy to implementation, is driven by clarity, usability, and measurable impact.
             </p>
 
-            {/* Download CV Button - Matches navbar Contact Me button exactly */}
+            {/* Download CV Button */}
             <div className="mt-3 md:mt-4">
               <button
                 onClick={handleDownloadCV}
@@ -643,7 +724,7 @@ export default function AboutSection() {
         </div>
       </div>
 
-      {/* Add the animations */}
+      {/* Animations */}
       <style jsx>{`
         @keyframes fairyFloat {
           0%, 100% { 
