@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function ProjectsSection() {
   const [isDark, setIsDark] = useState(false);
@@ -9,7 +10,7 @@ export default function ProjectsSection() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const sectionRef = useRef(null);
+  const pinRef = useRef(null);
   const autoPlayRef = useRef(null);
 
   const projects = [
@@ -71,27 +72,59 @@ export default function ProjectsSection() {
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
-    
+
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains('dark'));
     });
-    
+
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class']
     });
-    
+
     return () => observer.disconnect();
   }, []);
 
-  // Auto-play carousel
+  const { scrollYProgress } = useScroll({
+    target: pinRef,
+    offset: ["start start", "end end"],
+  });
+
+  // FIX: Arch scale animates very slowly across the entire scroll
+  const archScale = useTransform(
+    scrollYProgress, 
+    [0, 0.33, 0.66, 1], 
+    [0.8, 1.4, 2.0, 2.6]
+  );
+
+  // Content fades in very slowly
+  const contentOpacity = useTransform(
+    scrollYProgress, 
+    [0, 0.2, 0.5, 0.8, 1], 
+    [0, 0.3, 0.6, 0.9, 1]
+  );
+
+  const contentCounterScale = useTransform(archScale, (v) => 1 / v);
+
+  const contentPointerEvents = useTransform(scrollYProgress, (v) =>
+    v > 0.05 ? "auto" : "none"
+  );
+
+  // Gallery animation moves slowly across the whole scroll
+  const galleryY = useTransform(scrollYProgress, [0, 0.5, 1], [40, 20, 0]);
+  const galleryScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.92, 0.96, 1]);
+  
+  // Header animation progresses slowly
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0, 0.5, 0.8, 1]);
+  const headerY = useTransform(scrollYProgress, [0, 0.5, 1], [20, 10, 0]);
+
   useEffect(() => {
     if (isModalOpen) return;
-    
+
     autoPlayRef.current = setInterval(() => {
       handleNext();
     }, 6000);
-    
+
     return () => {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current);
@@ -123,7 +156,6 @@ export default function ProjectsSection() {
     setTimeout(() => setSelectedProject(null), 300);
   };
 
-  // Get visible projects (3 at a time)
   const getVisibleProjects = () => {
     const visible = [];
     for (let i = -1; i <= 1; i++) {
@@ -135,8 +167,6 @@ export default function ProjectsSection() {
 
   const visibleProjects = getVisibleProjects();
 
-  // Color palette for Projects section - using Tulipan Violet (#976D90) as primary
-  // with Crushed Raspberry (#AF6384) as accent
   const colors = {
     background: isDark ? '#2a1f28' : '#976D90',
     surface: isDark ? '#352a33' : '#a87da3',
@@ -151,373 +181,504 @@ export default function ProjectsSection() {
   };
 
   return (
-    <section
-      id="projects"
-      ref={sectionRef}
-      className="relative w-full min-h-screen overflow-hidden py-20 sm:py-24 md:py-28 lg:py-32"
+    <div
+      ref={pinRef}
       style={{
-        backgroundColor: colors.background,
-        minHeight: '100vh',
+        height: '200vh',
+        position: 'relative',
+        zIndex: 2,
       }}
     >
-      {/* Subtle pattern overlay - museum wall texture */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
-        <div 
-          className="w-full h-full"
+      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
+        <div
+          id="projects"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      {/* Decorative accent elements with Tulipan Violet tones */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div 
-          className="absolute top-0 right-0 w-1/3 h-1/3 rounded-full blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(175, 99, 132, 0.08) 0%, transparent 70%)',
-          }}
-        />
-        <div 
-          className="absolute bottom-0 left-0 w-1/3 h-1/3 rounded-full blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(238, 212, 209, 0.06) 0%, transparent 70%)',
-          }}
-        />
-        <div 
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 rounded-full blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(151, 109, 144, 0.05) 0%, transparent 70%)',
-          }}
-        />
-      </div>
-
-      {/* Section header with Tulipan Violet palette */}
-      <div className="relative z-10 text-center mb-12 md:mb-16 lg:mb-20 px-4">
-        <span 
-          className="inline-block font-body text-sm font-medium tracking-widest uppercase mb-3"
-          style={{ 
-            color: colors.highlight,
-            letterSpacing: '0.2em',
+            width: '100vw',
+            height: '100vh',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          Exhibition
-        </span>
-        <h2 
-          className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-tight"
-          style={{ 
-            color: colors.textPrimary,
-            fontFamily: 'var(--font-heading)',
-          }}
-        >
-          Featured Works
-        </h2>
-        <p 
-          className="font-body text-base sm:text-lg md:text-xl mt-3 md:mt-4 max-w-2xl mx-auto"
-          style={{ 
-            color: colors.textSecondary,
-          }}
-        >
-          A curated selection of projects exploring the intersection of design, technology, and art
-        </p>
-      </div>
-
-      {/* 3D Gallery Room */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Gallery container with perspective */}
-        <div 
-          className="relative w-full aspect-[16/9] max-h-[600px] mx-auto perspective-1000"
-          style={{
-            perspective: '1200px',
-          }}
-        >
-          {/* Gallery room background - museum wall effect with Tulipan Violet */}
-          <div 
-            className="absolute inset-0 rounded-2xl overflow-hidden"
-            style={{
-              background: colors.surface,
-              boxShadow: 'inset 0 0 100px rgba(0,0,0,0.2)',
-            }}
-          >
-            {/* Gallery wall texture */}
-            <div 
-              className="absolute inset-0 opacity-[0.05]"
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+            zIndex: 1,
+            pointerEvents: 'none',
+          }}>
+            <motion.div
               style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                scale: archScale,
+                transformOrigin: 'center bottom',
+                width: '80vw',
+                height: '50vh',
+                background: `linear-gradient(180deg, ${colors.surfaceAlt} 0%, ${colors.surface} 40%, ${colors.background} 100%)`,
+                borderRadius: '1000px 1000px 0 0',
+                boxShadow: `inset 0 -20px 60px rgba(0,0,0,0.3)`,
+                willChange: 'transform',
+                position: 'relative',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
-            />
-            
-            {/* Accent lighting line at top with Crushed Raspberry */}
-            <div 
-              className="absolute top-0 left-0 right-0 h-0.5"
-              style={{
-                background: `linear-gradient(to right, transparent, ${colors.accent}, transparent)`,
-                opacity: 0.4,
-              }}
-            />
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '1000px 1000px 0 0',
+                  background: `radial-gradient(ellipse at 50% 20%, ${colors.accentLight} 0%, transparent 70%)`,
+                }}
+              />
 
-            {/* Floor shadow */}
-            <div 
-              className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none"
-              style={{
-                background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.15) 100%)',
-              }}
-            />
-            
-            {/* Warm glow in center */}
-            <div 
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: `radial-gradient(ellipse at 50% 40%, ${colors.accentLight} 0%, transparent 70%)`,
-              }}
-            />
-          </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '50%',
+                  height: '2px',
+                  background: `linear-gradient(to right, transparent, ${colors.accent}, transparent)`,
+                  opacity: 0.4,
+                  zIndex: 2,
+                }}
+              />
 
-          {/* Navigation arrows */}
-          <button
-            onClick={handlePrev}
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
-            style={{
-              backgroundColor: colors.cardBg,
-              color: colors.textPrimary,
-              backdropFilter: 'blur(8px)',
-              border: `1px solid ${colors.border}`,
-            }}
-            aria-label="Previous project"
-          >
-            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-          
-          <button
-            onClick={handleNext}
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full transition-all duration-300 hover:scale-110"
-            style={{
-              backgroundColor: colors.cardBg,
-              color: colors.textPrimary,
-              backdropFilter: 'blur(8px)',
-              border: `1px solid ${colors.border}`,
-            }}
-            aria-label="Next project"
-          >
-            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '40px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '33%',
+                  height: '2px',
+                  background: `linear-gradient(to right, transparent, ${colors.highlight}22, transparent)`,
+                  opacity: 0.3,
+                  zIndex: 2,
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '80px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '25%',
+                  height: '2px',
+                  background: `linear-gradient(to right, transparent, ${colors.highlight}11, transparent)`,
+                  opacity: 0.2,
+                  zIndex: 2,
+                }}
+              />
 
-          {/* Exhibition wall frames - 3D perspective */}
-          <div className="absolute inset-0 flex items-center justify-center px-8 sm:px-12 lg:px-16">
-            <div className="flex items-center justify-center w-full h-full gap-2 sm:gap-4 md:gap-6 lg:gap-8">
-              {visibleProjects.map((project, idx) => {
-                const isCenter = project.position === 0;
-                const isLeft = project.position === -1;
-                const isRight = project.position === 1;
-                
-                let transform = '';
-                let zIndex = 5;
-                let opacity = 0.6;
-                
-                if (isCenter) {
-                  transform = 'translateZ(0px) scale(1)';
-                  zIndex = 10;
-                  opacity = 1;
-                } else if (isLeft) {
-                  transform = 'translateX(-40%) translateZ(-100px) scale(0.8)';
-                  zIndex = 5;
-                  opacity = 0.5;
-                } else if (isRight) {
-                  transform = 'translateX(40%) translateZ(-100px) scale(0.8)';
-                  zIndex = 5;
-                  opacity = 0.5;
-                }
-                
-                return (
-                  <div
-                    key={`${project.id}-${idx}`}
-                    className="relative transition-all duration-500 ease-in-out cursor-pointer flex-shrink-0"
+              <motion.div
+                style={{
+                  position: 'relative',
+                  zIndex: 10,
+                  width: '100vw',
+                  height: '100vh',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingLeft: '32px',
+                  paddingRight: '32px',
+                  paddingTop: 'calc(48px + 120px)',
+                  paddingBottom: '0px',
+                  opacity: contentOpacity,
+                  scale: contentCounterScale,
+                  pointerEvents: contentPointerEvents,
+                  willChange: 'opacity, transform',
+                }}
+              >
+                <motion.div 
+                  style={{
+                    textAlign: 'center',
+                    marginBottom: '24px',
+                    opacity: headerOpacity,
+                    y: headerY,
+                    willChange: 'opacity, transform',
+                  }}
+                >
+                  <span
                     style={{
-                      transform: transform,
-                      zIndex: zIndex,
-                      opacity: opacity,
-                      width: isCenter ? '55%' : '35%',
-                      maxWidth: isCenter ? '400px' : '280px',
-                      transformStyle: 'preserve-3d',
+                      display: 'inline-block',
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      marginBottom: '8px',
+                      color: colors.highlight,
                     }}
-                    onClick={() => handleProjectClick(project)}
                   >
-                    {/* Frame with accent border - Crushed Raspberry */}
-                    <div 
-                      className="relative rounded-lg overflow-hidden transition-all duration-300 hover:scale-105"
-                      style={{
-                        boxShadow: isCenter 
-                          ? `0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px ${colors.accent}44`
-                          : '0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)',
-                        background: colors.surfaceAlt,
-                        transform: 'rotateY(2deg)',
-                      }}
-                    >
-                      {/* Project image placeholder with Tulipan Violet gradient */}
-                      <div 
-                        className="w-full aspect-[4/3] flex items-center justify-center"
-                        style={{
-                          background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
-                        }}
-                      >
-                        <div className="text-center p-4">
-                          <div className="text-5xl sm:text-6xl md:text-7xl mb-3">
-                            🖼️
-                          </div>
-                          <h3 
-                            className="font-heading text-lg sm:text-xl md:text-2xl font-semibold"
-                            style={{ 
-                              color: colors.textPrimary,
-                              fontFamily: 'var(--font-heading)',
-                            }}
-                          >
-                            {project.title}
-                          </h3>
-                          <p 
-                            className="font-body text-xs sm:text-sm mt-1"
-                            style={{ 
-                              color: colors.textSecondary,
-                            }}
-                          >
-                            {project.category}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Frame border effect with Crushed Raspberry on hover */}
-                      <div 
-                        className="absolute inset-0 pointer-events-none transition-colors duration-300"
-                        style={{
-                          border: `1px solid ${colors.border}`,
-                          borderRadius: '8px',
-                        }}
-                      />
-                      
-                      {/* Hover overlay with Crushed Raspberry */}
-                      <div 
-                        className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                        style={{
-                          background: `linear-gradient(135deg, ${colors.accent}77, ${colors.accent}99)`,
-                          backdropFilter: 'blur(4px)',
-                        }}
-                      >
-                        <span 
-                          className="font-body text-white text-sm sm:text-base font-medium px-4 py-2 rounded-full"
-                          style={{
-                            background: 'rgba(255,255,255,0.15)',
-                            border: '1px solid rgba(255,255,255,0.2)',
-                          }}
-                        >
-                          View Exhibition
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Gallery label below frame with Misty Rose accent */}
-                    {isCenter && (
-                      <div 
-                        className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-center whitespace-nowrap"
-                      >
-                        <p 
-                          className="font-body text-xs sm:text-sm font-medium"
-                          style={{ 
-                            color: colors.textSecondary,
-                          }}
-                        >
-                          <span style={{ color: colors.accent }}>✦</span> {project.category} • {project.year}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                    Exhibition
+                  </span>
+                  <h2
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: 'clamp(2rem, 5vw, 4rem)',
+                      fontWeight: 600,
+                      lineHeight: 1.2,
+                      color: colors.textPrimary,
+                      marginBottom: '8px',
+                    }}
+                  >
+                    Featured Works
+                  </h2>
+                  <p
+                    style={{
+                      fontFamily: 'var(--font-body)',
+                      fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
+                      maxWidth: '640px',
+                      margin: '8px auto 0',
+                      color: colors.textSecondary,
+                    }}
+                  >
+                    A curated selection of projects exploring the intersection of design, technology, and art
+                  </p>
+                </motion.div>
 
-        {/* Dot indicators with Crushed Raspberry accent */}
-        <div className="flex justify-center gap-2 mt-8 md:mt-10">
-          {projects.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                if (!isTransitioning) {
-                  setCurrentIndex(index);
-                }
-              }}
-              className="transition-all duration-300 rounded-full"
-              style={{
-                width: currentIndex === index ? '24px' : '8px',
-                height: '8px',
-                background: currentIndex === index 
-                  ? colors.accent
-                  : colors.border,
-                cursor: 'pointer',
-              }}
-              aria-label={`Go to project ${index + 1}`}
-            />
-          ))}
+                <motion.div 
+                  style={{
+                    position: 'relative',
+                    width: '100%',
+                    maxWidth: '1152px',
+                    aspectRatio: '16/9',
+                    maxHeight: '55vh',
+                    margin: '0 auto',
+                    y: galleryY,
+                    scale: galleryScale,
+                    willChange: 'transform',
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      background: colors.cardBg,
+                      backdropFilter: 'blur(4px)',
+                      border: `1px solid ${colors.border}`,
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        opacity: 0.03,
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: `radial-gradient(ellipse at 50% 40%, ${colors.accentLight} 0%, transparent 70%)`,
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handlePrev}
+                    style={{
+                      position: 'absolute',
+                      left: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 20,
+                      padding: '8px',
+                      borderRadius: '9999px',
+                      background: colors.cardBg,
+                      color: colors.textPrimary,
+                      backdropFilter: 'blur(8px)',
+                      border: `1px solid ${colors.border}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
+                  >
+                    <ChevronLeft size={24} />
+                  </button>
+
+                  <button
+                    onClick={handleNext}
+                    style={{
+                      position: 'absolute',
+                      right: '8px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 20,
+                      padding: '8px',
+                      borderRadius: '9999px',
+                      background: colors.cardBg,
+                      color: colors.textPrimary,
+                      backdropFilter: 'blur(8px)',
+                      border: `1px solid ${colors.border}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
+                  >
+                    <ChevronRight size={24} />
+                  </button>
+
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 32px',
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      height: '100%',
+                      gap: '8px',
+                    }}>
+                      {visibleProjects.map((project, idx) => {
+                        const isCenter = project.position === 0;
+
+                        return (
+                          <div
+                            key={`${project.id}-${idx}`}
+                            style={{
+                              width: isCenter ? '55%' : '30%',
+                              maxWidth: isCenter ? '380px' : '240px',
+                              opacity: isCenter ? 1 : 0.4,
+                              zIndex: isCenter ? 10 : 5,
+                              transform: isCenter ? 'scale(1)' : 'scale(0.8)',
+                              cursor: 'pointer',
+                              flexShrink: 0,
+                              transition: 'all 0.5s ease-in-out',
+                            }}
+                            onClick={() => handleProjectClick(project)}
+                          >
+                            <div
+                              style={{
+                                borderRadius: '8px',
+                                overflow: 'hidden',
+                                boxShadow: isCenter
+                                  ? `0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px ${colors.accent}44`
+                                  : '0 20px 60px rgba(0,0,0,0.3)',
+                                background: colors.surfaceAlt,
+                                transition: 'all 0.3s',
+                                position: 'relative',
+                              }}
+                              onMouseEnter={(e) => {
+                                if (isCenter) {
+                                  e.currentTarget.style.transform = 'scale(1.05)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: '100%',
+                                  aspectRatio: '4/3',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
+                                }}
+                              >
+                                <div style={{ textAlign: 'center', padding: '16px' }}>
+                                  <div style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', marginBottom: '8px' }}>🖼️</div>
+                                  <h3
+                                    style={{
+                                      fontFamily: 'var(--font-heading)',
+                                      fontSize: isCenter ? 'clamp(1rem, 1.5vw, 1.25rem)' : 'clamp(0.875rem, 1vw, 1rem)',
+                                      fontWeight: 600,
+                                      color: colors.textPrimary,
+                                      marginBottom: '4px',
+                                    }}
+                                  >
+                                    {project.title}
+                                  </h3>
+                                  <p
+                                    style={{
+                                      fontFamily: 'var(--font-body)',
+                                      fontSize: isCenter ? 'clamp(0.75rem, 1vw, 0.875rem)' : 'clamp(0.625rem, 0.75vw, 0.75rem)',
+                                      color: colors.textSecondary,
+                                    }}
+                                  >
+                                    {project.category}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  inset: 0,
+                                  opacity: 0,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  background: `linear-gradient(135deg, ${colors.accent}77, ${colors.accent}99)`,
+                                  backdropFilter: 'blur(4px)',
+                                  transition: 'opacity 0.3s',
+                                  borderRadius: '8px',
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                                onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+                              >
+                                <span
+                                  style={{
+                                    fontFamily: 'var(--font-body)',
+                                    color: 'white',
+                                    fontSize: isCenter ? 'clamp(0.75rem, 1vw, 0.875rem)' : 'clamp(0.625rem, 0.75vw, 0.75rem)',
+                                    fontWeight: 500,
+                                    padding: '8px 16px',
+                                    borderRadius: '9999px',
+                                    background: 'rgba(255,255,255,0.15)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                  }}
+                                >
+                                  View Exhibition
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div 
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginTop: '16px',
+                    opacity: headerOpacity,
+                    willChange: 'opacity',
+                  }}
+                >
+                  {projects.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!isTransitioning) {
+                          setCurrentIndex(index);
+                        }
+                      }}
+                      style={{
+                        width: currentIndex === index ? '24px' : '8px',
+                        height: '8px',
+                        borderRadius: '9999px',
+                        background: currentIndex === index ? colors.accent : colors.border,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                        border: 'none',
+                        padding: 0,
+                      }}
+                      aria-label={`Go to project ${index + 1}`}
+                    />
+                  ))}
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* Modal - Exhibition Detail with Tulipan Violet and Crushed Raspberry */}
       {isModalOpen && selectedProject && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        <div
           style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
             background: 'rgba(0,0,0,0.8)',
             backdropFilter: 'blur(12px)',
             animation: 'modalFadeIn 0.3s ease-out',
           }}
           onClick={handleCloseModal}
         >
-          <div 
-            className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-2xl"
+          <div
             style={{
+              position: 'relative',
+              maxWidth: '896px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              borderRadius: '16px',
               background: colors.surface,
               boxShadow: `0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px ${colors.accent}44`,
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close button with Crushed Raspberry accent */}
             <button
               onClick={handleCloseModal}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full transition-all duration-300 hover:scale-110"
               style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                zIndex: 10,
+                padding: '8px',
+                borderRadius: '9999px',
                 background: colors.cardBg,
                 color: colors.textPrimary,
                 border: `1px solid ${colors.border}`,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
               }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <X className="w-5 h-5" />
+              <X size={20} />
             </button>
 
-            <div className="p-6 sm:p-8 md:p-10">
-              {/* Project header with Crushed Raspberry accent */}
-              <div className="flex items-start justify-between mb-4">
+            <div style={{ padding: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
-                  <span 
-                    className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-3"
+                  <span
                     style={{
+                      display: 'inline-block',
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      marginBottom: '12px',
                       background: `${colors.accent}33`,
                       color: colors.accent,
                     }}
                   >
                     {selectedProject.category}
                   </span>
-                  <h2 
-                    className="font-heading text-3xl sm:text-4xl md:text-5xl font-semibold"
-                    style={{ 
-                      color: colors.textPrimary,
+                  <h2
+                    style={{
                       fontFamily: 'var(--font-heading)',
+                      fontSize: 'clamp(1.5rem, 3vw, 3rem)',
+                      fontWeight: 600,
+                      color: colors.textPrimary,
                     }}
                   >
                     {selectedProject.title}
                   </h2>
                 </div>
-                <span 
-                  className="font-body text-sm"
-                  style={{ 
+                <span
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '14px',
                     color: colors.textSecondary,
                   }}
                 >
@@ -525,30 +686,30 @@ export default function ProjectsSection() {
                 </span>
               </div>
 
-              {/* Project image placeholder with Tulipan Violet gradient */}
-              <div 
-                className="w-full aspect-[16/9] rounded-xl mb-6 flex items-center justify-center"
+              <div
                 style={{
+                  width: '100%',
+                  aspectRatio: '16/9',
+                  borderRadius: '12px',
+                  marginBottom: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
                 }}
               >
-                <div className="text-center">
-                  <div className="text-7xl sm:text-8xl mb-4">🖼️</div>
-                  <p 
-                    className="font-body"
-                    style={{ 
-                      color: colors.textSecondary,
-                    }}
-                  >
-                    Exhibition Preview
-                  </p>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', marginBottom: '16px' }}>🖼️</div>
+                  <p style={{ fontFamily: 'var(--font-body)', color: colors.textSecondary }}>Exhibition Preview</p>
                 </div>
               </div>
 
-              {/* Project description */}
-              <p 
-                className="font-body text-base sm:text-lg leading-relaxed mb-6"
-                style={{ 
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: 'clamp(1rem, 1.2vw, 1.125rem)',
+                  lineHeight: 1.7,
+                  marginBottom: '24px',
                   color: colors.textPrimary,
                   opacity: 0.85,
                 }}
@@ -556,13 +717,15 @@ export default function ProjectsSection() {
                 {selectedProject.description}
               </p>
 
-              {/* Tags with Crushed Raspberry accent */}
-              <div className="flex flex-wrap gap-2">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {selectedProject.tags.map((tag, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 rounded-full text-xs font-medium"
                     style={{
+                      padding: '4px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      fontWeight: 500,
                       background: `${colors.accent}20`,
                       color: colors.textSecondary,
                       border: `1px solid ${colors.border}`,
@@ -577,7 +740,6 @@ export default function ProjectsSection() {
         </div>
       )}
 
-      {/* Add animations */}
       <style jsx>{`
         @keyframes modalFadeIn {
           0% {
@@ -589,11 +751,7 @@ export default function ProjectsSection() {
             transform: scale(1);
           }
         }
-        
-        .perspective-1000 {
-          perspective: 1200px;
-        }
       `}</style>
-    </section>
+    </div>
   );
 }

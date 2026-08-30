@@ -14,8 +14,8 @@ export default function Home() {
         <HomeSection />
         <AboutSection />
         <ProjectsSection />
-        <SkillsSection />
-          <ContactSection />
+        {/* <SkillsSection />
+          <ContactSection /> */}
       </main>
     </div>
   );
