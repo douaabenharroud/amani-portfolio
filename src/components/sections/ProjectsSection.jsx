@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 
 export default function ProjectsSection() {
   const [isDark, setIsDark] = useState(false);
@@ -90,14 +91,12 @@ export default function ProjectsSection() {
     offset: ["start start", "end end"],
   });
 
-  // FIX: Arch scale animates very slowly across the entire scroll
   const archScale = useTransform(
     scrollYProgress, 
     [0, 0.33, 0.66, 1], 
     [0.8, 1.4, 2.0, 2.6]
   );
 
-  // Content fades in very slowly
   const contentOpacity = useTransform(
     scrollYProgress, 
     [0, 0.2, 0.5, 0.8, 1], 
@@ -110,11 +109,9 @@ export default function ProjectsSection() {
     v > 0.05 ? "auto" : "none"
   );
 
-  // Gallery animation moves slowly across the whole scroll
   const galleryY = useTransform(scrollYProgress, [0, 0.5, 1], [40, 20, 0]);
   const galleryScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.92, 0.96, 1]);
   
-  // Header animation progresses slowly
   const headerOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0, 0.5, 0.8, 1]);
   const headerY = useTransform(scrollYProgress, [0, 0.5, 1], [20, 10, 0]);
 
@@ -343,57 +340,29 @@ export default function ProjectsSection() {
                   </p>
                 </motion.div>
 
+                {/* Gallery with Frame - Stretched */}
                 <motion.div 
                   style={{
                     position: 'relative',
                     width: '100%',
-                    maxWidth: '1152px',
+                    maxWidth: '1600px',
                     aspectRatio: '16/9',
-                    maxHeight: '55vh',
+                    maxHeight: '70vh',
                     margin: '0 auto',
                     y: galleryY,
                     scale: galleryScale,
                     willChange: 'transform',
                   }}
                 >
-                  <div
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      borderRadius: '16px',
-                      overflow: 'hidden',
-                      background: colors.cardBg,
-                      backdropFilter: 'blur(4px)',
-                      border: `1px solid ${colors.border}`,
-                      boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        opacity: 0.03,
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: `radial-gradient(ellipse at 50% 40%, ${colors.accentLight} 0%, transparent 70%)`,
-                      }}
-                    />
-                  </div>
-
                   <button
                     onClick={handlePrev}
                     style={{
                       position: 'absolute',
-                      left: '8px',
+                      left: '-15px',
                       top: '50%',
                       transform: 'translateY(-50%)',
                       zIndex: 20,
-                      padding: '8px',
+                      padding: '14px',
                       borderRadius: '9999px',
                       background: colors.cardBg,
                       color: colors.textPrimary,
@@ -405,18 +374,18 @@ export default function ProjectsSection() {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
                   >
-                    <ChevronLeft size={24} />
+                    <ChevronLeft size={32} />
                   </button>
 
                   <button
                     onClick={handleNext}
                     style={{
                       position: 'absolute',
-                      right: '8px',
+                      right: '-15px',
                       top: '50%',
                       transform: 'translateY(-50%)',
                       zIndex: 20,
-                      padding: '8px',
+                      padding: '14px',
                       borderRadius: '9999px',
                       background: colors.cardBg,
                       color: colors.textPrimary,
@@ -428,7 +397,7 @@ export default function ProjectsSection() {
                     onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
                     onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
                   >
-                    <ChevronRight size={24} />
+                    <ChevronRight size={32} />
                   </button>
 
                   <div style={{
@@ -437,7 +406,7 @@ export default function ProjectsSection() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '0 32px',
+                    padding: '0 60px',
                   }}>
                     <div style={{
                       display: 'flex',
@@ -445,7 +414,7 @@ export default function ProjectsSection() {
                       justifyContent: 'center',
                       width: '100%',
                       height: '100%',
-                      gap: '8px',
+                      gap: '20px',
                     }}>
                       {visibleProjects.map((project, idx) => {
                         const isCenter = project.position === 0;
@@ -454,27 +423,28 @@ export default function ProjectsSection() {
                           <div
                             key={`${project.id}-${idx}`}
                             style={{
-                              width: isCenter ? '55%' : '30%',
-                              maxWidth: isCenter ? '380px' : '240px',
+                              width: isCenter ? '70%' : '28%',
+                              maxWidth: isCenter ? '700px' : '350px',
                               opacity: isCenter ? 1 : 0.4,
                               zIndex: isCenter ? 10 : 5,
-                              transform: isCenter ? 'scale(1)' : 'scale(0.8)',
+                              transform: isCenter ? 'scale(1)' : 'scale(0.65)',
                               cursor: 'pointer',
                               flexShrink: 0,
                               transition: 'all 0.5s ease-in-out',
+                              position: 'relative',
                             }}
                             onClick={() => handleProjectClick(project)}
                           >
+                            {/* Stretched Frame */}
                             <div
                               style={{
-                                borderRadius: '8px',
-                                overflow: 'hidden',
-                                boxShadow: isCenter
-                                  ? `0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px ${colors.accent}44`
-                                  : '0 20px 60px rgba(0,0,0,0.3)',
-                                background: colors.surfaceAlt,
-                                transition: 'all 0.3s',
                                 position: 'relative',
+                                width: '100%',
+                                aspectRatio: '16/12',
+                                transition: 'all 0.3s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                               }}
                               onMouseEnter={(e) => {
                                 if (isCenter) {
@@ -485,41 +455,50 @@ export default function ProjectsSection() {
                                 e.currentTarget.style.transform = 'scale(1)';
                               }}
                             >
+                              {/* Frame image - stretched */}
+                              <Image
+                                src="/exhibition-frame.png"
+                                alt="Exhibition frame"
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                style={{
+                                  objectFit: 'contain',
+                                  zIndex: 2,
+                                  pointerEvents: 'none',
+                                  width: '100%',
+                                  height: '100%',
+                                }}
+                                priority={isCenter}
+                              />
+                              
+                              {/* Placeholder image inside the stretched frame */}
                               <div
                                 style={{
-                                  width: '100%',
-                                  aspectRatio: '4/3',
+                                  position: 'absolute',
+                                  top: '10%',
+                                  left: '10%',
+                                  width: '80%',
+                                  height: '80%',
+                                  overflow: 'hidden',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
+                                  borderRadius: '12px',
                                 }}
                               >
-                                <div style={{ textAlign: 'center', padding: '16px' }}>
-                                  <div style={{ fontSize: 'clamp(2rem, 4vw, 4rem)', marginBottom: '8px' }}>🖼️</div>
-                                  <h3
-                                    style={{
-                                      fontFamily: 'var(--font-heading)',
-                                      fontSize: isCenter ? 'clamp(1rem, 1.5vw, 1.25rem)' : 'clamp(0.875rem, 1vw, 1rem)',
-                                      fontWeight: 600,
-                                      color: colors.textPrimary,
-                                      marginBottom: '4px',
-                                    }}
-                                  >
-                                    {project.title}
-                                  </h3>
-                                  <p
-                                    style={{
-                                      fontFamily: 'var(--font-body)',
-                                      fontSize: isCenter ? 'clamp(0.75rem, 1vw, 0.875rem)' : 'clamp(0.625rem, 0.75vw, 0.75rem)',
-                                      color: colors.textSecondary,
-                                    }}
-                                  >
-                                    {project.category}
-                                  </p>
-                                </div>
+                                <Image
+                                  src="/landingLight.png"
+                                  alt={project.title}
+                                  fill
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                  style={{
+                                    objectFit: 'cover',
+                                  }}
+                                />
                               </div>
 
+                              {/* Overlay with project info on hover */}
                               <div
                                 style={{
                                   position: 'absolute',
@@ -531,25 +510,49 @@ export default function ProjectsSection() {
                                   background: `linear-gradient(135deg, ${colors.accent}77, ${colors.accent}99)`,
                                   backdropFilter: 'blur(4px)',
                                   transition: 'opacity 0.3s',
-                                  borderRadius: '8px',
+                                  zIndex: 3,
+                                  borderRadius: '12px',
+                                  pointerEvents: 'none',
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                                onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
                               >
-                                <span
-                                  style={{
-                                    fontFamily: 'var(--font-body)',
-                                    color: 'white',
-                                    fontSize: isCenter ? 'clamp(0.75rem, 1vw, 0.875rem)' : 'clamp(0.625rem, 0.75vw, 0.75rem)',
-                                    fontWeight: 500,
-                                    padding: '8px 16px',
-                                    borderRadius: '9999px',
-                                    background: 'rgba(255,255,255,0.15)',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                  }}
-                                >
-                                  View Exhibition
-                                </span>
+                                <div style={{ textAlign: 'center', padding: '20px', pointerEvents: 'none' }}>
+                                  <h3
+                                    style={{
+                                      fontFamily: 'var(--font-heading)',
+                                      fontSize: isCenter ? 'clamp(1.5rem, 2.5vw, 2rem)' : 'clamp(1rem, 1.2vw, 1.25rem)',
+                                      fontWeight: 600,
+                                      color: 'white',
+                                      marginBottom: '6px',
+                                    }}
+                                  >
+                                    {project.title}
+                                  </h3>
+                                  <p
+                                    style={{
+                                      fontFamily: 'var(--font-body)',
+                                      fontSize: isCenter ? 'clamp(1rem, 1.5vw, 1.25rem)' : 'clamp(0.75rem, 0.9vw, 0.875rem)',
+                                      color: 'rgba(255,255,255,0.8)',
+                                    }}
+                                  >
+                                    {project.category}
+                                  </p>
+                                  <span
+                                    style={{
+                                      display: 'inline-block',
+                                      marginTop: '12px',
+                                      fontFamily: 'var(--font-body)',
+                                      color: 'white',
+                                      fontSize: isCenter ? 'clamp(0.875rem, 1.2vw, 1rem)' : 'clamp(0.75rem, 0.8vw, 0.875rem)',
+                                      fontWeight: 500,
+                                      padding: '8px 20px',
+                                      borderRadius: '9999px',
+                                      background: 'rgba(255,255,255,0.15)',
+                                      border: '1px solid rgba(255,255,255,0.2)',
+                                    }}
+                                  >
+                                    View Exhibition
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -563,8 +566,8 @@ export default function ProjectsSection() {
                   style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '16px',
+                    gap: '10px',
+                    marginTop: '24px',
                     opacity: headerOpacity,
                     willChange: 'opacity',
                   }}
@@ -578,8 +581,8 @@ export default function ProjectsSection() {
                         }
                       }}
                       style={{
-                        width: currentIndex === index ? '24px' : '8px',
-                        height: '8px',
+                        width: currentIndex === index ? '32px' : '10px',
+                        height: '10px',
                         borderRadius: '9999px',
                         background: currentIndex === index ? colors.accent : colors.border,
                         cursor: 'pointer',
@@ -696,12 +699,17 @@ export default function ProjectsSection() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 'clamp(3rem, 6vw, 6rem)', marginBottom: '16px' }}>🖼️</div>
-                  <p style={{ fontFamily: 'var(--font-body)', color: colors.textSecondary }}>Exhibition Preview</p>
-                </div>
+                <Image
+                  src="/landingLight.png"
+                  alt={selectedProject.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  style={{ objectFit: 'cover' }}
+                />
               </div>
 
               <p
