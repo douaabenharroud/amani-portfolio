@@ -11,8 +11,15 @@ export default function ProjectsSection() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [dragX, setDragX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hoveredProjectId, setHoveredProjectId] = useState(null);
   const pinRef = useRef(null);
   const autoPlayRef = useRef(null);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const dragDistanceRef = useRef(0);
 
   const projects = [
     {
@@ -71,6 +78,19 @@ export default function ProjectsSection() {
     },
   ];
 
+  // Responsive detection
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
 
@@ -91,10 +111,17 @@ export default function ProjectsSection() {
     offset: ["start start", "end end"],
   });
 
+  // FIX #3/#4: mobile arch now starts larger AND reaches its max scale
+  // at 85% of scroll progress instead of 100% — that leaves a buffer so
+  // the arch is fully settled at max size well before the user reaches
+  // the physical end of the page, even if there's still a little
+  // measurement slack. Max scale also raised (1.7 -> 3) since the
+  // mobile arch's box (95vw x 40vh) needs more scale than the desktop
+  // one to read as "fully expanded" relative to a narrow viewport.
   const archScale = useTransform(
-    scrollYProgress, 
-    [0, 0.33, 0.66, 1], 
-    [0.8, 1.4, 2.0, 2.6]
+    scrollYProgress,
+    isMobile ? [0, 0.25, 0.55, 0.85] : [0, 0.33, 0.66, 1],
+    isMobile ? [0.9, 1.4, 1.9, 3] : [0.8, 1.4, 2.0, 2.6]
   );
 
   const contentOpacity = useTransform(
@@ -109,14 +136,17 @@ export default function ProjectsSection() {
     v > 0.05 ? "auto" : "none"
   );
 
-  const galleryY = useTransform(scrollYProgress, [0, 0.5, 1], [40, 20, 0]);
-  const galleryScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.92, 0.96, 1]);
+  const galleryY = useTransform(scrollYProgress, [0, 0.5, 1], isMobile ? [20, 10, 0] : [40, 20, 0]);
+  const galleryScale = useTransform(scrollYProgress, [0, 0.5, 1], isMobile ? [0.96, 0.98, 1] : [0.92, 0.96, 1]);
   
   const headerOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6, 1], [0, 0.5, 0.8, 1]);
-  const headerY = useTransform(scrollYProgress, [0, 0.5, 1], [20, 10, 0]);
+  const headerY = useTransform(scrollYProgress, [0, 0.5, 1], isMobile ? [10, 5, 0] : [20, 10, 0]);
 
   useEffect(() => {
-    if (isModalOpen) return;
+    // Autoplay also pauses while dragging (mobile) or hovering a card
+    // (desktop) — otherwise the carousel could advance out from under
+    // someone mid-swipe or mid-read of the hover info.
+    if (isModalOpen || isDragging || hoveredProjectId !== null) return;
 
     autoPlayRef.current = setInterval(() => {
       handleNext();
@@ -127,7 +157,7 @@ export default function ProjectsSection() {
         clearInterval(autoPlayRef.current);
       }
     };
-  }, [currentIndex, isModalOpen]);
+  }, [currentIndex, isModalOpen, isDragging, hoveredProjectId]);
 
   const handlePrev = () => {
     if (isTransitioning) return;
@@ -143,6 +173,63 @@ export default function ProjectsSection() {
     setTimeout(() => setIsTransitioning(false), 500);
   };
 
+  // Optimized swipe handling: the old version only checked position on
+  // touchend, so the card never moved until you lifted your finger, then
+  // snapped abruptly — it felt unresponsive. This version tracks the
+  // finger live (dragX) so the card follows the swipe in real time, tells
+  // vertical scrolling apart from a horizontal swipe so it doesn't fight
+  // the page's own pinned scroll, and suppresses the trailing tap so a
+  // swipe never accidentally opens the project modal.
+  const SWIPE_THRESHOLD = 60;
+
+  const handleTouchStart = (e) => {
+    if (!isMobile || isTransitioning) return;
+    const touch = e.touches[0];
+    dragStartRef.current = { x: touch.clientX, y: touch.clientY };
+    dragDistanceRef.current = 0;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isMobile || !isDragging) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - dragStartRef.current.x;
+    const deltaY = touch.clientY - dragStartRef.current.y;
+
+    // A mostly-vertical gesture is the page/pin scroll, not a card swipe —
+    // bail out immediately so the user keeps scrolling normally instead
+    // of the carousel eating the gesture.
+    if (Math.abs(deltaY) > Math.abs(deltaX) * 1.2) {
+      setIsDragging(false);
+      setDragX(0);
+      return;
+    }
+
+    dragDistanceRef.current = Math.abs(deltaX);
+    setDragX(deltaX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isMobile) return;
+    if (dragX > SWIPE_THRESHOLD) {
+      handlePrev();
+    } else if (dragX < -SWIPE_THRESHOLD) {
+      handleNext();
+    }
+    setIsDragging(false);
+    setDragX(0);
+  };
+
+  const handleCardClick = (project) => {
+    // A swipe that moved more than a few px shouldn't also register as a
+    // tap that opens the modal.
+    if (isMobile && dragDistanceRef.current > 10) {
+      dragDistanceRef.current = 0;
+      return;
+    }
+    handleProjectClick(project);
+  };
+
   const handleProjectClick = (project) => {
     setSelectedProject(project);
     setIsModalOpen(true);
@@ -154,12 +241,29 @@ export default function ProjectsSection() {
   };
 
   const getVisibleProjects = () => {
-    const visible = [];
-    for (let i = -1; i <= 1; i++) {
-      const index = (currentIndex + i + projects.length) % projects.length;
-      visible.push({ ...projects[index], position: i });
+    if (isMobile) {
+      // On mobile, show only current project
+      return [{ ...projects[currentIndex], position: 0 }];
+    } else if (isTablet) {
+      // FIX #2: the old loop stepped `i++` over a range of -0.5..0.5,
+      // which skips 0 entirely, so the "center" card never actually
+      // got position === 0 and never rendered as centered.
+      // Iterating over explicit positions fixes that.
+      const visible = [];
+      [0, 1].forEach((i) => {
+        const index = (currentIndex + i + projects.length) % projects.length;
+        visible.push({ ...projects[index], position: i });
+      });
+      return visible;
+    } else {
+      // Desktop: show 3 projects
+      const visible = [];
+      for (let i = -1; i <= 1; i++) {
+        const index = (currentIndex + i + projects.length) % projects.length;
+        visible.push({ ...projects[index], position: i });
+      }
+      return visible;
     }
-    return visible;
   };
 
   const visibleProjects = getVisibleProjects();
@@ -181,17 +285,32 @@ export default function ProjectsSection() {
     <div
       ref={pinRef}
       style={{
-        height: '200vh',
+        // FIX #4: mobile browsers change the real visible viewport height
+        // as the address bar shows/hides during scroll, but a fixed 150vh
+        // is measured once against the *tallest* viewport state. That
+        // mismatch means the user hits the physical bottom of the page
+        // before scrollYProgress ever reaches 1, so the arch stops
+        // mid-grow. Using dvh keeps this in sync with the real viewport,
+        // and the taller mobile value (220vh) adds scroll runway so the
+        // animation has room to fully complete before the page ends.
+        height: isMobile ? '240dvh' : '200dvh',
         position: 'relative',
         zIndex: 2,
       }}
     >
-      <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          height: '100dvh',
+          overflow: 'hidden',
+        }}
+      >
         <div
           id="projects"
           style={{
             width: '100vw',
-            height: '100vh',
+            height: '100dvh',
             position: 'relative',
             overflow: 'hidden',
           }}
@@ -209,10 +328,10 @@ export default function ProjectsSection() {
               style={{
                 scale: archScale,
                 transformOrigin: 'center bottom',
-                width: '80vw',
-                height: '50vh',
+                width: isMobile ? '95vw' : '80vw',
+                height: isMobile ? '40vh' : '50vh',
                 background: `linear-gradient(180deg, ${colors.surfaceAlt} 0%, ${colors.surface} 40%, ${colors.background} 100%)`,
-                borderRadius: '1000px 1000px 0 0',
+                borderRadius: isMobile ? '500px 500px 0 0' : '1000px 1000px 0 0',
                 boxShadow: `inset 0 -20px 60px rgba(0,0,0,0.3)`,
                 willChange: 'transform',
                 position: 'relative',
@@ -226,7 +345,7 @@ export default function ProjectsSection() {
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  borderRadius: '1000px 1000px 0 0',
+                  borderRadius: isMobile ? '500px 500px 0 0' : '1000px 1000px 0 0',
                   background: `radial-gradient(ellipse at 50% 20%, ${colors.accentLight} 0%, transparent 70%)`,
                 }}
               />
@@ -237,7 +356,7 @@ export default function ProjectsSection() {
                   top: 0,
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  width: '50%',
+                  width: isMobile ? '30%' : '50%',
                   height: '2px',
                   background: `linear-gradient(to right, transparent, ${colors.accent}, transparent)`,
                   opacity: 0.4,
@@ -248,10 +367,10 @@ export default function ProjectsSection() {
               <div
                 style={{
                   position: 'absolute',
-                  top: '40px',
+                  top: isMobile ? '20px' : '40px',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  width: '33%',
+                  width: isMobile ? '20%' : '33%',
                   height: '2px',
                   background: `linear-gradient(to right, transparent, ${colors.highlight}22, transparent)`,
                   opacity: 0.3,
@@ -261,10 +380,10 @@ export default function ProjectsSection() {
               <div
                 style={{
                   position: 'absolute',
-                  top: '80px',
+                  top: isMobile ? '40px' : '80px',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  width: '25%',
+                  width: isMobile ? '15%' : '25%',
                   height: '2px',
                   background: `linear-gradient(to right, transparent, ${colors.highlight}11, transparent)`,
                   opacity: 0.2,
@@ -277,14 +396,14 @@ export default function ProjectsSection() {
                   position: 'relative',
                   zIndex: 10,
                   width: '100vw',
-                  height: '100vh',
+                  height: '100dvh',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingLeft: '32px',
-                  paddingRight: '32px',
-                  paddingTop: 'calc(48px + 120px)',
+                  paddingLeft: isMobile ? '16px' : '32px',
+                  paddingRight: isMobile ? '16px' : '32px',
+                  paddingTop: isMobile ? 'calc(24px + 60px)' : 'calc(48px + 120px)',
                   paddingBottom: '0px',
                   opacity: contentOpacity,
                   scale: contentCounterScale,
@@ -295,21 +414,24 @@ export default function ProjectsSection() {
                 <motion.div 
                   style={{
                     textAlign: 'center',
-                    marginBottom: '24px',
+                    marginBottom: isMobile ? '20px' : '24px',
                     opacity: headerOpacity,
                     y: headerY,
                     willChange: 'opacity, transform',
+                    paddingLeft: isMobile ? '8px' : '0',
+                    paddingRight: isMobile ? '8px' : '0',
+                    marginTop: isMobile ? '12px' : '50px',
                   }}
                 >
                   <span
                     style={{
                       display: 'inline-block',
                       fontFamily: 'var(--font-body)',
-                      fontSize: '14px',
+                      fontSize: isMobile ? '10px' : '14px',
                       fontWeight: 500,
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
-                      marginBottom: '8px',
+                      marginBottom: '4px',
                       color: colors.highlight,
                     }}
                   >
@@ -318,87 +440,93 @@ export default function ProjectsSection() {
                   <h2
                     style={{
                       fontFamily: 'var(--font-heading)',
-                      fontSize: 'clamp(2rem, 5vw, 4rem)',
+                      fontSize: isMobile ? 'clamp(1.25rem, 5.5vw, 2rem)' : 'clamp(2rem, 5vw, 4rem)',
                       fontWeight: 600,
                       lineHeight: 1.2,
                       color: colors.textPrimary,
-                      marginBottom: '8px',
+                      marginBottom: isMobile ? '4px' : '8px',
                     }}
                   >
                     Featured Works
                   </h2>
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-body)',
-                      fontSize: 'clamp(1rem, 1.5vw, 1.25rem)',
-                      maxWidth: '640px',
-                      margin: '8px auto 0',
-                      color: colors.textSecondary,
-                    }}
-                  >
-                    A curated selection of projects exploring the intersection of design, technology, and art
-                  </p>
+                  {!isMobile && (
+                    <p
+                      style={{
+                        fontFamily: 'var(--font-body)',
+                        fontSize: isMobile ? 'clamp(0.75rem, 2vw, 1rem)' : 'clamp(1rem, 1.5vw, 1.25rem)',
+                        maxWidth: isMobile ? '280px' : '640px',
+                        margin: '8px auto 0',
+                        color: colors.textSecondary,
+                      }}
+                    >
+                      A curated selection of projects exploring the intersection of design, technology, and art
+                    </p>
+                  )}
                 </motion.div>
 
-                {/* Gallery with Frame - Stretched */}
+                {/* Gallery with Frame */}
                 <motion.div 
                   style={{
                     position: 'relative',
                     width: '100%',
-                    maxWidth: '1600px',
-                    aspectRatio: '16/9',
-                    maxHeight: '70vh',
-                    margin: '0 auto',
+                    maxWidth: isMobile ? '100%' : isTablet ? '1200px' : '1440px',
+                    aspectRatio: isMobile ? '4/3' : '16/9',
+                    maxHeight: isMobile ? '40vh' : isTablet ? '55vh' : '63vh',
+                    margin: '8px auto',
                     y: galleryY,
                     scale: galleryScale,
                     willChange: 'transform',
                   }}
                 >
-                  <button
-                    onClick={handlePrev}
-                    style={{
-                      position: 'absolute',
-                      left: '-15px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 20,
-                      padding: '14px',
-                      borderRadius: '9999px',
-                      background: colors.cardBg,
-                      color: colors.textPrimary,
-                      backdropFilter: 'blur(8px)',
-                      border: `1px solid ${colors.border}`,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
-                  >
-                    <ChevronLeft size={32} />
-                  </button>
+                  {!isMobile && (
+                    <>
+                      <button
+                        onClick={handlePrev}
+                        style={{
+                          position: 'absolute',
+                          left: isMobile ? '-8px' : isTablet ? '-10px' : '-15px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          zIndex: 20,
+                          padding: isMobile ? '8px' : isTablet ? '10px' : '14px',
+                          borderRadius: '9999px',
+                          background: colors.cardBg,
+                          color: colors.textPrimary,
+                          backdropFilter: 'blur(8px)',
+                          border: `1px solid ${colors.border}`,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
+                      >
+                        <ChevronLeft size={isMobile ? 20 : isTablet ? 24 : 32} />
+                      </button>
 
-                  <button
-                    onClick={handleNext}
-                    style={{
-                      position: 'absolute',
-                      right: '-15px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 20,
-                      padding: '14px',
-                      borderRadius: '9999px',
-                      background: colors.cardBg,
-                      color: colors.textPrimary,
-                      backdropFilter: 'blur(8px)',
-                      border: `1px solid ${colors.border}`,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
-                  >
-                    <ChevronRight size={32} />
-                  </button>
+                      <button
+                        onClick={handleNext}
+                        style={{
+                          position: 'absolute',
+                          right: isMobile ? '-8px' : isTablet ? '-10px' : '-15px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          zIndex: 20,
+                          padding: isMobile ? '8px' : isTablet ? '10px' : '14px',
+                          borderRadius: '9999px',
+                          background: colors.cardBg,
+                          color: colors.textPrimary,
+                          backdropFilter: 'blur(8px)',
+                          border: `1px solid ${colors.border}`,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s',
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(-50%) scale(1)'}
+                      >
+                        <ChevronRight size={isMobile ? 20 : isTablet ? 24 : 32} />
+                      </button>
+                    </>
+                  )}
 
                   <div style={{
                     position: 'absolute',
@@ -406,7 +534,7 @@ export default function ProjectsSection() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '0 60px',
+                    padding: isMobile ? '0 8px' : '0 60px',
                   }}>
                     <div style={{
                       display: 'flex',
@@ -414,28 +542,74 @@ export default function ProjectsSection() {
                       justifyContent: 'center',
                       width: '100%',
                       height: '100%',
-                      gap: '20px',
+                      gap: isMobile ? '8px' : isTablet ? '12px' : '18px',
                     }}>
                       {visibleProjects.map((project, idx) => {
                         const isCenter = project.position === 0;
+
+                        let cardWidth, cardMaxWidth, cardScale, cardOpacity;
+                        
+                        if (isMobile) {
+                          cardWidth = '100%';
+                          cardMaxWidth = '100%';
+                          cardScale = 1;
+                          cardOpacity = 1;
+                        } else if (isTablet) {
+                          if (isCenter) {
+                            cardWidth = '80%';
+                            cardMaxWidth = '80%';
+                            cardScale = 1;
+                            cardOpacity = 1;
+                          } else {
+                            cardWidth = '40%';
+                            cardMaxWidth = '40%';
+                            cardScale = 0.7;
+                            cardOpacity = 0.4;
+                          }
+                        } else {
+                          if (isCenter) {
+                            cardWidth = '63%';
+                            cardMaxWidth = '630px';
+                            cardScale = 1;
+                            cardOpacity = 1;
+                          } else {
+                            cardWidth = '25.2%';
+                            cardMaxWidth = '315px';
+                            cardScale = 0.65;
+                            cardOpacity = 0.4;
+                          }
+                        }
 
                         return (
                           <div
                             key={`${project.id}-${idx}`}
                             style={{
-                              width: isCenter ? '70%' : '28%',
-                              maxWidth: isCenter ? '700px' : '350px',
-                              opacity: isCenter ? 1 : 0.4,
+                              width: cardWidth,
+                              maxWidth: cardMaxWidth,
+                              opacity: cardOpacity,
                               zIndex: isCenter ? 10 : 5,
-                              transform: isCenter ? 'scale(1)' : 'scale(0.65)',
+                              transform: isMobile
+                                ? `translateX(${dragX}px) scale(${cardScale})`
+                                : `scale(${cardScale})`,
                               cursor: 'pointer',
                               flexShrink: 0,
-                              transition: 'all 0.5s ease-in-out',
+                              // No transition while actively dragging so the
+                              // card tracks the finger 1:1 with zero lag;
+                              // snaps back with easing once released.
+                              transition: isMobile
+                                ? (isDragging ? 'none' : 'transform 0.35s cubic-bezier(0.22, 1, 0.36, 1)')
+                                : 'all 0.5s ease-in-out',
+                              // Lets the browser handle vertical scrolling
+                              // (the page's pinned scroll) natively while
+                              // our JS owns horizontal swipes only.
+                              touchAction: isMobile ? 'pan-y' : undefined,
                               position: 'relative',
                             }}
-                            onClick={() => handleProjectClick(project)}
+                            onClick={() => handleCardClick(project)}
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
                           >
-                            {/* Stretched Frame */}
                             <div
                               style={{
                                 position: 'relative',
@@ -447,15 +621,16 @@ export default function ProjectsSection() {
                                 justifyContent: 'center',
                               }}
                               onMouseEnter={(e) => {
-                                if (isCenter) {
+                                if (isCenter && !isMobile) {
                                   e.currentTarget.style.transform = 'scale(1.05)';
                                 }
+                                if (!isMobile) setHoveredProjectId(project.id);
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.transform = 'scale(1)';
+                                if (!isMobile) setHoveredProjectId(null);
                               }}
                             >
-                              {/* Frame image - stretched */}
                               <Image
                                 src="/exhibition-frame.png"
                                 alt="Exhibition frame"
@@ -471,20 +646,19 @@ export default function ProjectsSection() {
                                 priority={isCenter}
                               />
                               
-                              {/* Placeholder image inside the stretched frame */}
                               <div
                                 style={{
                                   position: 'absolute',
-                                  top: '10%',
-                                  left: '10%',
-                                  width: '80%',
-                                  height: '80%',
+                                  top: isMobile ? '6%' : '10%',
+                                  left: isMobile ? '6%' : '10%',
+                                  width: isMobile ? '88%' : '80%',
+                                  height: isMobile ? '88%' : '80%',
                                   overflow: 'hidden',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
-                                  borderRadius: '12px',
+                                  borderRadius: isMobile ? '8px' : '12px',
                                 }}
                               >
                                 <Image
@@ -496,62 +670,97 @@ export default function ProjectsSection() {
                                     objectFit: 'cover',
                                   }}
                                 />
-                              </div>
 
-                              {/* Overlay with project info on hover */}
-                              <div
-                                style={{
-                                  position: 'absolute',
-                                  inset: 0,
-                                  opacity: 0,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  background: `linear-gradient(135deg, ${colors.accent}77, ${colors.accent}99)`,
-                                  backdropFilter: 'blur(4px)',
-                                  transition: 'opacity 0.3s',
-                                  zIndex: 3,
-                                  borderRadius: '12px',
-                                  pointerEvents: 'none',
-                                }}
-                              >
-                                <div style={{ textAlign: 'center', padding: '20px', pointerEvents: 'none' }}>
-                                  <h3
-                                    style={{
-                                      fontFamily: 'var(--font-heading)',
-                                      fontSize: isCenter ? 'clamp(1.5rem, 2.5vw, 2rem)' : 'clamp(1rem, 1.2vw, 1.25rem)',
-                                      fontWeight: 600,
-                                      color: 'white',
-                                      marginBottom: '6px',
-                                    }}
-                                  >
-                                    {project.title}
-                                  </h3>
-                                  <p
-                                    style={{
-                                      fontFamily: 'var(--font-body)',
-                                      fontSize: isCenter ? 'clamp(1rem, 1.5vw, 1.25rem)' : 'clamp(0.75rem, 0.9vw, 0.875rem)',
-                                      color: 'rgba(255,255,255,0.8)',
-                                    }}
-                                  >
-                                    {project.category}
-                                  </p>
-                                  <span
-                                    style={{
-                                      display: 'inline-block',
-                                      marginTop: '12px',
-                                      fontFamily: 'var(--font-body)',
-                                      color: 'white',
-                                      fontSize: isCenter ? 'clamp(0.875rem, 1.2vw, 1rem)' : 'clamp(0.75rem, 0.8vw, 0.875rem)',
-                                      fontWeight: 500,
-                                      padding: '8px 20px',
-                                      borderRadius: '9999px',
-                                      background: 'rgba(255,255,255,0.15)',
-                                      border: '1px solid rgba(255,255,255,0.2)',
-                                    }}
-                                  >
-                                    View Exhibition
-                                  </span>
+                                {/* Overlay with project info — nested inside
+                                    the art container (not the outer frame
+                                    div) so it's clipped by that container's
+                                    own bounds and border-radius and stays
+                                    confined to the photo, never spilling
+                                    onto the ornate frame border. */}
+                                <div
+                                  style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    // FIX: on mobile, the frame graphic's
+                                    // border visually overlaps the bottom
+                                    // edge of this art container. Since the
+                                    // caption sits below the frame in
+                                    // z-index (1 vs 2) so it doesn't paint
+                                    // over the ornate border, that same
+                                    // overlap was hiding the caption text
+                                    // when it was flush against bottom: 0.
+                                    // Lifting it up clears that overlap zone.
+                                    bottom: isMobile ? '12%' : 0,
+                                    top: isMobile ? 'auto' : 0,
+                                    height: isMobile ? '30%' : '100%',
+                                    opacity: isMobile ? 1 : (hoveredProjectId === project.id ? 1 : 0),
+                                    display: 'flex',
+                                    alignItems: isMobile ? 'flex-end' : 'center',
+                                    justifyContent: isMobile ? 'flex-start' : 'center',
+                                    background: isMobile
+                                      ? `linear-gradient(to top, ${colors.accent}EE 0%, ${colors.accent}99 55%, transparent 100%)`
+                                      : `linear-gradient(135deg, ${colors.accent}77, ${colors.accent}99)`,
+                                    backdropFilter: isMobile ? 'none' : 'blur(4px)',
+                                    transition: 'opacity 0.3s',
+                                    // Kept below the frame graphic's z-index
+                                    // (2) so the tint/caption sits under the
+                                    // ornate border instead of painting over
+                                    // it — it only ever covers the photo.
+                                    zIndex: 1,
+                                    pointerEvents: 'none',
+                                  }}
+                                  className="project-overlay"
+                                >
+                                  <div style={{ 
+                                    textAlign: isMobile ? 'left' : 'center', 
+                                    padding: isMobile ? '10px 35px' : '20px', 
+                                    pointerEvents: 'none',
+                                    width: '100%',
+                                  }}>
+                                    <h3
+                                      style={{
+                                        fontFamily: 'var(--font-heading)',
+                                        fontSize: isMobile ? 'clamp(0.7rem, 2.2vw, 0.9rem)' : 
+                                                    isTablet ? 'clamp(1rem, 1.8vw, 1.5rem)' : 
+                                                    'clamp(1.5rem, 2.5vw, 2rem)',
+                                        fontWeight: 600,
+                                        color: 'white',
+                                        marginBottom: isMobile ? '1px' : '6px',
+                                      }}
+                                    >
+                                      {project.title}
+                                    </h3>
+                                    <p
+                                      style={{
+                                        fontFamily: 'var(--font-body)',
+                                        fontSize: isMobile ? 'clamp(0.45rem, 1.3vw, 0.65rem)' : 
+                                                    isTablet ? 'clamp(0.6rem, 1vw, 0.875rem)' : 
+                                                    'clamp(1rem, 1.5vw, 1.25rem)',
+                                        color: 'rgba(255,255,255,0.8)',
+                                      }}
+                                    >
+                                      {project.category}
+                                    </p>
+                                    {!isMobile && (
+                                      <span
+                                        style={{
+                                          display: 'inline-block',
+                                          marginTop: '12px',
+                                          fontFamily: 'var(--font-body)',
+                                          color: 'white',
+                                          fontSize: isTablet ? 'clamp(0.6rem, 0.8vw, 0.875rem)' : 'clamp(0.875rem, 1.2vw, 1rem)',
+                                          fontWeight: 500,
+                                          padding: isTablet ? '6px 16px' : '8px 20px',
+                                          borderRadius: '9999px',
+                                          background: 'rgba(255,255,255,0.15)',
+                                          border: '1px solid rgba(255,255,255,0.2)',
+                                        }}
+                                      >
+                                        View Exhibition
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -566,10 +775,11 @@ export default function ProjectsSection() {
                   style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    gap: '10px',
-                    marginTop: '24px',
+                    gap: isMobile ? '6px' : '10px',
+                    marginTop: isMobile ? '12px' : '24px',
                     opacity: headerOpacity,
                     willChange: 'opacity',
+                    paddingBottom: isMobile ? '8px' : '0',
                   }}
                 >
                   {projects.map((_, index) => (
@@ -581,8 +791,8 @@ export default function ProjectsSection() {
                         }
                       }}
                       style={{
-                        width: currentIndex === index ? '32px' : '10px',
-                        height: '10px',
+                        width: currentIndex === index ? (isMobile ? '24px' : '32px') : (isMobile ? '8px' : '10px'),
+                        height: isMobile ? '8px' : '10px',
                         borderRadius: '9999px',
                         background: currentIndex === index ? colors.accent : colors.border,
                         cursor: 'pointer',
@@ -609,7 +819,7 @@ export default function ProjectsSection() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '16px',
+            padding: isMobile ? '8px' : '16px',
             background: 'rgba(0,0,0,0.8)',
             backdropFilter: 'blur(12px)',
             animation: 'modalFadeIn 0.3s ease-out',
@@ -619,13 +829,14 @@ export default function ProjectsSection() {
           <div
             style={{
               position: 'relative',
-              maxWidth: '896px',
+              maxWidth: isMobile ? '100%' : '896px',
               width: '100%',
               maxHeight: '90vh',
               overflowY: 'auto',
-              borderRadius: '16px',
+              borderRadius: isMobile ? '12px' : '16px',
               background: colors.surface,
               boxShadow: `0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px ${colors.accent}44`,
+              margin: isMobile ? '8px' : '0',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -633,10 +844,10 @@ export default function ProjectsSection() {
               onClick={handleCloseModal}
               style={{
                 position: 'absolute',
-                top: '16px',
-                right: '16px',
+                top: isMobile ? '12px' : '16px',
+                right: isMobile ? '12px' : '16px',
                 zIndex: 10,
-                padding: '8px',
+                padding: isMobile ? '6px' : '8px',
                 borderRadius: '9999px',
                 background: colors.cardBg,
                 color: colors.textPrimary,
@@ -647,20 +858,27 @@ export default function ProjectsSection() {
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <X size={20} />
+              <X size={isMobile ? 16 : 20} />
             </button>
 
-            <div style={{ padding: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ padding: isMobile ? '16px' : '24px' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                justifyContent: 'space-between', 
+                marginBottom: isMobile ? '12px' : '16px',
+                flexDirection: isMobile ? 'column' : 'row',
+                gap: isMobile ? '8px' : '0',
+              }}>
                 <div>
                   <span
                     style={{
                       display: 'inline-block',
-                      padding: '4px 12px',
+                      padding: isMobile ? '2px 10px' : '4px 12px',
                       borderRadius: '9999px',
-                      fontSize: '12px',
+                      fontSize: isMobile ? '10px' : '12px',
                       fontWeight: 500,
-                      marginBottom: '12px',
+                      marginBottom: isMobile ? '8px' : '12px',
                       background: `${colors.accent}33`,
                       color: colors.accent,
                     }}
@@ -670,7 +888,7 @@ export default function ProjectsSection() {
                   <h2
                     style={{
                       fontFamily: 'var(--font-heading)',
-                      fontSize: 'clamp(1.5rem, 3vw, 3rem)',
+                      fontSize: isMobile ? 'clamp(1.2rem, 4vw, 2rem)' : 'clamp(1.5rem, 3vw, 3rem)',
                       fontWeight: 600,
                       color: colors.textPrimary,
                     }}
@@ -681,7 +899,7 @@ export default function ProjectsSection() {
                 <span
                   style={{
                     fontFamily: 'var(--font-body)',
-                    fontSize: '14px',
+                    fontSize: isMobile ? '12px' : '14px',
                     color: colors.textSecondary,
                   }}
                 >
@@ -693,8 +911,8 @@ export default function ProjectsSection() {
                 style={{
                   width: '100%',
                   aspectRatio: '16/9',
-                  borderRadius: '12px',
-                  marginBottom: '24px',
+                  borderRadius: isMobile ? '8px' : '12px',
+                  marginBottom: isMobile ? '16px' : '24px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -715,9 +933,9 @@ export default function ProjectsSection() {
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: 'clamp(1rem, 1.2vw, 1.125rem)',
-                  lineHeight: 1.7,
-                  marginBottom: '24px',
+                  fontSize: isMobile ? 'clamp(0.875rem, 2vw, 1rem)' : 'clamp(1rem, 1.2vw, 1.125rem)',
+                  lineHeight: isMobile ? 1.6 : 1.7,
+                  marginBottom: isMobile ? '16px' : '24px',
                   color: colors.textPrimary,
                   opacity: 0.85,
                 }}
@@ -725,14 +943,18 @@ export default function ProjectsSection() {
                 {selectedProject.description}
               </p>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                gap: isMobile ? '6px' : '8px' 
+              }}>
                 {selectedProject.tags.map((tag, index) => (
                   <span
                     key={index}
                     style={{
-                      padding: '4px 12px',
+                      padding: isMobile ? '2px 10px' : '4px 12px',
                       borderRadius: '9999px',
-                      fontSize: '12px',
+                      fontSize: isMobile ? '10px' : '12px',
                       fontWeight: 500,
                       background: `${colors.accent}20`,
                       color: colors.textSecondary,
