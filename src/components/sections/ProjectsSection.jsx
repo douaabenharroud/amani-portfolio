@@ -8,72 +8,76 @@ import Image from "next/image";
 const projects = [
   {
     id: 1,
-    title: "AI Art Gallery",
-    category: "Generative AI",
+    title: "AmanKid (Proposed Concept)",
+    category: "AI • IoT • Child Safety",
     description:
-      "An immersive gallery experience powered by AI that creates unique artworks in real-time based on visitor interactions and emotions.",
-    image: "/projects/ai-gallery.jpg",
-    tags: ["React", "TensorFlow", "WebGL", "AI"],
-    year: "2024",
+      "An intelligent, real-time child safety monitoring system that combines IoT wearables and mobile technology. It uses a novel human activity recognition (HAR) pipeline to detect critical situations, monitor well-being, and provide immediate alerts to parents and guardians, ensuring a secure environment for children.",
+    image: "/api/placeholder/400/300",
+    tags: ["Python", "FastAPI", "Flutter", "Firebase", "Machine Learning", "IoT", "ESP32", "MediaPipe", "Computer Vision", "Cloud"],
+    year: "2026",
   },
   {
     id: 2,
-    title: "Smart Home Dashboard",
-    category: "IoT & Design",
+    title: "MasarAI (Proposed Concept)",
+    category: "Data Science • Recommendation System",
     description:
-      "A minimalist dashboard that connects and controls smart home devices with an intuitive interface, featuring real-time data visualization and automation rules.",
-    image: "/projects/smart-home.jpg",
-    tags: ["Next.js", "MQTT", "D3.js", "Tailwind"],
-    year: "2023",
+      "An AI-powered career guidance platform that analyzes the job market by scraping thousands of postings to identify industry trends. It generates personalized learning roadmaps and career recommendations for students and graduates, helping them navigate their professional futures in a data-driven way.",
+    image: "/api/placeholder/400/300",
+    tags: ["Python", "NLP", "Web Scraping", "FastAPI", "React", "PostgreSQL", "Data Science", "Recommendation System"],
+    year: "2026",
   },
   {
     id: 3,
-    title: "EcoTracker",
-    category: "Sustainability Tech",
+    title: "BotaniAI",
+    category: "Machine Learning • IoT • Smart Agriculture",
     description:
-      "A mobile-first platform that helps individuals and businesses track their carbon footprint and discover personalized sustainability recommendations.",
-    image: "/projects/eco-tracker.jpg",
-    tags: ["React Native", "Firebase", "ML", "Mapbox"],
-    year: "2024",
+      "An AIoT (Artificial Intelligence of Things) system for smart indoor plant care. It uses an ESP32 to collect environmental data (temperature, humidity, soil moisture, light) from sensors, transmits it to the cloud (ThingSpeak), and analyzes it with a machine learning ensemble (XGBoost, LightGBM) to predict plant health and provide actionable care recommendations.",
+    image: "/api/placeholder/400/300",
+    tags: ["Python", "MicroPython", "TensorFlow", "ESP32", "ThingSpeak", "FastAPI", "Flutter", "XGBoost", "Machine Learning", "IoT"],
+    year: "2025",
   },
   {
     id: 4,
-    title: "Neural Music Studio",
-    category: "Audio AI",
+    title: "Arabic Sign Language Recognition",
+    category: "Computer Vision • Deep Learning",
     description:
-      "An AI-powered music production tool that generates melodies, harmonies, and full compositions based on user input and emotional context.",
-    image: "/projects/music-studio.jpg",
-    tags: ["Python", "PyTorch", "Web Audio", "React"],
-    year: "2023",
+      "A deep learning system for recognizing Arabic Sign Language (ArSL) gestures from unconstrained video sequences. This comparative study evaluates three paradigms: traditional feature-based methods (HOG + LBP + KNN), deep learning (CNN-LSTM), and a Skeleton-based Spatio-Temporal Graph Convolutional Network (ST-GCN). ST-GCN achieved the highest accuracy at 95.73%.",
+    image: "/api/placeholder/400/300",
+    tags: ["Python", "TensorFlow", "OpenCV", "Deep Learning", "ST-GCN", "CNN-LSTM", "MediaPipe", "Computer Vision"],
+    year: "2025",
   },
   {
     id: 5,
-    title: "HealthSync",
-    category: "Health Tech",
+    title: "Plant Disease & FCN Segmentation",
+    category: "Computer Vision • Semantic Segmentation",
     description:
-      "A comprehensive health monitoring platform that aggregates data from wearables, provides AI-powered insights, and connects users with healthcare professionals.",
-    image: "/projects/health-sync.jpg",
-    tags: ["Node.js", "GraphQL", "React Native", "AI"],
-    year: "2024",
+      "A comprehensive study comparing the effectiveness of various Fully Convolutional Network (FCN) architectures (FCN-8, FCN-16, FCN-32) for the semantic segmentation of plants and plant diseases. The research demonstrates FCN-8's superiority in capturing fine spatial details for precise segmentation, dramatically outperforming traditional methods like Otsu thresholding and watershed.",
+    image: "/api/placeholder/400/300",
+    tags: ["Python", "TensorFlow", "OpenCV", "FCN", "Segmentation", "Deep Learning", "CVPPP"],
+    year: "2025",
   },
   {
     id: 6,
-    title: "Digital Garden",
-    category: "Creative Coding",
+    title: "AHD DayCare Connect",
+    category: "Full-Stack Web Application",
     description:
-      "An interactive digital garden that grows and evolves based on user engagement, combining generative art with gamification elements.",
-    image: "/projects/digital-garden.jpg",
-    tags: ["p5.js", "WebGL", "Generative Art", "GSAP"],
-    year: "2023",
+      "A modern 'Connected Daycare' web application designed to streamline administrative and pedagogical management. It features comprehensive child profile management, real-time parent communication, secure online payments (via Chargily Pay), and dedicated portals for staff (educators, psychologists, speech therapists) to track child development.",
+    image: "/api/placeholder/400/300",
+    tags: ["React", "Django", "MySQL", "Bootstrap", "JavaScript", "Python", "Full-Stack"],
+    year: "2024",
+  },
+  {
+    id: 7,
+    title: "Arabic Sports Trends Analysis & Visualization",
+    category: "NLP • Data Analytics • LLM",
+    description:
+      "An intelligent platform to analyze and visualize sports trends from Arabic textual data using NLP, deep learning, and LLMs. The system extracts trending topics, recognizes named entities (players, clubs, competitions), performs sentiment analysis, and predicts emerging trends using Prophet and LLMs, all presented through an interactive real-time dashboard.",
+    image: "/api/placeholder/400/300",
+    tags: ["Python", "Flask", "React", "NLP", "LLM", "AraBERT", "Prophet", "MongoDB", "Data Visualization"],
+    year: "2025",
   },
 ];
 
-/**
- * A single painting on the museum wall. Pulled out into its own component
- * (rather than called inline inside projects.map) so each frame owns its
- * own set of useTransform hooks — projects.length is fixed, but this keeps
- * the hook-call structure obviously safe and easy to reason about.
- */
 function MuseumFrame({
   project,
   index,
@@ -93,7 +97,6 @@ function MuseumFrame({
     paddingSide + index * (frameWidth + gap) + frameWidth / 2;
   const viewportCenter = viewportWidth / 2;
 
-  // Signed distance: negative = left of center, positive = right of center.
   const signedDistance = useTransform(
     wallX,
     (x) => frameCenter + x - viewportCenter
@@ -146,7 +149,6 @@ function MuseumFrame({
       onMouseEnter={() => !isMobile && setHoveredProjectId(project.id)}
       onMouseLeave={() => !isMobile && setHoveredProjectId(null)}
     >
-      {/* Spotlight glow behind the painting */}
       <motion.div
         style={{
           position: "absolute",
@@ -291,7 +293,6 @@ export default function ProjectsSection() {
   const [gap, setGap] = useState(0);
   const pinRef = useRef(null);
 
-  // Responsive detection + wall metrics (frame size, gap) in one pass.
   useEffect(() => {
     const updateMetrics = () => {
       const w = window.innerWidth;
@@ -338,19 +339,17 @@ export default function ProjectsSection() {
     offset: ["start start", "end end"],
   });
 
-  // Arch expansion: happens during the first 50% of scroll
   const archScale = useTransform(
     scrollYProgress,
     isMobile ? [0, 0.25, 0.35, 0.5] : [0, 0.2, 0.33, 0.5],
     isMobile ? [0.9, 1.4, 1.9, 3] : [0.8, 1.4, 2.0, 2.6]
   );
 
-  // Content opacity: stays visible through scroll, fades at the very end
-  const contentOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.5, 0.85, 0.95, 1],
-    [0, 0.5, 1, 1, 1]
-  );
+const contentOpacity = useTransform(
+  scrollYProgress,
+  [0, 0.25, 0.5, 0.85, 0.95, 1],
+  [0, 0.5, 1, 1, 1, 1]  // Reaches full opacity at 0.5
+);
 
   const contentCounterScale = useTransform(archScale, (v) => 1 / v);
 
@@ -358,10 +357,11 @@ export default function ProjectsSection() {
     v > 0.05 ? "auto" : "none"
   );
 
+  // FIXED: Header stays visible throughout - no fading at the end
   const headerOpacity = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.35, 0.5],
-    [0, 0.5, 1, 1]
+    [0, 0.2, 0.35, 0.8, 1],
+    [0, 0.5, 1, 1, 1]
   );
   const headerY = useTransform(
     scrollYProgress,
@@ -369,9 +369,6 @@ export default function ProjectsSection() {
     isMobile ? [10, 5, 0] : [20, 10, 0]
   );
 
-  // --- Museum wall geometry ---
-  // padding on each side lets the first and last painting travel all the
-  // way to the viewport's center, instead of starting glued to the edge.
   const paddingSide =
     frameWidth > 0 ? Math.max(0, (viewportWidth - frameWidth) / 2) : 0;
   const wallInnerWidth =
@@ -381,7 +378,6 @@ export default function ProjectsSection() {
   const wallWidth = wallInnerWidth + paddingSide * 2;
   const maxTravel = Math.max(0, wallWidth - viewportWidth);
 
-  // The wall starts moving only after the arch has finished expanding (at 50% scroll)
   const wallX = useTransform(
     scrollYProgress,
     [0.5, 1],
@@ -574,7 +570,6 @@ export default function ProjectsSection() {
                   )}
                 </motion.div>
 
-                {/* Museum wall viewport — everything outside overflow:hidden is clipped */}
                 <div
                   style={{
                     position: "relative",
