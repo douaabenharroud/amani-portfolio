@@ -267,7 +267,7 @@ export default function AboutSection() {
       ref={sectionRef}
       className="relative w-full overflow-hidden min-h-screen"
       style={{
-        backgroundColor: isDark ? '#323C31' : '#F0E6E3',
+        backgroundColor: isDark ? '#181726' : '#FFFCFA',
         position: 'sticky',
         top: 0,
         zIndex: 1,
@@ -280,8 +280,8 @@ export default function AboutSection() {
           className="w-full h-full"
           style={{
             background: isDark
-              ? 'radial-gradient(ellipse at center, rgba(50, 60, 49, 0) 0%, rgba(50, 60, 49, 1) 100%)'
-              : 'radial-gradient(ellipse at center, rgba(240, 230, 227, 0) 0%, rgba(240, 230, 227, 1) 100%)'
+              ? 'radial-gradient(ellipse at center, rgba(8, 12, 24, 0) 0%, rgba(8, 12, 24, 1) 100%)'
+              : 'radial-gradient(ellipse at center, rgba(255, 252, 250, 0) 0%, rgba(255, 252, 250, 1) 100%)'
           }}
         />
       </div>
@@ -290,8 +290,8 @@ export default function AboutSection() {
         className="absolute top-0 left-0 w-full h-6 sm:h-8 md:h-10 lg:h-12 pointer-events-none z-5"
         style={{
           background: isDark
-            ? 'linear-gradient(to bottom, rgba(50, 60, 49, 0) 0%, rgba(50, 60, 49, 1) 100%)'
-            : 'linear-gradient(to bottom, rgba(240, 230, 227, 0) 0%, rgba(240, 230, 227, 1) 100%)'
+            ? 'linear-gradient(to bottom, rgba(8, 12, 24, 0) 0%, rgba(8, 12, 24, 1) 100%)'
+            : 'linear-gradient(to bottom, rgba(255, 252, 250, 0) 0%, rgba(255, 252, 250, 1) 100%)'
         }}
       />
 
@@ -309,24 +309,24 @@ export default function AboutSection() {
           className="absolute top-0 right-0 w-1/3 h-1/3 rounded-full blur-3xl"
           style={{
             background: isDark
-              ? 'radial-gradient(circle, rgba(238, 212, 209, 0.08) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(175, 99, 132, 0.08) 0%, transparent 70%)'
+              ? 'radial-gradient(circle, rgba(238, 212, 209, 0.06) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(128, 115, 168, 0.06) 0%, transparent 70%)'
           }}
         ></div>
         <div
           className="absolute bottom-0 left-0 w-1/3 h-1/3 rounded-full blur-3xl"
           style={{
             background: isDark
-              ? 'radial-gradient(circle, rgba(175, 99, 132, 0.08) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(238, 212, 209, 0.08) 0%, transparent 70%)'
+              ? 'radial-gradient(circle, rgba(175, 99, 132, 0.06) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(178, 123, 149, 0.06) 0%, transparent 70%)'
           }}
         ></div>
         <div
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 rounded-full blur-3xl"
           style={{
             background: isDark
-              ? 'radial-gradient(circle, rgba(151, 109, 144, 0.05) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(151, 109, 144, 0.06) 0%, transparent 70%)'
+              ? 'radial-gradient(circle, rgba(151, 109, 144, 0.04) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(138, 175, 184, 0.04) 0%, transparent 70%)'
           }}
         ></div>
       </div>
@@ -344,14 +344,14 @@ export default function AboutSection() {
                 height: `${particle.size}px`,
                 top: `${target.top}%`,
                 left: `${target.left}%`,
-                backgroundColor: isDark ? '#FFE8E0' : '#D487A8',
+                backgroundColor: isDark ? '#FFE8E0' : '#B27B95',
                 opacity: particle.opacity,
                 animation: `fairyFloat ${particle.duration}s ease-in-out ${particle.delay}s infinite`,
                 boxShadow: isDark
                   ? `0 0 ${particle.size * 3}px ${particle.size * 0.8}px rgba(255, 220, 200, 0.6),
                      0 0 ${particle.size * 6}px ${particle.size * 1.5}px rgba(255, 210, 190, 0.25)`
-                  : `0 0 ${particle.size * 3}px ${particle.size * 0.8}px rgba(212, 135, 168, 0.6),
-                     0 0 ${particle.size * 6}px ${particle.size * 1.5}px rgba(212, 135, 168, 0.25)`,
+                  : `0 0 ${particle.size * 3}px ${particle.size * 0.8}px rgba(178, 123, 149, 0.4),
+                     0 0 ${particle.size * 6}px ${particle.size * 1.5}px rgba(178, 123, 149, 0.15)`,
                 filter: 'blur(0.3px)',
                 transition: `top ${transitionDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94), left ${transitionDuration}s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 1s ease, background-color 1s ease`,
                 willChange: 'top, left',
@@ -365,7 +365,6 @@ export default function AboutSection() {
         ref={contentRef}
         className="relative z-10 w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8"
       >
-        {/* FIX: Use min-height with auto on mobile, and adjust items-start on mobile */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-6 lg:gap-8 xl:gap-10 items-center md:items-center min-h-[80vh] md:min-h-screen py-4 sm:py-6 md:py-8">
           
           {/* Image - On mobile: top, on desktop: right */}
@@ -399,9 +398,13 @@ export default function AboutSection() {
                       ? (isLightOn
                         ? 'linear-gradient(to right, rgba(255, 220, 180, 0.5), rgba(255, 210, 170, 0.85), rgba(255, 220, 180, 0.5))'
                         : 'linear-gradient(to right, rgba(60, 65, 60, 0.3), rgba(50, 55, 50, 0.5), rgba(60, 65, 60, 0.3))')
-                      : 'linear-gradient(to right, rgba(180, 175, 170, 0.3), rgba(160, 155, 150, 0.5), rgba(180, 175, 170, 0.3))',
+                      : (isLightOn
+                        ? 'linear-gradient(to right, rgba(178, 123, 149, 0.3), rgba(178, 123, 149, 0.6), rgba(178, 123, 149, 0.3))'
+                        : 'linear-gradient(to right, rgba(222, 212, 203, 0.3), rgba(222, 212, 203, 0.5), rgba(222, 212, 203, 0.3))'),
                     boxShadow: isDark && isLightOn
                       ? '0 0 20px rgba(255, 200, 150, 0.25), 0 0 40px rgba(255, 200, 150, 0.12)'
+                      : !isDark && isLightOn
+                      ? '0 0 20px rgba(178, 123, 149, 0.15), 0 0 40px rgba(178, 123, 149, 0.08)'
                       : 'none',
                   }}
                 />
@@ -417,13 +420,15 @@ export default function AboutSection() {
                     borderRadius: '3px',
                     background: isDark
                       ? (isLightOn ? 'rgba(40, 45, 40, 0.5)' : 'rgba(30, 35, 30, 0.7)')
-                      : 'rgba(180, 175, 170, 0.4)',
+                      : (isLightOn ? 'rgba(178, 123, 149, 0.15)' : 'rgba(222, 212, 203, 0.4)'),
                     border: isDark
                       ? (isLightOn ? '1px solid rgba(255,255,255,0.03)' : '1px solid rgba(0,0,0,0.2)')
-                      : '1px solid rgba(120, 115, 110, 0.1)',
+                      : (isLightOn ? '1px solid rgba(178, 123, 149, 0.15)' : '1px solid rgba(222, 212, 203, 0.3)'),
                     boxShadow: isDark && isLightOn
                       ? '0 1px 4px rgba(0,0,0,0.2)'
-                      : '0 1px 4px rgba(0,0,0,0.15)',
+                      : !isDark && isLightOn
+                      ? '0 1px 8px rgba(178, 123, 149, 0.08)'
+                      : '0 1px 4px rgba(0,0,0,0.08)',
                   }}
                 />
 
@@ -438,10 +443,10 @@ export default function AboutSection() {
                     borderRadius: '2px',
                     background: isDark
                       ? (isLightOn ? 'rgba(40, 45, 40, 0.35)' : 'rgba(30, 35, 30, 0.6)')
-                      : 'rgba(180, 175, 170, 0.3)',
+                      : (isLightOn ? 'rgba(178, 123, 149, 0.12)' : 'rgba(222, 212, 203, 0.3)'),
                     border: isDark
                       ? (isLightOn ? '1px solid rgba(255,255,255,0.02)' : '1px solid rgba(0,0,0,0.15)')
-                      : '1px solid rgba(120, 115, 110, 0.08)',
+                      : (isLightOn ? '1px solid rgba(178, 123, 149, 0.1)' : '1px solid rgba(222, 212, 203, 0.2)'),
                   }}
                 />
 
@@ -566,6 +571,127 @@ export default function AboutSection() {
                     />
                   </div>
                 )}
+
+                {!isDark && isLightOn && (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      top: '-200px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '100vw',
+                      height: '650px',
+                      overflow: 'hidden',
+                      WebkitMaskImage:
+                        'radial-gradient(ellipse 340px 460px at 50% 200px, black 12%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.28) 64%, rgba(0,0,0,0.12) 78%, rgba(0,0,0,0.04) 90%, transparent 100%)',
+                      maskImage:
+                        'radial-gradient(ellipse 340px 460px at 50% 200px, black 12%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.55) 48%, rgba(0,0,0,0.28) 64%, rgba(0,0,0,0.12) 78%, rgba(0,0,0,0.04) 90%, transparent 100%)',
+                    }}
+                  >
+                    <div
+                      className="absolute z-5 pointer-events-none transition-all duration-1000"
+                      style={{
+                        top: '200px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '160px',
+                        height: '360px',
+                        background: `
+                          radial-gradient(
+                            ellipse at 50% 0%,
+                            rgba(178, 123, 149, 0.15) 0%,
+                            rgba(178, 123, 149, 0.10) 30%,
+                            rgba(178, 123, 149, 0.05) 55%,
+                            rgba(178, 123, 149, 0.02) 80%,
+                            transparent 100%
+                          )
+                        `,
+                        filter: 'blur(8px)',
+                        borderRadius: '0 0 50% 50% / 0 0 100% 100%',
+                        animation: 'lightFadeIn 1.2s ease-out forwards',
+                      }}
+                    />
+
+                    <div
+                      className="absolute z-4 pointer-events-none transition-all duration-1000"
+                      style={{
+                        top: '175px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '380px',
+                        height: '520px',
+                        background: `
+                          radial-gradient(
+                            ellipse at 50% 0%,
+                            rgba(178, 123, 149, 0.08) 0%,
+                            rgba(178, 123, 149, 0.05) 30%,
+                            rgba(178, 123, 149, 0.02) 55%,
+                            transparent 100%
+                          )
+                        `,
+                        filter: 'blur(40px)',
+                        animation: 'lightFadeIn 1.5s ease-out forwards',
+                      }}
+                    />
+
+                    <div
+                      className="absolute z-3 pointer-events-none transition-all duration-1000"
+                      style={{
+                        top: '160px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '640px',
+                        height: '720px',
+                        background: `
+                          radial-gradient(
+                            ellipse at 50% 0%,
+                            rgba(178, 123, 149, 0.04) 0%,
+                            rgba(178, 123, 149, 0.02) 40%,
+                            transparent 70%
+                          )
+                        `,
+                        filter: 'blur(80px)',
+                        animation: 'lightFadeIn 1.8s ease-out forwards',
+                      }}
+                    />
+
+                    <div
+                      className="absolute z-2 pointer-events-none transition-all duration-1000"
+                      style={{
+                        top: '205px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '360px',
+                        height: '340px',
+                        background: `
+                          radial-gradient(
+                            ellipse at 50% 20%,
+                            rgba(178, 123, 149, 0.05) 0%,
+                            rgba(178, 123, 149, 0.02) 40%,
+                            transparent 70%
+                          )
+                        `,
+                        filter: 'blur(50px)',
+                        animation: 'lightFadeIn 1.3s ease-out forwards',
+                      }}
+                    />
+
+                    <div
+                      className="absolute z-10 pointer-events-none transition-all duration-700"
+                      style={{
+                        top: '198px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '110px',
+                        height: '18px',
+                        background: 'linear-gradient(to bottom, rgba(178, 123, 149, 0.12), transparent)',
+                        filter: 'blur(3px)',
+                        borderRadius: '50%',
+                        animation: 'lightFadeIn 0.8s ease-out forwards',
+                      }}
+                    />
+                  </div>
+                )}
               </div>
 
               <div
@@ -575,7 +701,9 @@ export default function AboutSection() {
                     ? (isLightOn
                       ? 'radial-gradient(circle, rgba(238, 212, 209, 0.15) 0%, transparent 70%)'
                       : 'radial-gradient(circle, rgba(30, 35, 30, 0.25) 0%, transparent 70%)')
-                    : 'radial-gradient(circle, rgba(175, 99, 132, 0.08) 0%, transparent 70%)',
+                    : (isLightOn
+                      ? 'radial-gradient(circle, rgba(178, 123, 149, 0.10) 0%, transparent 70%)'
+                      : 'radial-gradient(circle, rgba(222, 212, 203, 0.15) 0%, transparent 70%)'),
                   transform: 'scale(1.1)',
                 }}
               />
@@ -595,12 +723,13 @@ export default function AboutSection() {
                     objectFit: 'cover',
                     objectPosition: 'center 58%',
                     borderRadius: '50%',
-                    
                     filter: isDark
                       ? (isLightOn
                         ? 'brightness(1.04) contrast(1.02) saturate(1.05) blur(0px)'
                         : 'brightness(0.35) contrast(0.9) saturate(0.8) blur(2px)')
-                      : 'none',
+                      : (isLightOn
+                        ? 'brightness(1.04) contrast(1.02) saturate(1.05) blur(0px)'
+                        : 'brightness(0.9) contrast(0.95) saturate(0.9) blur(0.5px)'),
                     transition: 'filter 1.2s ease-out',
                   }}
                 />
@@ -616,7 +745,9 @@ export default function AboutSection() {
                     ? (isLightOn
                       ? 'drop-shadow(0 2px 12px rgba(255,210,170,0.08)) brightness(1)'
                       : 'drop-shadow(0 2px 8px rgba(0,0,0,0.3)) brightness(0.5)')
-                    : 'drop-shadow(0 2px 8px rgba(0,0,0,0.04))',
+                    : (isLightOn
+                      ? 'drop-shadow(0 2px 12px rgba(178,123,149,0.06)) brightness(1)'
+                      : 'drop-shadow(0 2px 8px rgba(0,0,0,0.04)) brightness(1)'),
                 }}
               />
             </div>
@@ -636,7 +767,7 @@ export default function AboutSection() {
             <h2
               className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight mb-0.5 sm:mb-1 md:mb-1.5"
               style={{
-                color: isDark ? '#FFFFFF' : '#432033',
+                color: isDark ? '#FFFFFF' : '#2F2A36',
                 fontFamily: 'var(--font-heading)',
               }}
             >
@@ -657,7 +788,7 @@ export default function AboutSection() {
               <p
                 className="font-body text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed"
                 style={{
-                  color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(67, 32, 51, 0.85)',
+                  color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(47, 42, 54, 0.85)',
                 }}
               >
                 I'm a Data Scientist and Product Designer who transforms complex problems into simple, practical solutions. I combine AI, software engineering, and design to create digital experiences that are intelligent, intuitive, and built with purpose.
@@ -665,7 +796,7 @@ export default function AboutSection() {
               <p
                 className="font-body text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed"
                 style={{
-                  color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(67, 32, 51, 0.85)',
+                  color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(47, 42, 54, 0.85)',
                 }}
               >
                 I care about products that don't just look good—they solve real problems, improve how people work, and make technology feel effortless. Every decision, from strategy to implementation, is driven by clarity, usability, and measurable impact.
@@ -680,24 +811,19 @@ export default function AboutSection() {
                 className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 py-1.5 sm:py-2 md:py-2.5 lg:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 font-medium"
                 style={{
                   ...(isHovered ? {
-                    backgroundColor: 'var(--color-primary)',
-                    color: 'var(--color-text-light)',
-                    border: '1px solid var(--color-primary)',
+                    backgroundColor: isDark ? '#EED4D1' : '#8073A8',
+                    color: isDark ? '#080C18' : '#FFFCFA',
+                    border: `1px solid ${isDark ? '#EED4D1' : '#8073A8'}`,
                     transform: 'scale(1.02)',
-                    boxShadow: '0 10px 20px -8px rgba(67, 32, 51, 0.35)',
+                    boxShadow: isDark
+                      ? '0 10px 20px -8px rgba(0, 0, 0, 0.35)'
+                      : '0 10px 20px -8px rgba(128, 115, 168, 0.35)',
                   } : {
                     backgroundColor: 'transparent',
-                    color: 'var(--color-primary)',
-                    border: '1px solid var(--color-primary)',
+                    color: isDark ? '#EED4D1' : '#8073A8',
+                    border: `1px solid ${isDark ? '#EED4D1' : '#8073A8'}`,
                     transform: 'scale(1)',
                     boxShadow: 'none',
-                  }),
-                  ...(isDark ? {
-                    '--color-primary': '#EED4D1',
-                    '--color-text-light': '#323C31',
-                  } : {
-                    '--color-primary': '#AF6384',
-                    '--color-text-light': '#FFFFFF',
                   }),
                 }}
               >

@@ -2,6 +2,79 @@
 
 import { useState, useEffect, useRef } from "react";
 
+// ============================================
+// MUSEUM-INSPIRED BUTTON COMPONENT
+// ============================================
+const MuseumButton = ({ 
+  children, 
+  variant = 'primary', 
+  onMouseEnter, 
+  onMouseLeave,
+  className = '',
+  ...props 
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const handleMouseEnter = (e) => {
+    setIsHovered(true);
+    if (onMouseEnter) onMouseEnter(e);
+  };
+  
+  const handleMouseLeave = (e) => {
+    setIsHovered(false);
+    if (onMouseLeave) onMouseLeave(e);
+  };
+  
+  const variants = {
+    primary: {
+      background: isHovered ? 'var(--color-primary-hover)' : 'var(--color-primary)',
+      color: 'var(--color-text-inverse)',
+    },
+    secondary: {
+      background: isHovered ? 'var(--color-secondary)' : 'transparent',
+      color: isHovered ? 'var(--color-text-inverse)' : 'var(--color-primary)',
+      border: '1px solid var(--color-primary)',
+    },
+    accent: {
+      background: isHovered ? 'var(--color-accent-hover)' : 'var(--color-accent)',
+      color: 'var(--color-text-inverse)',
+    },
+    outline: {
+      background: isHovered ? 'var(--color-primary-soft)' : 'transparent',
+      color: isHovered ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+      border: '1px solid var(--color-border)',
+    },
+  };
+  
+  const style = variants[variant] || variants.primary;
+  
+  return (
+    <button
+      className={`btn museum-btn ${className}`}
+      style={{
+        ...style,
+        transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+        boxShadow: isHovered ? 'var(--shadow-sm)' : 'none',
+        transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: '500',
+        fontSize: '0.875rem',
+        letterSpacing: '0.02em',
+        padding: '0.75rem 2rem',
+        borderRadius: '9999px',
+        cursor: 'pointer',
+        outline: 'none',
+        border: style.border || '1px solid transparent',
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
 export default function HomeSection() {
   const [isDark, setIsDark] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
@@ -50,7 +123,6 @@ export default function HomeSection() {
 
   // Trigger loaded state after mount with seamless animation
   useEffect(() => {
-    // Disable scroll immediately
     document.body.style.overflow = 'hidden';
     document.body.style.height = '100vh';
     document.body.style.position = 'fixed';
@@ -58,12 +130,10 @@ export default function HomeSection() {
     document.body.style.top = '0';
     document.body.style.left = '0';
     
-    // Small delay then start the animation
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 50);
     
-    // After animation completes, re-enable scroll
     const scrollTimer = setTimeout(() => {
       document.body.style.overflow = '';
       document.body.style.height = '';
@@ -87,10 +157,8 @@ export default function HomeSection() {
   }, []);
 
   useEffect(() => {
-    // Check initial theme
     setIsDark(document.documentElement.classList.contains('dark'));
     
-    // Watch for theme changes
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains('dark'));
     });
@@ -135,7 +203,6 @@ export default function HomeSection() {
       setLightPositions(INITIAL_POSITIONS);
       setOriginalPositions(INITIAL_POSITIONS);
       
-      // Initialize firefly states
       const states = {};
       INITIAL_POSITIONS.forEach((_, index) => {
         states[index] = {
@@ -148,7 +215,6 @@ export default function HomeSection() {
       });
       setFireflyStates(states);
       
-      // Generate unique flight paths for each firefly
       const paths = INITIAL_POSITIONS.map((pos, index) => {
         const wobbleAmplitude = 2 + Math.random() * 4;
         const wobbleSpeed = 0.02 + Math.random() * 0.03;
@@ -171,7 +237,6 @@ export default function HomeSection() {
 
   // Function to reset fireflies to original positions with smooth animation
   const resetFireflies = () => {
-    // Clear any existing timeouts
     if (resetTimeoutRef.current) {
       clearTimeout(resetTimeoutRef.current);
       resetTimeoutRef.current = null;
@@ -185,12 +250,10 @@ export default function HomeSection() {
       animationFrameRef.current = null;
     }
 
-    // Set cooldown to prevent immediate re-scattering
     cooldownRef.current = true;
     isResettingRef.current = true;
     isScatteringRef.current = false;
     
-    // Clear cooldown after 3 seconds
     cooldownTimeoutRef.current = setTimeout(() => {
       cooldownRef.current = false;
       isResettingRef.current = false;
@@ -198,7 +261,6 @@ export default function HomeSection() {
 
     setIsResetting(true);
     
-    // Reset to original positions with smooth transition
     setLightPositions(prev => {
       return prev.map((pos, index) => {
         const original = INITIAL_POSITIONS[index] || pos;
@@ -210,11 +272,9 @@ export default function HomeSection() {
       });
     });
     
-    // Reset departure progress and off-screen status
     departureProgressRef.current = {};
     offScreenRef.current = {};
     
-    // Reset firefly states
     const states = {};
     INITIAL_POSITIONS.forEach((_, index) => {
       states[index] = {
@@ -227,13 +287,11 @@ export default function HomeSection() {
     });
     setFireflyStates(states);
     
-    // Clear scattered state
     setScatteredLights([]);
     setIsScattering(false);
     setHoveredLight(null);
     setScrollOffset(0);
     
-    // After a short delay, clear the reset state
     resetTimeoutRef.current = setTimeout(() => {
       setIsResetting(false);
       isResettingRef.current = false;
@@ -289,7 +347,6 @@ export default function HomeSection() {
       
       const isInView = sectionTop < windowHeight && sectionBottom > 0;
       
-      // RESET: If section was in view but now isn't, reset fireflies
       if (wasInViewRef.current && !isInView) {
         if (isScatteringRef.current) {
           resetFireflies();
@@ -547,48 +604,39 @@ export default function HomeSection() {
     });
   };
 
-  // Button styles matching the navbar "Contact Me" button
-  const getButtonStyles = (buttonName, isPrimary = false) => {
-    const isHovered = hoveredButton === buttonName;
-    
-    if (isPrimary) {
-      return {
-        backgroundColor: isHovered ? 'var(--button-primary-hover)' : 'var(--color-primary)',
-        color: isHovered ? 'var(--color-text-light)' : 'var(--color-text-light)',
-        border: '1px solid transparent',
-        transform: isHovered ? 'scale(1.02)' : 'scale(1)',
-        boxShadow: isHovered ? '0 10px 20px -8px rgba(67, 32, 51, 0.35)' : 'none',
-        transition: 'all 0.3s ease',
+  // ============================================
+  // MUSEUM-INSPIRED TEXT STYLES (FIXED CONTRAST)
+  // ============================================
+  const getTextStyles = () => {
+    return {
+      heading: {
+        color: isDark ? 'var(--color-text)' : 'var(--color-primary)',
+        fontFamily: 'var(--font-heading)',
+        fontWeight: '400',
+        lineHeight: '1.15',
+        letterSpacing: '-0.02em',
+      },
+      accent: {
+        fontFamily: 'var(--font-accent)',
+        color: isDark ? 'var(--color-accent)' : 'var(--color-accent)',
+        fontWeight: '400',
+      },
+      // FIXED: Using --color-text for better contrast
+      subtitle: {
+        color: isDark ? 'var(--color-text)' : 'var(--color-text)',
         fontFamily: 'var(--font-body)',
-        fontWeight: '500',
-        fontSize: '0.875rem',
-        padding: '8px 20px',
-        borderRadius: '9999px',
-        cursor: 'pointer',
-        outline: 'none',
-      };
-    } else {
-      return {
-        backgroundColor: isHovered ? 'var(--color-primary)' : 'transparent',
-        color: isHovered ? 'var(--color-text-light)' : 'var(--color-primary)',
-        border: '1px solid var(--color-primary)',
-        transform: isHovered ? 'scale(1.02)' : 'scale(1)',
-        boxShadow: isHovered ? '0 10px 20px -8px rgba(67, 32, 51, 0.35)' : 'none',
-        transition: 'all 0.3s ease',
-        fontFamily: 'var(--font-body)',
-        fontWeight: '500',
-        fontSize: '0.875rem',
-        padding: '8px 20px',
-        borderRadius: '9999px',
-        cursor: 'pointer',
-        outline: 'none',
-      };
-    }
+        fontWeight: '300',
+        lineHeight: '1.7',
+        letterSpacing: '0.01em',
+        opacity: isDark ? '0.85' : '0.8',
+      },
+    };
   };
+
+  const textStyles = getTextStyles();
 
   return (
     <>
-      {/* Wrapper div that animates as one unit */}
       <div
         className={`transition-all duration-1000 ease-out ${
           isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-[30%] opacity-0'
@@ -616,7 +664,17 @@ export default function HomeSection() {
               backgroundRepeat: 'no-repeat',
               transform: 'scaleX(-1)',
             }}
-          ></div>
+          />
+          
+          {/* Museum-inspired ambient glow overlay */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: isDark 
+                ? 'radial-gradient(ellipse at 30% 40%, rgba(189, 181, 216, 0.06) 0%, transparent 70%)'
+                : 'radial-gradient(ellipse at 30% 40%, rgba(178, 123, 149, 0.05) 0%, transparent 70%)',
+            }}
+          />
           
           {/* Fairy lights - dark mode only */}
           {isDark && lightPositions.map((light, index) => {
@@ -635,7 +693,7 @@ export default function HomeSection() {
               return null;
             }
             
-            // Same color for all fireflies - lighter version of the warm color
+            // Museum-inspired warm glow
             const color = isDark ? '#FFE8E0' : '#EED4D1';
             const glowColor = isDark ? 'rgba(255, 232, 224, 0.4)' : 'rgba(238, 212, 209, 0.4)';
             const glowIntensity = 0.7 + Math.random() * 0.3;
@@ -662,7 +720,6 @@ export default function HomeSection() {
                   transitionDelay: isResettingNow ? `${index * 0.05}s` : '0s',
                 }}
               >
-                {/* Larger invisible hover area - only when not scattered */}
                 {!isScatteringRef.current && !isResetting && (
                   <div 
                     className="absolute cursor-pointer"
@@ -677,7 +734,6 @@ export default function HomeSection() {
                   />
                 )}
                 
-                {/* Fairy light with glow effect */}
                 <div className="relative">
                   <div 
                     className="rounded-full"
@@ -696,7 +752,6 @@ export default function HomeSection() {
                       transitionTimingFunction: 'ease-out',
                     }}
                   />
-                  {/* Glow trail for scattered fireflies */}
                   {isScattered && (
                     <div 
                       className="absolute rounded-full"
@@ -719,35 +774,69 @@ export default function HomeSection() {
           {/* Content - not flipped */}
           <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-8 md:py-12 lg:py-16 xl:py-20">
             <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto lg:mx-0 lg:ml-[5%] xl:ml-[8%] 2xl:ml-[10%]">
-              {/* Soft light effect behind text - only in light mode */}
+              
+              {/* Soft gallery light behind text - museum-inspired */}
               {!isDark && (
-                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 bg-gradient-to-r from-[#EED4D1]/30 via-[#EED4D1]/15 to-transparent rounded-2xl md:rounded-3xl blur-xl md:blur-2xl"></div>
+                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 bg-gradient-to-r from-[#EED4D1]/20 via-[#EED4D1]/10 to-transparent rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+              )}
+              {isDark && (
+                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 bg-gradient-to-r from-[#BDB5D8]/10 via-transparent to-transparent rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
               )}
               
               <div className="relative max-w-3xl xl:max-w-4xl 2xl:max-w-5xl">
-                <h1 className={`font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-semibold leading-tight ${isDark ? 'text-white' : 'text-[#432033]'}`}>
-                  Where <span style={{ fontFamily: 'Symphony, serif' }} className="text-[#AF6384]">thoughtful</span> design meets <span style={{ fontFamily: 'Symphony, serif' }} className="text-[#AF6384]">intelligent</span> technology
+                {/* Museum-inspired decorative line */}
+                <div 
+                  className="w-12 h-[2px] mb-6 md:mb-8"
+                  style={{
+                    background: isDark 
+                      ? 'linear-gradient(90deg, var(--color-accent), transparent)'
+                      : 'linear-gradient(90deg, var(--color-secondary), transparent)',
+                  }}
+                />
+                
+                {/* ==========================================
+                    MUSEUM-INSPIRED HEADING
+                    ========================================== */}
+                <h1 
+                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
+                  style={textStyles.heading}
+                >
+                  Where{' '}
+                  <span style={textStyles.accent}>thoughtful</span>{' '}
+                  design meets{' '}
+                  <span style={textStyles.accent}>intelligent</span>{' '}
+                  technology
                 </h1>
-                <p className={`font-body mt-3 md:mt-4 lg:mt-6 max-w-xl lg:max-w-2xl xl:max-w-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl ${isDark ? 'text-white/80' : 'text-[#432033]/80'}`}>
+                
+                {/* ==========================================
+                    MUSEUM-INSPIRED SUBTITLE (FIXED CONTRAST)
+                    ========================================== */}
+                <p 
+                  className="mt-3 md:mt-4 lg:mt-6 max-w-xl lg:max-w-2xl xl:max-w-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
+                  style={textStyles.subtitle}
+                >
                   I design and build modern websites, AI-powered applications, and visual identities that help startups and businesses stand out. Every project combines strategy, engineering, and design to create experiences people actually enjoy using.
                 </p>
                 
-                {/* CTA Buttons - styled like navbar Contact Me */}
+                {/* ==========================================
+                    MUSEUM-INSPIRED CTA BUTTONS
+                    ========================================== */}
                 <div className="mt-4 md:mt-6 lg:mt-8 xl:mt-10 flex flex-wrap gap-3 md:gap-4">
-                  <button
-                    style={getButtonStyles('primary', true)}
+                  <MuseumButton
+                    variant="primary"
                     onMouseEnter={() => setHoveredButton('primary')}
                     onMouseLeave={() => setHoveredButton(null)}
                   >
                     View Exhibition
-                  </button>
-                  <button
-                    style={getButtonStyles('secondary', false)}
+                  </MuseumButton>
+                  
+                  <MuseumButton
+                    variant="secondary"
                     onMouseEnter={() => setHoveredButton('secondary')}
                     onMouseLeave={() => setHoveredButton(null)}
                   >
                     Let's Build Something
-                  </button>
+                  </MuseumButton>
                 </div>
               </div>
             </div>
@@ -755,7 +844,7 @@ export default function HomeSection() {
         </section>
       </div>
 
-      {/* Add CSS animations */}
+      {/* CSS animations */}
       <style jsx>{`
         @keyframes pulse {
           0%, 100% { opacity: 0.6; transform: scale(1); }
@@ -764,6 +853,11 @@ export default function HomeSection() {
         @keyframes twinkle {
           0%, 100% { opacity: 0.1; }
           50% { opacity: 0.3; }
+        }
+        
+        /* Museum-inspired smooth transitions */
+        .museum-btn {
+          transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
       `}</style>
     </>

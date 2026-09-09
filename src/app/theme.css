@@ -1,216 +1,1189 @@
-/* theme.css */
+/* ============================================
+   THEME.CSS — Museum Exhibition Design System
+   Inspired by contemporary art galleries,
+   Renaissance warmth, and architectural minimalism
+   ============================================ */
+
+/* ============================================
+   BASE TOKENS
+   ============================================ */
+
 :root {
-  /* Light mode - Your existing colors */
-  --color-primary: #432033;
-  --color-secondary: #976D90;
-  --color-highlight: #EED4D1;
-  --color-text-primary: #2E2230;
-  --color-text-secondary: #6F6470;
-  --color-text-light: #FFFFFF;
-  --color-dark-text: #2E2230;
-  --color-background: #FAF7F6;
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #F4EEED;
-  --color-accent-gold: #AF6384;
-  --color-success: #323C31;
-  --color-link: #AF6384;
-  --color-link-hover: #8E4F6C;
-  --color-focus-ring: #AF6384;
-  --border-light: #E7DBDA;
-  --border-medium: #CDBFC6;
-  --button-primary-hover: #5A2C46;
-  --button-secondary-hover: #896283;
+  /* ---- FONTS ---- */
+  --font-heading: 'Ashing', 'Georgia', 'Times New Roman', serif;
+  --font-accent: 'Symphony', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Source Sans Pro', -apple-system, 'Helvetica Neue', sans-serif;
+
+  /* ---- SPACING (8px grid) ---- */
+  --space-0: 0;
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-8: 2rem;       /* 32px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-24: 6rem;      /* 96px */
+  --space-32: 8rem;      /* 128px */
+
+  /* ---- BORDER RADIUS ---- */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* ---- TRANSITIONS ---- */
+  --duration-fast: 200ms;
+  --duration-base: 300ms;
+  --duration-slow: 600ms;
+  --duration-exhibition: 800ms;
+
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-museum: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Dark mode - Enhanced for better contrast and cohesion */
+/* ============================================
+   LIGHT THEME — Daytime Gallery
+   Warm limestone, natural light, aged paper
+   ============================================ */
+
+:root,
+.light {
+  /* ---- SURFACES (80% of interface) ---- */
+  --color-background: #F7F2EC;       /* Main gallery walls */
+  --color-surface: #FFFCFA;          /* Cards, artwork containers */
+  --color-surface-alt: #EFE6DE;      /* Alternate gallery rooms */
+  --color-elevated: #FFFDFC;         /* Floating panels, hover states */
+
+  /* ---- ARCHITECTURE ---- */
+  --color-primary: #23213F;          /* Structure, stability */
+  --color-primary-hover: #3A365A;
+  --color-primary-soft: rgba(35, 33, 63, 0.08);
+
+  /* ---- CREATIVE IDENTITY ---- */
+  --color-secondary: #8073A8;        /* Dusty periwinkle */
+  --color-secondary-hover: #6E6191;
+  --color-secondary-soft: rgba(128, 115, 168, 0.12);
+
+  /* ---- HUMAN WARMTH ---- */
+  --color-accent: #B27B95;           /* Dusty rose */
+  --color-accent-hover: #9D6882;
+  --color-accent-soft: rgba(178, 123, 149, 0.12);
+
+  /* ---- TECHNOLOGY / AI ---- */
+  --color-atmosphere: #8AAFB8;       /* Fog blue, mist */
+  --color-atmosphere-soft: rgba(138, 175, 184, 0.15);
+
+  /* ---- GALLERY LIGHT ---- */
+  --color-gallery-light: #E7D2B8;    /* Golden hour glow */
+  --color-gallery-light-soft: rgba(231, 210, 184, 0.3);
+
+  /* ---- TYPOGRAPHY ---- */
+  --color-text: #2F2A36;             /* Primary copy */
+  --color-text-secondary: #766F78;   /* Supporting text */
+  --color-text-muted: #A69EAA;       /* Captions, disabled */
+  --color-text-inverse: #FFFCFA;     /* Text on dark surfaces */
+
+  /* ---- BORDERS ---- */
+  --color-border: #DED4CB;           /* Subtle definition */
+  --color-border-strong: #C9BCB2;
+
+  /* ---- SHADOWS (cool blue, never black) ---- */
+  --shadow-sm: 0 8px 20px rgba(8, 12, 22, 0.08);
+  --shadow-md: 0 16px 40px rgba(8, 12, 22, 0.12);
+  --shadow-lg: 0 30px 80px rgba(8, 12, 22, 0.18);
+  --shadow-xl: 0 48px 120px rgba(8, 12, 22, 0.22);
+
+  /* ---- FOCUS ---- */
+  --color-focus: #8C98C9;
+  --color-focus-ring: rgba(140, 152, 201, 0.35);
+
+  /* ---- LINKS ---- */
+  --color-link: #8073A8;
+  --color-link-hover: #6E6191;
+
+  /* ---- STATUS ---- */
+  --color-success: #4A6B4A;
+  --color-success-soft: rgba(74, 107, 74, 0.12);
+
+  /* ---- SECTION BACKGROUNDS ---- */
+  --section-hero: #F7F2EC;
+  --section-about: #FFFCFA;
+  --section-experience: #EFE6DE;
+  --section-skills: #F7F2EC;
+  --section-projects: #EFE6DE;
+  --section-gallery: #23213F;
+  --section-contact: #23213F;
+  --section-footer: #111621;
+
+  /* ---- GRADIENTS ---- */
+  --gradient-subtle: linear-gradient(180deg, #F7F2EC 0%, #EFE6DE 100%);
+  --gradient-warm: linear-gradient(135deg, #F7F2EC 0%, #EFE6DE 50%, #E7D2B8 100%);
+  --gradient-gallery: linear-gradient(135deg, #23213F 0%, #2F2A4A 100%);
+
+  /* ---- GLASS ---- */
+  --glass-bg: rgba(255, 252, 250, 0.85);
+  --glass-border: rgba(222, 212, 203, 0.5);
+}
+
+/* ============================================
+   DARK THEME — Evening Gallery
+   Deep blue, warm illumination, intimate atmosphere
+   ============================================ */
+
 .dark {
-  /* Backgrounds - warmer and more dimensional */
-  --color-background: #1A1418; /* Deep warm plum/eggplant */
-  --color-surface: #2A1E28; /* Slightly lighter eggplant - warmer */
-  --color-surface-alt: #3A2A36; /* Warmer surface alternative */
-  
-  /* Text - improved contrast with warm undertones */
-  --color-text-primary: #F5EDF2; /* Soft warm white with slight pink undertone */
-  --color-text-secondary: #CDBFC6; /* Matches your border-medium - elegant muted tone */
-  --color-text-light: #FFFFFF;
-  --color-dark-text: #2E2230; /* Keep for elements that need dark text on light surfaces */
-  
-  /* Primary colors - richer and more vibrant against dark background */
-  --color-primary: #B888A8; /* Brighter Tulipan Violet - better contrast */
-  --color-secondary: #C89EB8; /* Lighter, more visible secondary */
-  --color-highlight: #5A3C48; /* Deeper highlight that still works as selection color */
-  --color-accent-gold: #D48AA8; /* Crushed Raspberry - pops beautifully */
-  
-  /* Interactive states - clearer visual feedback */
-  --color-link: #D48AA8; /* Matches accent-gold for consistency */
-  --color-link-hover: #E8A0B8; /* Lighter for hover */
-  
-  /* Borders - subtle separation without being harsh */
-  --border-light: #3A2A36; /* Matches surface-alt for seamless depth */
-  --border-medium: #6F6470; /* Your text-secondary color - works as medium border */
-  
-  /* Buttons - clearer hierarchy */
-  --button-primary-hover: #C89EB8; /* Secondary color for primary button hover */
-  --button-secondary-hover: #D48AA8; /* Accent for secondary button hover */
-  
-  /* Status and focus */
-  --color-focus-ring: #D48AA8; /* Visible against dark background */
-  --color-success: #4A5C48; /* Slightly brighter for visibility */
-  
-  /* New tokens for better dark mode experience */
-  --shadow-color: rgba(0, 0, 0, 0.4);
-  --glass-background: rgba(26, 20, 24, 0.85);
+  /* ---- SURFACES ---- */
+  --color-background: #181726;       /* Evening gallery walls */
+  --color-surface: #222132;          /* Cards, surfaces */
+  --color-surface-alt: #2C2B40;      /* Alternate rooms */
+  --color-elevated: #36354D;         /* Floating panels */
+
+  /* ---- ARCHITECTURE (inverted) ---- */
+  --color-primary: #ECE8E2;          /* Light structure */
+  --color-primary-hover: #F4F1EC;
+  --color-primary-soft: rgba(236, 232, 226, 0.1);
+
+  /* ---- CREATIVE IDENTITY ---- */
+  --color-secondary: #BDB5D8;        /* Soft periwinkle */
+  --color-secondary-hover: #CEC7E4;
+  --color-secondary-soft: rgba(189, 181, 216, 0.15);
+
+  /* ---- HUMAN WARMTH ---- */
+  --color-accent: #D8A9BC;           /* Warm rose */
+  --color-accent-hover: #E0B8C9;
+  --color-accent-soft: rgba(216, 169, 188, 0.15);
+
+  /* ---- TECHNOLOGY / AI ---- */
+  --color-atmosphere: #A7C8CF;       /* Misty blue */
+  --color-atmosphere-soft: rgba(167, 200, 207, 0.15);
+
+  /* ---- GALLERY LIGHT ---- */
+  --color-gallery-light: #F0D6B7;    /* Warm illumination */
+
+  /* ---- TYPOGRAPHY ---- */
+  --color-text: #F4F1EC;             /* Primary copy */
+  --color-text-secondary: #B5AFB8;   /* Supporting text */
+  --color-text-muted: #87818C;       /* Captions */
+  --color-text-inverse: #181726;     /* Text on light surfaces */
+
+  /* ---- BORDERS ---- */
+  --color-border: #34324A;
+  --color-border-strong: #4A485F;
+
+  /* ---- SHADOWS ---- */
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 48px 120px rgba(0, 0, 0, 0.55);
+
+  /* ---- LINKS ---- */
+  --color-link: #BDB5D8;
+  --color-link-hover: #CEC7E4;
+
+  /* ---- STATUS ---- */
+  --color-success: #5A7A5A;
+  --color-success-soft: rgba(90, 122, 90, 0.15);
+
+  /* ---- SECTION BACKGROUNDS ---- */
+  --section-hero: #181726;
+  --section-about: #222132;
+  --section-experience: #2C2B40;
+  --section-skills: #181726;
+  --section-projects: #2C2B40;
+  --section-gallery: #ECE8E2;
+  --section-contact: #181726;
+  --section-footer: #0D0C17;
+
+  /* ---- GRADIENTS ---- */
+  --gradient-subtle: linear-gradient(180deg, #222132 0%, #181726 50%, #12101E 100%);
+  --gradient-warm: linear-gradient(135deg, #222132 0%, #2C2B40 50%, #181726 100%);
+  --gradient-gallery: linear-gradient(135deg, #ECE8E2 0%, #DED4CB 100%);
+
+  /* ---- GLASS ---- */
+  --glass-bg: rgba(24, 23, 38, 0.88);
+  --glass-border: rgba(52, 50, 74, 0.5);
+
+  /* ---- TRANSITIONS (inherit) ---- */
 }
 
-/* Additional dark mode refinements */
+/* ============================================
+   SMOOTH THEME TRANSITIONS
+   ============================================ */
+
+:root,
+.light,
 .dark {
-  /* Smooth transitions for theme switching */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--duration-slow) var(--ease-museum),
+              color var(--duration-slow) var(--ease-museum),
+              border-color var(--duration-slow) var(--ease-museum),
+              box-shadow var(--duration-slow) var(--ease-museum);
 }
 
-/* Improve selection visibility */
+/* ============================================
+   SELECTION STYLING
+   ============================================ */
+
+::selection {
+  background: var(--color-secondary);
+  color: var(--color-text-inverse);
+}
+
 .dark ::selection {
-  background-color: var(--color-primary);
-  color: var(--color-text-light);
+  background: var(--color-secondary);
+  color: var(--color-background);
 }
 
-/* Scrollbar styling for dark mode */
-.dark ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: var(--color-surface);
+  background: var(--color-background);
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: var(--color-secondary);
-  border-radius: 4px;
+  background: var(--color-border);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-out);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* ---- Primary ---- */
+.btn-primary {
   background: var(--color-primary);
+  color: var(--color-text-inverse);
 }
 
-/* Card and surface enhancements for dark mode */
-.dark .card-surface {
-  background-color: var(--color-surface);
-  border: 1px solid var(--border-light);
-  box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-/* Subtle hover effects for dark mode */
-.dark .hover-lift:hover {
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--shadow-color);
-  border-color: var(--border-medium);
 }
 
-/* Input and form elements */
-.dark input,
-.dark textarea,
-.dark select {
-  background-color: var(--color-surface);
-  border: 1px solid var(--border-light);
-  color: var(--color-text-primary);
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
 }
 
-.dark input:focus,
-.dark textarea:focus,
-.dark select:focus {
-  border-color: var(--color-focus-ring);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(212, 138, 168, 0.3);
+/* ---- Secondary ---- */
+.btn-secondary {
+  background: var(--color-secondary);
+  color: var(--color-text-inverse);
 }
 
-/* Glass morphism for dark mode */
-.dark .glass {
-  background: var(--glass-background);
+.btn-secondary:hover {
+  background: var(--color-secondary-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+/* ---- Accent ---- */
+.btn-accent {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.btn-accent:hover {
+  background: var(--color-accent-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+/* ---- Outline ---- */
+.btn-outline {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.btn-outline.dark {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-outline.dark:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* ---- Ghost ---- */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+  color: var(--color-text);
+  background: var(--color-primary-soft);
+}
+
+/* ---- Sizes ---- */
+.btn-sm {
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.8125rem;
+}
+
+.btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.0625rem;
+}
+
+/* ---- With Icon ---- */
+.btn-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border-radius: var(--radius-full);
+}
+
+.btn-icon-sm {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* ============================================
+   CARDS & SURFACES
+   ============================================ */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-elevated {
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-interactive {
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-secondary);
+}
+
+/* ---- Card with Image ---- */
+.card-image {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.card-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform var(--duration-slow) var(--ease-museum);
+}
+
+.card-image:hover img {
+  transform: scale(1.02);
+}
+
+/* ============================================
+   SECTION BACKGROUNDS
+   ============================================ */
+
+.section-hero {
+  background-color: var(--section-hero);
+}
+
+.section-about {
+  background-color: var(--section-about);
+}
+
+.section-experience {
+  background-color: var(--section-experience);
+}
+
+.section-skills {
+  background-color: var(--section-skills);
+}
+
+.section-projects {
+  background-color: var(--section-projects);
+}
+
+.section-gallery {
+  background-color: var(--section-gallery);
+  color: var(--color-text-inverse);
+}
+
+.section-contact {
+  background-color: var(--section-contact);
+  color: var(--color-text-inverse);
+}
+
+.section-footer {
+  background-color: var(--section-footer);
+  color: var(--color-text-inverse);
+}
+
+/* ---- Section Transition Wrapper ---- */
+.section-transition {
+  transition: background-color var(--duration-exhibition) var(--ease-museum);
+}
+
+/* ============================================
+   GLASS MORPHISM
+   ============================================ */
+
+.glass {
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
 }
 
-/* Active navigation states in dark mode */
-.dark .nav-active {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+/* ============================================
+   TAGS & BADGES
+   ============================================ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
 }
 
-.dark .nav-active::after {
-  background-color: var(--color-primary);
+.tag-secondary {
+  background: var(--color-secondary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-secondary);
 }
 
-/* Button variants for dark mode */
-.dark .btn-primary {
-  background-color: var(--color-primary);
-  color: var(--color-text-light);
+.tag-accent {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border-color: var(--color-accent);
 }
 
-.dark .btn-primary:hover {
-  background-color: var(--button-primary-hover);
-  box-shadow: 0 4px 16px rgba(200, 158, 184, 0.3);
+.tag-atmosphere {
+  background: var(--color-atmosphere);
+  color: var(--color-text-inverse);
+  border-color: var(--color-atmosphere);
 }
 
-.dark .btn-secondary {
-  background-color: var(--color-secondary);
-  color: var(--color-text-light);
-}
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
 
-.dark .btn-secondary:hover {
-  background-color: var(--button-secondary-hover);
-  box-shadow: 0 4px 16px rgba(200, 158, 184, 0.2);
-}
-
-.dark .btn-outline {
-  background: transparent;
-  border: 1px solid var(--border-medium);
-  color: var(--color-text-primary);
-}
-
-.dark .btn-outline:hover {
+input,
+textarea,
+select {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
   background: var(--color-surface);
-  border-color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
-/* Project cards and gallery items */
-.dark .project-card {
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--color-border-strong);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-focus);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+  letter-spacing: 0.02em;
+}
+
+.form-group {
+  margin-bottom: var(--space-6);
+}
+
+/* ============================================
+   DIVIDERS
+   ============================================ */
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-8) 0;
+}
+
+hr.strong {
+  background: var(--color-border-strong);
+}
+
+hr.section-divider {
+  margin: var(--space-16) 0;
+}
+
+/* ============================================
+   PROJECT CARDS (Gallery Installation)
+   ============================================ */
+
+.project-card {
   background: var(--color-surface);
-  border: 1px solid var(--border-light);
-  transition: all 0.3s ease;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all var(--duration-base) var(--ease-out);
 }
 
-.dark .project-card:hover {
-  border-color: var(--border-medium);
-  box-shadow: 0 8px 32px var(--shadow-color);
+.project-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
   transform: translateY(-4px);
 }
 
-/* Typography accents in dark mode */
-.dark .text-accent {
-  color: var(--color-accent-gold);
-}
-
-.dark .text-muted {
-  color: var(--color-text-secondary);
-}
-
-/* Dividers */
-.dark .divider {
-  background: var(--border-light);
-  height: 1px;
-}
-
-/* Tags and badges */
-.dark .tag {
+.project-card .project-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   background: var(--color-surface-alt);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--border-light);
+  display: block;
 }
 
-.dark .tag-active {
-  background: var(--color-primary);
-  color: var(--color-text-light);
-  border-color: var(--color-primary);
+.project-card .project-content {
+  padding: var(--space-6);
+}
+
+.project-card .project-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.project-card .project-description {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.project-card .project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ============================================
+   NAVIGATION
+   ============================================ */
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: var(--space-4) var(--space-8);
+  background: transparent;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.navbar-scrolled {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dark .navbar-scrolled {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.nav-link {
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  padding: var(--space-2) 0;
+  position: relative;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-secondary);
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.nav-link:hover::after,
+.nav-link-active::after {
+  width: 100%;
+}
+
+.nav-link-active {
+  color: var(--color-secondary);
+}
+
+.dark .nav-link-active {
+  color: var(--color-secondary);
+}
+
+/* ============================================
+   THEME TOGGLE
+   ============================================ */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.theme-toggle:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+  transform: rotate(15deg);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.theme-toggle .icon {
+  transition: transform var(--duration-slow) var(--ease-museum);
+}
+
+.theme-toggle:hover .icon {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   TIMELINE (Experience Section)
+   ============================================ */
+
+.timeline {
+  position: relative;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: var(--space-8);
+  padding-bottom: var(--space-8);
+  border-left: 1px solid var(--color-border);
+}
+
+.timeline-item:last-child {
+  border-left: none;
+  padding-bottom: 0;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -0.4375rem;
+  top: 0.25rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: var(--radius-full);
+  background: var(--color-secondary);
+  border: 2px solid var(--color-surface);
+}
+
+.dark .timeline-item::before {
+  border-color: var(--color-background);
+}
+
+.timeline-item .timeline-date {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.timeline-item .timeline-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  color: var(--color-text);
+  margin: var(--space-1) 0;
+}
+
+.timeline-item .timeline-organization {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.timeline-item .timeline-description {
+  color: var(--color-text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  margin-top: var(--space-2);
+}
+
+/* ============================================
+   GALLERY GRID
+   ============================================ */
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--ease-museum);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.04);
+}
+
+.gallery-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.3) 100%);
+  opacity: 0;
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.gallery-item:hover::after {
+  opacity: 1;
+}
+
+/* ============================================
+   MODAL / LIGHTBOX
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-xl);
+  transform: scale(0.95);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.modal-overlay.open .modal {
+  transform: scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.modal-close:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+.footer {
+  padding: var(--space-16) var(--space-8) var(--space-8);
+  background: var(--section-footer);
+  color: var(--color-text-inverse);
+}
+
+.footer a {
+  color: var(--color-text-secondary);
+}
+
+.footer a:hover {
+  color: var(--color-text-inverse);
+}
+
+.footer .footer-divider {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* ---- Focus-visible (all interactive elements) ---- */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ---- Reduced Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- High Contrast ---- */
+@media (prefers-contrast: high) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-accent,
+  .btn-outline {
+    border-width: 2px;
+    border-style: solid;
+  }
+
+  .card,
+  .project-card,
+  .modal {
+    border-width: 2px;
+  }
+
+  .tag {
+    border-width: 2px;
+  }
+
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+}
+
+/* ---- Screen Reader Only ---- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   UTILITY HELPERS
+   ============================================ */
+
+/* ---- Text Colors ---- */
+.text-primary {
+  color: var(--color-text);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-inverse {
+  color: var(--color-text-inverse);
+}
+
+/* ---- Background Colors ---- */
+.bg-surface {
+  background: var(--color-surface);
+}
+
+.bg-surface-alt {
+  background: var(--color-surface-alt);
+}
+
+.bg-elevated {
+  background: var(--color-elevated);
+}
+
+.bg-background {
+  background: var(--color-background);
+}
+
+/* ---- Border Colors ---- */
+.border-subtle {
+  border-color: var(--color-border);
+}
+
+.border-strong {
+  border-color: var(--color-border-strong);
+}
+
+/* ---- Spacing Utilities ---- */
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+.m-auto { margin: auto; }
+
+/* ---- Flex Utilities ---- */
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.flex-1 { flex: 1; }
+.gap-2 { gap: var(--space-2); }
+.gap-4 { gap: var(--space-4); }
+
+/* ---- Grid Utilities ---- */
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .card {
+    padding: var(--space-4);
+  }
+
+  .project-card .project-content {
+    padding: var(--space-4);
+  }
+
+  .modal {
+    padding: var(--space-4);
+    max-width: 95vw;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .timeline-item {
+    padding-left: var(--space-6);
+    padding-bottom: var(--space-6);
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .btn {
+    padding: var(--space-2) var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  .btn-lg {
+    padding: var(--space-3) var(--space-6);
+    font-size: 1rem;
+  }
 }

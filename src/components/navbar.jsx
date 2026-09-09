@@ -56,7 +56,7 @@ function SignatureUnderline() {
           C332 214 390 210 470 206
           C555 202 635 198 722 196
         "
-        stroke="var(--color-primary)"
+        stroke="var(--color-secondary)"
         strokeWidth="15"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -108,7 +108,6 @@ export default function Navbar() {
     }
   }, []);
 
-  // Trigger navbar animation on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsNavVisible(true);
@@ -228,12 +227,12 @@ export default function Navbar() {
       return {
         fontFamily: isActiveContact ? 'var(--font-heading)' : "inherit",
         display: "inline-block",
-        padding: isActiveContact ? "4px 20px" : "8px 20px",
+        padding: isActiveContact ? "4px 20px" : "8px 24px",
         borderRadius: "9999px",
         border: "1px solid",
-        borderColor: isActiveContact ? "var(--color-primary)" : "transparent",
+        borderColor: isActiveContact ? "var(--color-secondary)" : "transparent",
         backgroundColor: isActiveContact ? "transparent" : "var(--color-primary)",
-        color: isActiveContact ? "var(--color-primary)" : "var(--color-text-light)",
+        color: isActiveContact ? "var(--color-secondary)" : "var(--color-text-inverse)",
         transition: "all 0.3s ease",
         fontWeight: isActiveContact ? "600" : "500",
         fontSize: isActiveContact ? "0.875rem" : "0.875rem",
@@ -244,15 +243,16 @@ export default function Navbar() {
         minWidth: isActiveContact ? "auto" : "auto",
         minHeight: isActiveContact ? "auto" : "auto",
         ...(isHovered && !isActiveContact && {
-          backgroundColor: "var(--button-primary-hover)",
-          transform: "scale(1.02)",
-          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+          backgroundColor: "var(--color-primary-hover)",
+          transform: "translateY(-1px)",
+          boxShadow: "var(--shadow-small)",
         }),
         ...(isHovered && isActiveContact && {
-          color: "var(--color-text-light)",
-          backgroundColor: "var(--color-primary)",
-          transform: "scale(1.02)",
-          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+          color: "var(--color-text-inverse)",
+          backgroundColor: "var(--color-secondary)",
+          transform: "translateY(-1px)",
+          boxShadow: "var(--shadow-small)",
+          borderColor: "var(--color-secondary)",
         }),
       };
     }
@@ -266,7 +266,10 @@ export default function Navbar() {
       letterSpacing: "0.05em",
       cursor: "pointer",
       outline: "none",
-      transition: "color 0.2s ease"
+      transition: "color 0.2s ease, transform 0.2s ease",
+      ...(isHovered && {
+        transform: "translateY(-1px)",
+      }),
     };
   };
 
@@ -280,12 +283,12 @@ export default function Navbar() {
       return {
         fontFamily: isActiveContact ? 'var(--font-heading)' : "inherit",
         display: "inline-block",
-        padding: isActiveContact ? "4px 20px" : "8px 20px",
+        padding: isActiveContact ? "4px 20px" : "8px 24px",
         borderRadius: "9999px",
         border: "1px solid",
-        borderColor: isActiveContact ? "var(--color-primary)" : "transparent",
+        borderColor: isActiveContact ? "var(--color-secondary)" : "transparent",
         backgroundColor: isActiveContact ? "transparent" : "var(--color-primary)",
-        color: isActiveContact ? "var(--color-primary)" : "var(--color-text-light)",
+        color: isActiveContact ? "var(--color-secondary)" : "var(--color-text-inverse)",
         transition: "all 0.3s ease",
         fontWeight: isActiveContact ? "600" : "500",
         fontSize: isActiveContact ? "0.875rem" : "0.875rem",
@@ -296,15 +299,16 @@ export default function Navbar() {
         minWidth: isActiveContact ? "auto" : "120px",
         minHeight: isActiveContact ? "auto" : "40px",
         ...(isHovered && !isActiveContact && {
-          backgroundColor: "var(--button-primary-hover)",
+          backgroundColor: "var(--color-primary-hover)",
           transform: "scale(1.02)",
-          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+          boxShadow: "var(--shadow-small)",
         }),
         ...(isHovered && isActiveContact && {
-          color: "var(--color-text-light)",
-          backgroundColor: "var(--color-primary)",
+          color: "var(--color-text-inverse)",
+          backgroundColor: "var(--color-secondary)",
           transform: "scale(1.02)",
-          boxShadow: "0 10px 20px -8px rgba(67, 32, 51, 0.35)",
+          boxShadow: "var(--shadow-small)",
+          borderColor: "var(--color-secondary)",
         }),
       };
     }
@@ -313,16 +317,19 @@ export default function Navbar() {
       fontFamily: active ? 'var(--font-heading)' : "inherit",
       color: isHovered ? "var(--color-link)" : (active ? "var(--color-primary)" : "var(--color-text-secondary)"),
       fontWeight: active ? "600" : "400",
-      fontSize: active ? "1.5rem" : "0.875rem",
+      fontSize: active ? "1.5rem" : "1rem",
       letterSpacing: active ? "0.05em" : "normal",
       padding: "4px 0",
       outline: "none",
-      transition: "color 0.2s ease"
+      transition: "color 0.2s ease, transform 0.2s ease",
+      ...(isHovered && {
+        transform: "translateX(4px)",
+      }),
     };
   };
 
   const dropdownContent = (
-    <div className="flex flex-col items-center py-6 px-4 gap-4" style={{ fontWeight: 400 }}>
+    <div className="flex flex-col items-center py-8 px-4 gap-6" style={{ fontWeight: 400 }}>
       {navigation.map((item) => {
         return (
           <a
@@ -341,14 +348,14 @@ export default function Navbar() {
       
       <button
         onClick={toggleDarkMode}
-        className="mt-2 p-3 rounded-full transition flex items-center gap-2"
+        className="mt-4 p-3 rounded-full transition flex items-center gap-3"
         style={{
           color: "var(--color-text-secondary)",
           backgroundColor: "var(--color-surface)",
           border: "1px solid var(--border-light)",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "var(--color-primary)";
+          e.currentTarget.style.borderColor = "var(--border-medium)";
           e.currentTarget.style.backgroundColor = "var(--color-surface-alt)";
         }}
         onMouseLeave={(e) => {
@@ -375,10 +382,11 @@ export default function Navbar() {
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
           <Link
             href="/"
-            className="flex items-center uppercase gap-1 text-lg font-bold tracking-wide text-[var(--color-primary)] transition hover:text-[var(--color-secondary)]"
+            className="flex items-center uppercase gap-1 text-lg font-bold tracking-wide transition hover:opacity-80"
             style={{
               fontFamily: isAnyNavActive ? 'var(--font-heading)' : 'var(--font-accent)',
               fontSize: isAnyNavActive ? "1.5rem" : "1.125rem",
+              color: "var(--color-primary)",
               outline: "none"
             }}
           >
@@ -413,7 +421,7 @@ export default function Navbar() {
             
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full transition ml-2"
+              className="p-2.5 rounded-full transition ml-2"
               aria-label="Toggle dark mode"
               style={{
                 color: "var(--color-text-secondary)",
@@ -422,7 +430,7 @@ export default function Navbar() {
                 border: "1px solid var(--border-light)",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-primary)";
+                e.currentTarget.style.borderColor = "var(--border-medium)";
                 e.currentTarget.style.backgroundColor = "var(--color-surface-alt)";
               }}
               onMouseLeave={(e) => {
@@ -436,9 +444,18 @@ export default function Navbar() {
 
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 text-[var(--color-text-secondary)] transition hover:text-[var(--color-link)]"
+            className="md:hidden p-2 transition"
             aria-label="Toggle menu"
-            style={{ outline: "none" }}
+            style={{
+              color: "var(--color-text-secondary)",
+              outline: "none"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "var(--color-link)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = "var(--color-text-secondary)";
+            }}
           >
             {isOpen ? <CloseIcon /> : <MenuIcon />}
           </button>
@@ -448,7 +465,7 @@ export default function Navbar() {
       {isOpen &&
         createPortal(
           <div
-            className="fixed left-0 right-0 z-40 overflow-hidden bg-[var(--color-background)]/80 backdrop-blur-md border-b border-[var(--border-light)]"
+            className="fixed left-0 right-0 z-40 overflow-hidden bg-[var(--color-background)]/90 backdrop-blur-md border-b border-[var(--border-light)]"
             style={{
               top: `${headerHeight}px`,
               maxHeight: "calc(100vh - 80px)",
