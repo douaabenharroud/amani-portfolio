@@ -348,7 +348,7 @@ export default function ProjectsSection() {
 const contentOpacity = useTransform(
   scrollYProgress,
   [0, 0.25, 0.5, 0.85, 0.95, 1],
-  [0, 0.5, 1, 1, 1, 1]  // Reaches full opacity at 0.5
+  [0, 0.5, 1, 1, 1, 1]
 );
 
   const contentCounterScale = useTransform(archScale, (v) => 1 / v);
@@ -357,7 +357,6 @@ const contentOpacity = useTransform(
     v > 0.05 ? "auto" : "none"
   );
 
-  // FIXED: Header stays visible throughout - no fading at the end
   const headerOpacity = useTransform(
     scrollYProgress,
     [0, 0.2, 0.35, 0.8, 1],
@@ -395,16 +394,23 @@ const contentOpacity = useTransform(
   };
 
   const colors = {
-    background: isDark ? "#2a1f28" : "#976D90",
-    surface: isDark ? "#352a33" : "#a87da3",
-    surfaceAlt: isDark ? "#403540" : "#b88db3",
-    textPrimary: isDark ? "#FFFFFF" : "#FAF7F6",
-    textSecondary: isDark ? "rgba(255,255,255,0.7)" : "rgba(250,247,246,0.7)",
-    accent: "#AF6384",
-    accentLight: isDark ? "rgba(175, 99, 132, 0.3)" : "rgba(175, 99, 132, 0.2)",
-    highlight: "#EED4D1",
-    border: isDark ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.15)",
+    background: isDark ? "#181726" : "#F7F2EC",
+    surface: isDark ? "#222132" : "#FFFCFA",
+    surfaceAlt: isDark ? "#2C2B40" : "#EFE6DE",
+    elevated: isDark ? "#36354D" : "#FFFDFC",
+    textPrimary: isDark ? "#F4F1EC" : "#2F2A36",
+    textSecondary: isDark ? "rgba(244,241,236,0.7)" : "rgba(47,42,54,0.7)",
+    primary: isDark ? "#ECE8E2" : "#23213F",
+    secondary: isDark ? "#BDB5D8" : "#8073A8",
+    accent: isDark ? "#D8A9BC" : "#B27B95",
+    atmosphere: isDark ? "#A7C8CF" : "#8AAFB8",
+    galleryLight: isDark ? "#F0D6B7" : "#E7D2B8",
+    accentLight: isDark ? "rgba(216, 169, 188, 0.3)" : "rgba(178, 123, 149, 0.2)",
+    highlight: isDark ? "#F0D6B7" : "#E7D2B8",
+    border: isDark ? "rgba(255,255,255,0.08)" : "rgba(222,212,203,0.5)",
     cardBg: isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.08)",
+    muted: isDark ? "#B5AFB8" : "#766F78",
+    focus: "#8C98C9",
   };
 
   return (

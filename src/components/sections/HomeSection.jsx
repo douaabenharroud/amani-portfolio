@@ -5,13 +5,13 @@ import { useState, useEffect, useRef } from "react";
 // ============================================
 // MUSEUM-INSPIRED BUTTON COMPONENT
 // ============================================
-const MuseumButton = ({ 
-  children, 
-  variant = 'primary', 
-  onMouseEnter, 
+const MuseumButton = ({
+  children,
+  variant = 'primary',
+  onMouseEnter,
   onMouseLeave,
   className = '',
-  ...props 
+  ...props
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -605,30 +605,40 @@ export default function HomeSection() {
   };
 
   // ============================================
-  // MUSEUM-INSPIRED TEXT STYLES (FIXED CONTRAST)
+  // MUSEUM-INSPIRED TEXT STYLES
   // ============================================
   const getTextStyles = () => {
     return {
-      heading: {
+      name: {
         color: isDark ? 'var(--color-text)' : 'var(--color-primary)',
         fontFamily: 'var(--font-heading)',
         fontWeight: '400',
-        lineHeight: '1.15',
+        lineHeight: '1.1',
         letterSpacing: '-0.02em',
       },
-      accent: {
-        fontFamily: 'var(--font-accent)',
-        color: isDark ? 'var(--color-accent)' : 'var(--color-accent)',
-        fontWeight: '400',
-      },
-      // FIXED: Using --color-text for better contrast
       subtitle: {
+        color: isDark ? 'var(--color-text-secondary)' : 'var(--color-text-secondary)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: '300',
+        letterSpacing: '0.05em',
+        opacity: '0.7',
+      },
+      description: {
         color: isDark ? 'var(--color-text)' : 'var(--color-text)',
         fontFamily: 'var(--font-body)',
         fontWeight: '300',
         lineHeight: '1.7',
         letterSpacing: '0.01em',
         opacity: isDark ? '0.85' : '0.8',
+      },
+      tag: {
+        color: isDark ? 'var(--color-text-secondary)' : 'var(--color-text-secondary)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: '300',
+        fontSize: '0.7rem',
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        opacity: '0.6',
       },
     };
   };
@@ -651,28 +661,19 @@ export default function HomeSection() {
         <section
           ref={sectionRef}
           id="home"
-          className="relative w-full flex items-center overflow-hidden pt-16 md:pt-20 lg:pt-24"
-          style={{ minHeight: '70vh' }}
+          className="relative w-full flex items-center justify-center overflow-hidden pt-16 md:pt-20 lg:pt-24"
+          style={{ 
+            minHeight: '70vh',
+            backgroundColor: isDark ? 'var(--color-background)' : '#faf8f6',
+          }}
         >
-          {/* Background image container - flipped and cropped */}
-          <div 
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url(${isDark ? '/landingDark.png' : '/landingLight.png'})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 30%',
-              backgroundRepeat: 'no-repeat',
-              transform: 'scaleX(-1)',
-            }}
-          />
-          
           {/* Museum-inspired ambient glow overlay */}
           <div 
             className="absolute inset-0 pointer-events-none"
             style={{
               background: isDark 
-                ? 'radial-gradient(ellipse at 30% 40%, rgba(189, 181, 216, 0.06) 0%, transparent 70%)'
-                : 'radial-gradient(ellipse at 30% 40%, rgba(178, 123, 149, 0.05) 0%, transparent 70%)',
+                ? 'radial-gradient(ellipse at center, rgba(189, 181, 216, 0.06) 0%, transparent 70%)'
+                : 'radial-gradient(ellipse at center, rgba(178, 123, 149, 0.04) 0%, transparent 70%)',
             }}
           />
           
@@ -693,10 +694,9 @@ export default function HomeSection() {
               return null;
             }
             
-            // Museum-inspired warm glow
             const color = isDark ? '#FFE8E0' : '#EED4D1';
-            const glowColor = isDark ? 'rgba(255, 232, 224, 0.4)' : 'rgba(238, 212, 209, 0.4)';
-            const glowIntensity = 0.7 + Math.random() * 0.3;
+            const glowColor = isDark ? 'rgba(255, 232, 224, 0.3)' : 'rgba(238, 212, 209, 0.3)';
+            const glowIntensity = 0.5 + Math.random() * 0.3;
             
             const shouldPulse = isScattered || isResettingNow;
             const pulseDuration = '2s';
@@ -742,8 +742,8 @@ export default function HomeSection() {
                       height: `${size}px`,
                       backgroundColor: color,
                       boxShadow: isScattered || isResettingNow
-                        ? `0 0 ${8 + glowIntensity * 8}px ${3 + glowIntensity * 3}px ${glowColor}, 0 0 ${16 + glowIntensity * 12}px ${6 + glowIntensity * 4}px ${glowColor}, 0 0 ${30 + glowIntensity * 20}px ${12 + glowIntensity * 8}px ${glowColor}`
-                        : `0 0 4px 2px ${glowColor}, 0 0 8px 3px rgba(238, 212, 209, 0.15)`,
+                        ? `0 0 ${6 + glowIntensity * 6}px ${2 + glowIntensity * 2}px ${glowColor}, 0 0 ${12 + glowIntensity * 10}px ${4 + glowIntensity * 3}px ${glowColor}`
+                        : `0 0 3px 1px ${glowColor}, 0 0 6px 2px rgba(238, 212, 209, 0.1)`,
                       opacity: glowIntensity,
                       animation: shouldPulse ? `pulse ${pulseDuration} ease-in-out infinite` : 'none',
                       transform: 'scale(1)',
@@ -759,7 +759,7 @@ export default function HomeSection() {
                         width: '1px',
                         height: '1px',
                         backgroundColor: color,
-                        opacity: 0.2,
+                        opacity: 0.15,
                         transform: `translate(${-5 + Math.random() * 10}px, ${-5 + Math.random() * 10}px)`,
                         filter: 'blur(2px)',
                         animation: 'twinkle 3s ease-in-out infinite',
@@ -771,63 +771,83 @@ export default function HomeSection() {
             );
           })}
           
-          {/* Content - not flipped */}
+          {/* Content - Centered */}
           <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-8 md:py-12 lg:py-16 xl:py-20">
-            <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto lg:mx-0 lg:ml-[5%] xl:ml-[8%] 2xl:ml-[10%]">
+            <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto text-center">
               
-              {/* Soft gallery light behind text - museum-inspired */}
+              {/* Soft gallery light behind text */}
               {!isDark && (
-                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 bg-gradient-to-r from-[#EED4D1]/20 via-[#EED4D1]/10 to-transparent rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#EED4D1]/15 via-[#EED4D1]/8 to-[#EED4D1]/15 rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
               )}
               {isDark && (
-                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 bg-gradient-to-r from-[#BDB5D8]/10 via-transparent to-transparent rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+                <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#BDB5D8]/8 via-transparent to-[#BDB5D8]/8 rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
               )}
               
-              <div className="relative max-w-3xl xl:max-w-4xl 2xl:max-w-5xl">
-                {/* Museum-inspired decorative line */}
+              <div className="relative">
+                {/* Museum-inspired decorative line - centered */}
                 <div 
-                  className="w-12 h-[2px] mb-6 md:mb-8"
+                  className="w-12 h-[2px] mx-auto mb-6 md:mb-8"
                   style={{
                     background: isDark 
-                      ? 'linear-gradient(90deg, var(--color-accent), transparent)'
-                      : 'linear-gradient(90deg, var(--color-secondary), transparent)',
+                      ? 'linear-gradient(90deg, transparent, var(--color-accent), transparent)'
+                      : 'linear-gradient(90deg, transparent, var(--color-secondary), transparent)',
                   }}
                 />
                 
-                {/* ==========================================
-                    MUSEUM-INSPIRED HEADING
-                    ========================================== */}
+                {/* Name - Main heading */}
                 <h1 
-                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
-                  style={textStyles.heading}
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
+                  style={textStyles.name}
                 >
-                  Where{' '}
-                  <span style={textStyles.accent}>thoughtful</span>{' '}
-                  design meets{' '}
-                  <span style={textStyles.accent}>intelligent</span>{' '}
-                  technology
+                  Douaa Benhharroud
                 </h1>
                 
-                {/* ==========================================
-                    MUSEUM-INSPIRED SUBTITLE (FIXED CONTRAST)
-                    ========================================== */}
+                {/* Position - Subtitle */}
                 <p 
-                  className="mt-3 md:mt-4 lg:mt-6 max-w-xl lg:max-w-2xl xl:max-w-3xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
+                  className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider"
                   style={textStyles.subtitle}
                 >
-                  I design and build modern websites, AI-powered applications, and visual identities that help startups and businesses stand out. Every project combines strategy, engineering, and design to create experiences people actually enjoy using.
+                  AI Engineer · Software Engineer · Data Scientist
                 </p>
                 
-                {/* ==========================================
-                    MUSEUM-INSPIRED CTA BUTTONS
-                    ========================================== */}
-                <div className="mt-4 md:mt-6 lg:mt-8 xl:mt-10 flex flex-wrap gap-3 md:gap-4">
+                {/* Decorative separator */}
+                <div 
+                  className="w-16 h-px mx-auto my-4 md:my-5"
+                  style={{
+                    background: isDark 
+                      ? 'linear-gradient(90deg, transparent, var(--color-accent), transparent)'
+                      : 'linear-gradient(90deg, transparent, var(--color-secondary), transparent)',
+                    opacity: '0.3',
+                  }}
+                />
+                
+                {/* Description - now the paragraph */}
+                <p 
+                  className="mx-auto max-w-2xl lg:max-w-3xl xl:max-w-4xl text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"
+                  style={textStyles.description}
+                >
+                  Building intelligent products from concept to deployment — combining AI engineering, 
+                  full-stack development, and product design to turn complex ideas into products 
+                  people actually use.
+                </p>
+
+                {/* Tech tags */}
+                <div className="mt-4 md:mt-5 flex flex-wrap justify-center gap-x-5 gap-y-1.5">
+                  {['Machine Learning', 'Full Stack', 'Data Science', 'Computer Vision', 'FastAPI', 'React', 'Python'].map((tag) => (
+                    <span key={tag} style={textStyles.tag} className="text-[0.6rem] md:text-[0.65rem] tracking-[0.08em]">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                
+                {/* CTA Buttons */}
+                <div className="mt-4 md:mt-6 lg:mt-8 xl:mt-10 flex flex-wrap justify-center gap-3 md:gap-4">
                   <MuseumButton
                     variant="primary"
                     onMouseEnter={() => setHoveredButton('primary')}
                     onMouseLeave={() => setHoveredButton(null)}
                   >
-                    View Exhibition
+                    Explore Projects
                   </MuseumButton>
                   
                   <MuseumButton
@@ -847,15 +867,14 @@ export default function HomeSection() {
       {/* CSS animations */}
       <style jsx>{`
         @keyframes pulse {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.15); }
         }
         @keyframes twinkle {
           0%, 100% { opacity: 0.1; }
-          50% { opacity: 0.3; }
+          50% { opacity: 0.25; }
         }
         
-        /* Museum-inspired smooth transitions */
         .museum-btn {
           transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
         }
