@@ -1,8 +1,8 @@
 import Navbar from "@/components/navbar";
 import HomeSection from "@/components/sections/HomeSection";
+import AboutSection from "@/components/sections/AboutSection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
 import SkillsSection from "@/components/sections/SkillsSection";
-import AboutSection from "@/components/sections/AboutSection";
 import ContactSection from "@/components/sections/ContactSection";
 
 export default function Home() {
@@ -12,10 +12,10 @@ export default function Home() {
 
       <main>
         <HomeSection />
-        <AboutSection />
+        {/* <AboutSection /> */}
         <ProjectsSection />
-        {/* <SkillsSection />
-          <ContactSection /> */}
+        <SkillsSection />
+        <ContactSection />
       </main>
     </div>
   );

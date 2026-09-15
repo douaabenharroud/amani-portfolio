@@ -12,32 +12,22 @@ const projects = [
     category: "AI • IoT • Child Safety",
     description:
       "An intelligent, real-time child safety monitoring system that combines IoT wearables and mobile technology. It uses a novel human activity recognition (HAR) pipeline to detect critical situations, monitor well-being, and provide immediate alerts to parents and guardians, ensuring a secure environment for children.",
-    image: "/api/placeholder/400/300",
+    image: "/amankid.png",
     tags: ["Python", "FastAPI", "Flutter", "Firebase", "Machine Learning", "IoT", "ESP32", "MediaPipe", "Computer Vision", "Cloud"],
     year: "2026",
   },
   {
     id: 2,
-    title: "MasarAI (Proposed Concept)",
-    category: "Data Science • Recommendation System",
-    description:
-      "An AI-powered career guidance platform that analyzes the job market by scraping thousands of postings to identify industry trends. It generates personalized learning roadmaps and career recommendations for students and graduates, helping them navigate their professional futures in a data-driven way.",
-    image: "/api/placeholder/400/300",
-    tags: ["Python", "NLP", "Web Scraping", "FastAPI", "React", "PostgreSQL", "Data Science", "Recommendation System"],
-    year: "2026",
-  },
-  {
-    id: 3,
     title: "BotaniAI",
     category: "Machine Learning • IoT • Smart Agriculture",
     description:
       "An AIoT (Artificial Intelligence of Things) system for smart indoor plant care. It uses an ESP32 to collect environmental data (temperature, humidity, soil moisture, light) from sensors, transmits it to the cloud (ThingSpeak), and analyzes it with a machine learning ensemble (XGBoost, LightGBM) to predict plant health and provide actionable care recommendations.",
-    image: "/api/placeholder/400/300",
+    image: "/botaniai.png",
     tags: ["Python", "MicroPython", "TensorFlow", "ESP32", "ThingSpeak", "FastAPI", "Flutter", "XGBoost", "Machine Learning", "IoT"],
     year: "2025",
   },
   {
-    id: 4,
+    id: 3,
     title: "Arabic Sign Language Recognition",
     category: "Computer Vision • Deep Learning",
     description:
@@ -47,7 +37,7 @@ const projects = [
     year: "2025",
   },
   {
-    id: 5,
+    id: 4,
     title: "Plant Disease & FCN Segmentation",
     category: "Computer Vision • Semantic Segmentation",
     description:
@@ -57,7 +47,7 @@ const projects = [
     year: "2025",
   },
   {
-    id: 6,
+    id: 5,
     title: "AHD DayCare Connect",
     category: "Full-Stack Web Application",
     description:
@@ -67,7 +57,7 @@ const projects = [
     year: "2024",
   },
   {
-    id: 7,
+    id: 6,
     title: "Arabic Sports Trends Analysis & Visualization",
     category: "NLP • Data Analytics • LLM",
     description:
@@ -194,7 +184,7 @@ function MuseumFrame({
           }}
         >
           <Image
-            src="/landingLight.png"
+            src={project.image}
             alt={project.title}
             fill
             sizes="(max-width: 768px) 80vw, (max-width: 1024px) 50vw, 40vw"
@@ -394,23 +384,23 @@ const contentOpacity = useTransform(
   };
 
   const colors = {
-    background: isDark ? "#181726" : "#F7F2EC",
-    surface: isDark ? "#222132" : "#FFFCFA",
-    surfaceAlt: isDark ? "#2C2B40" : "#EFE6DE",
-    elevated: isDark ? "#36354D" : "#FFFDFC",
-    textPrimary: isDark ? "#F4F1EC" : "#2F2A36",
-    textSecondary: isDark ? "rgba(244,241,236,0.7)" : "rgba(47,42,54,0.7)",
-    primary: isDark ? "#ECE8E2" : "#23213F",
-    secondary: isDark ? "#BDB5D8" : "#8073A8",
-    accent: isDark ? "#D8A9BC" : "#B27B95",
-    atmosphere: isDark ? "#A7C8CF" : "#8AAFB8",
-    galleryLight: isDark ? "#F0D6B7" : "#E7D2B8",
-    accentLight: isDark ? "rgba(216, 169, 188, 0.3)" : "rgba(178, 123, 149, 0.2)",
-    highlight: isDark ? "#F0D6B7" : "#E7D2B8",
-    border: isDark ? "rgba(255,255,255,0.08)" : "rgba(222,212,203,0.5)",
-    cardBg: isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.08)",
-    muted: isDark ? "#B5AFB8" : "#766F78",
-    focus: "#8C98C9",
+    background: "var(--color-background)",
+    surface: "var(--color-surface)",
+    surfaceAlt: "var(--color-surface-alt)",
+    elevated: "var(--color-elevated)",
+    textPrimary: "var(--color-text)",
+    textSecondary: "var(--color-text-secondary)",
+    primary: "var(--color-primary)",
+    secondary: "var(--color-secondary)",
+    accent: "var(--color-accent)",
+    atmosphere: "var(--color-atmosphere)",
+    galleryLight: "var(--color-gallery-light)",
+    accentLight: "var(--color-accent-soft)",
+    highlight: "var(--color-secondary)",
+    border: "var(--color-border)",
+    cardBg: "var(--color-primary-soft)",
+    muted: "var(--color-text-muted)",
+    focus: "var(--color-focus)",
   };
 
   return (
@@ -444,9 +434,9 @@ const contentOpacity = useTransform(
                 transformOrigin: "center bottom",
                 width: isMobile ? "95vw" : "80vw",
                 height: isMobile ? "40vh" : "50vh",
-                background: `linear-gradient(180deg, ${colors.surfaceAlt} 0%, ${colors.surface} 40%, ${colors.background} 100%)`,
+                background: colors.surfaceAlt,
                 borderRadius: isMobile ? "500px 500px 0 0" : "1000px 1000px 0 0",
-                boxShadow: `inset 0 -20px 60px rgba(0,0,0,0.3)`,
+                boxShadow: `inset 0 0 0 1px ${colors.border}33`,
                 willChange: "transform",
                 position: "relative",
                 overflow: "hidden",
@@ -455,14 +445,6 @@ const contentOpacity = useTransform(
                 justifyContent: "center",
               }}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: isMobile ? "500px 500px 0 0" : "1000px 1000px 0 0",
-                  background: `radial-gradient(ellipse at 50% 20%, ${colors.accentLight} 0%, transparent 70%)`,
-                }}
-              />
 
               <div
                 style={{
@@ -635,7 +617,7 @@ const contentOpacity = useTransform(
             alignItems: "center",
             justifyContent: "center",
             padding: isMobile ? "8px" : "16px",
-            background: "rgba(0,0,0,0.8)",
+            background: "var(--color-primary-soft)",
             backdropFilter: "blur(12px)",
             animation: "modalFadeIn 0.3s ease-out",
           }}
@@ -739,7 +721,7 @@ const contentOpacity = useTransform(
                 }}
               >
                 <Image
-                  src="/landingLight.png"
+                  src={selectedProject.image}
                   alt={selectedProject.title}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

@@ -267,7 +267,7 @@ export default function AboutSection() {
       ref={sectionRef}
       className="relative w-full overflow-hidden min-h-screen"
       style={{
-        backgroundColor: isDark ? '#181726' : '#FFFCFA',
+        backgroundColor: 'var(--color-background)',
         position: 'sticky',
         top: 0,
         zIndex: 1,
@@ -280,53 +280,39 @@ export default function AboutSection() {
           className="w-full h-full"
           style={{
             background: isDark
-              ? 'radial-gradient(ellipse at center, rgba(8, 12, 24, 0) 0%, rgba(8, 12, 24, 1) 100%)'
-              : 'radial-gradient(ellipse at center, rgba(255, 252, 250, 0) 0%, rgba(255, 252, 250, 1) 100%)'
+              ? 'radial-gradient(ellipse at center, rgba(14, 28, 46, 0) 0%, rgba(14, 28, 46, 1) 100%)'
+              : 'radial-gradient(ellipse at center, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%)'
           }}
         />
       </div>
 
-      <div
-        className="absolute top-0 left-0 w-full h-6 sm:h-8 md:h-10 lg:h-12 pointer-events-none z-5"
-        style={{
-          background: isDark
-            ? 'linear-gradient(to bottom, rgba(8, 12, 24, 0) 0%, rgba(8, 12, 24, 1) 100%)'
-            : 'linear-gradient(to bottom, rgba(255, 252, 250, 0) 0%, rgba(255, 252, 250, 1) 100%)'
-        }}
-      />
+      
 
-      <div className="absolute top-0 left-0 w-full pointer-events-none z-0 opacity-10 sm:opacity-20">
-        <img
-          src="/lace.png"
-          alt="Lace decoration"
-          className="w-full h-auto object-cover"
-          style={{ maxHeight: '80px' }}
-        />
-      </div>
+      
 
       <div className="absolute inset-0 pointer-events-none z-0">
         <div
           className="absolute top-0 right-0 w-1/3 h-1/3 rounded-full blur-3xl"
           style={{
             background: isDark
-              ? 'radial-gradient(circle, rgba(238, 212, 209, 0.06) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(128, 115, 168, 0.06) 0%, transparent 70%)'
+              ? 'radial-gradient(circle, rgba(167, 183, 214, 0.08) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(44, 79, 190, 0.06) 0%, transparent 70%)'
           }}
         ></div>
         <div
           className="absolute bottom-0 left-0 w-1/3 h-1/3 rounded-full blur-3xl"
           style={{
             background: isDark
-              ? 'radial-gradient(circle, rgba(175, 99, 132, 0.06) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(178, 123, 149, 0.06) 0%, transparent 70%)'
+              ? 'radial-gradient(circle, rgba(109, 136, 193, 0.08) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(167, 183, 214, 0.08) 0%, transparent 70%)'
           }}
         ></div>
         <div
           className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 rounded-full blur-3xl"
           style={{
             background: isDark
-              ? 'radial-gradient(circle, rgba(151, 109, 144, 0.04) 0%, transparent 70%)'
-              : 'radial-gradient(circle, rgba(138, 175, 184, 0.04) 0%, transparent 70%)'
+              ? 'radial-gradient(circle, rgba(109, 136, 193, 0.05) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(44, 79, 190, 0.04) 0%, transparent 70%)'
           }}
         ></div>
       </div>
@@ -777,7 +763,7 @@ export default function AboutSection() {
             <p
               className="font-body text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-medium mb-0.5 sm:mb-1 md:mb-1.5"
               style={{
-                color: isDark ? '#EED4D1' : '#AF6384',
+                color: isDark ? 'var(--color-accent)' : 'var(--color-accent)',
                 fontFamily: 'Symphony, serif',
               }}
             >
@@ -788,7 +774,7 @@ export default function AboutSection() {
               <p
                 className="font-body text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed"
                 style={{
-                  color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(47, 42, 54, 0.85)',
+                  color: isDark ? 'rgba(243,242,239,0.85)' : 'rgba(31,44,46,0.82)',
                 }}
               >
                 I'm a Data Scientist and Product Designer who transforms complex problems into simple, practical solutions. I combine AI, software engineering, and design to create digital experiences that are intelligent, intuitive, and built with purpose.
@@ -796,7 +782,7 @@ export default function AboutSection() {
               <p
                 className="font-body text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed"
                 style={{
-                  color: isDark ? 'rgba(255,255,255,0.85)' : 'rgba(47, 42, 54, 0.85)',
+                  color: isDark ? 'rgba(243,242,239,0.85)' : 'rgba(31,44,46,0.82)',
                 }}
               >
                 I care about products that don't just look good—they solve real problems, improve how people work, and make technology feel effortless. Every decision, from strategy to implementation, is driven by clarity, usability, and measurable impact.
@@ -811,17 +797,15 @@ export default function AboutSection() {
                 className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 py-1.5 sm:py-2 md:py-2.5 lg:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 font-medium"
                 style={{
                   ...(isHovered ? {
-                    backgroundColor: isDark ? '#EED4D1' : '#8073A8',
-                    color: isDark ? '#080C18' : '#FFFCFA',
-                    border: `1px solid ${isDark ? '#EED4D1' : '#8073A8'}`,
+                    backgroundColor: 'var(--color-accent)',
+                    color: 'var(--color-text-inverse)',
+                    border: '1px solid var(--color-accent)',
                     transform: 'scale(1.02)',
-                    boxShadow: isDark
-                      ? '0 10px 20px -8px rgba(0, 0, 0, 0.35)'
-                      : '0 10px 20px -8px rgba(128, 115, 168, 0.35)',
+                    boxShadow: '0 12px 24px -14px rgba(200, 137, 112, 0.7)',
                   } : {
                     backgroundColor: 'transparent',
-                    color: isDark ? '#EED4D1' : '#8073A8',
-                    border: `1px solid ${isDark ? '#EED4D1' : '#8073A8'}`,
+                    color: 'var(--color-accent)',
+                    border: '1px solid var(--color-accent)',
                     transform: 'scale(1)',
                     boxShadow: 'none',
                   }),

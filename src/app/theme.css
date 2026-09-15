@@ -52,159 +52,160 @@
 
 :root,
 .light {
-  /* ---- SURFACES (80% of interface) ---- */
-  --color-background: #F7F2EC;       /* Main gallery walls */
-  --color-surface: #FFFCFA;          /* Cards, artwork containers */
-  --color-surface-alt: #EFE6DE;      /* Alternate gallery rooms */
-  --color-elevated: #FFFDFC;         /* Floating panels, hover states */
+  /* ---- SURFACES ---- */
+  --color-background: #F8F3F1;       /* Soft ivory */
+  --color-surface: #F4E8E7;          /* Mist rose */
+  --color-surface-alt: #E9D9E1;      /* Dusty lilac */
+  --color-elevated: #FBF5F6;         /* Elevated surfaces */
 
   /* ---- ARCHITECTURE ---- */
-  --color-primary: #23213F;          /* Structure, stability */
-  --color-primary-hover: #3A365A;
-  --color-primary-soft: rgba(35, 33, 63, 0.08);
+  --color-primary: #211B2C;          /* Deep plum */
+  --color-primary-hover: #33263B;
+  --color-primary-soft: rgba(33, 27, 44, 0.08);
 
   /* ---- CREATIVE IDENTITY ---- */
-  --color-secondary: #8073A8;        /* Dusty periwinkle */
-  --color-secondary-hover: #6E6191;
-  --color-secondary-soft: rgba(128, 115, 168, 0.12);
+  --color-secondary: #AF6384;        /* Crushed raspberry */
+  --color-secondary-hover: #8E4C69;
+  --color-secondary-soft: rgba(175, 99, 132, 0.14);
 
   /* ---- HUMAN WARMTH ---- */
-  --color-accent: #B27B95;           /* Dusty rose */
-  --color-accent-hover: #9D6882;
-  --color-accent-soft: rgba(178, 123, 149, 0.12);
+  --color-accent: #976D90;           /* Tulip violet */
+  --color-accent-hover: #7F556F;
+  --color-accent-soft: rgba(151, 109, 144, 0.15);
 
   /* ---- TECHNOLOGY / AI ---- */
-  --color-atmosphere: #8AAFB8;       /* Fog blue, mist */
-  --color-atmosphere-soft: rgba(138, 175, 184, 0.15);
+  --color-atmosphere: #D7BED4;       /* Powder mauve */
+  --color-atmosphere-soft: rgba(215, 190, 212, 0.28);
 
   /* ---- GALLERY LIGHT ---- */
-  --color-gallery-light: #E7D2B8;    /* Golden hour glow */
-  --color-gallery-light-soft: rgba(231, 210, 184, 0.3);
+  --color-gallery-light: #FBEFEF;    /* Soft highlight */
+  --color-gallery-light-soft: rgba(251, 239, 239, 0.55);
 
   /* ---- TYPOGRAPHY ---- */
-  --color-text: #2F2A36;             /* Primary copy */
-  --color-text-secondary: #766F78;   /* Supporting text */
-  --color-text-muted: #A69EAA;       /* Captions, disabled */
-  --color-text-inverse: #FFFCFA;     /* Text on dark surfaces */
+  --color-text: #1F1B22;             /* Primary copy */
+  --color-text-secondary: #5A4A60;   /* Supporting text */
+  --color-text-muted: #8B6E80;       /* Soft caption */
+  --color-text-inverse: #F8F3F1;     /* Text on dark surfaces */
 
   /* ---- BORDERS ---- */
-  --color-border: #DED4CB;           /* Subtle definition */
-  --color-border-strong: #C9BCB2;
+  --color-border: #E1C8D5;           /* Subtle separation */
+  --color-border-strong: #B17F99;
 
-  /* ---- SHADOWS (cool blue, never black) ---- */
-  --shadow-sm: 0 8px 20px rgba(8, 12, 22, 0.08);
-  --shadow-md: 0 16px 40px rgba(8, 12, 22, 0.12);
-  --shadow-lg: 0 30px 80px rgba(8, 12, 22, 0.18);
-  --shadow-xl: 0 48px 120px rgba(8, 12, 22, 0.22);
+  /* ---- SHADOWS ---- */
+  --shadow-sm: 0 10px 24px rgba(33, 27, 44, 0.08);
+  --shadow-md: 0 18px 44px rgba(33, 27, 44, 0.12);
+  --shadow-lg: 0 28px 72px rgba(33, 27, 44, 0.16);
+  --shadow-xl: 0 42px 110px rgba(33, 27, 44, 0.2);
 
   /* ---- FOCUS ---- */
-  --color-focus: #8C98C9;
-  --color-focus-ring: rgba(140, 152, 201, 0.35);
+  --color-focus: #B17F99;
+  --color-focus-ring: rgba(177, 127, 153, 0.35);
 
   /* ---- LINKS ---- */
-  --color-link: #8073A8;
-  --color-link-hover: #6E6191;
+  --color-link: #7D5875;
+  --color-link-hover: #5F3F5D;
 
   /* ---- STATUS ---- */
-  --color-success: #4A6B4A;
-  --color-success-soft: rgba(74, 107, 74, 0.12);
+  --color-success: #5F6D7C;
+  --color-success-soft: rgba(95, 109, 124, 0.12);
 
   /* ---- SECTION BACKGROUNDS ---- */
-  --section-hero: #F7F2EC;
-  --section-about: #FFFCFA;
-  --section-experience: #EFE6DE;
-  --section-skills: #F7F2EC;
-  --section-projects: #EFE6DE;
-  --section-gallery: #23213F;
-  --section-contact: #23213F;
-  --section-footer: #111621;
+  --section-hero: var(--color-background);
+  --section-about: #F1E4E4;
+  --section-experience: #E8D8E8;
+  --section-skills: var(--color-background);
+  --section-projects: #E7D1D8;
+  --section-gallery: #0F1E2C;        /* midnight blue */
+  --section-contact: #101B2B;         /* midnight blue */
+  --section-footer: #211B2C;
 
   /* ---- GRADIENTS ---- */
-  --gradient-subtle: linear-gradient(180deg, #F7F2EC 0%, #EFE6DE 100%);
-  --gradient-warm: linear-gradient(135deg, #F7F2EC 0%, #EFE6DE 50%, #E7D2B8 100%);
-  --gradient-gallery: linear-gradient(135deg, #23213F 0%, #2F2A4A 100%);
+  --gradient-subtle: linear-gradient(180deg, var(--color-background) 0%, var(--color-surface-alt) 100%);
+  --gradient-warm: linear-gradient(135deg, var(--color-background) 0%, #F2E1E8 45%, var(--color-accent-soft) 100%);
+  --gradient-gallery: linear-gradient(135deg, #211B2C 0%, var(--color-secondary) 50%, #0F1E2C 100%);
 
   /* ---- GLASS ---- */
-  --glass-bg: rgba(255, 252, 250, 0.85);
-  --glass-border: rgba(222, 212, 203, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-border: rgba(177, 127, 153, 0.32);
 }
 
 /* ============================================
-   DARK THEME — Evening Gallery
-   Deep blue, warm illumination, intimate atmosphere
+   DARK THEME — Midnight Gallery
+   Evening blue tones with rose-violet accents
    ============================================ */
 
 .dark {
   /* ---- SURFACES ---- */
-  --color-background: #181726;       /* Evening gallery walls */
-  --color-surface: #222132;          /* Cards, surfaces */
-  --color-surface-alt: #2C2B40;      /* Alternate rooms */
-  --color-elevated: #36354D;         /* Floating panels */
+  --color-background: #0B1626;       /* Midnight blue */
+  --color-surface: #13273A;          /* Deep blue-gray */
+  --color-surface-alt: #1C2F48;      /* Alternate blue surface */
+  --color-elevated: #24415F;         /* Elevated surface */
 
-  /* ---- ARCHITECTURE (inverted) ---- */
-  --color-primary: #ECE8E2;          /* Light structure */
-  --color-primary-hover: #F4F1EC;
-  --color-primary-soft: rgba(236, 232, 226, 0.1);
+  /* ---- ARCHITECTURE ---- */
+  --color-primary: #F4EDEA;          /* Soft warm white */
+  --color-primary-hover: #E5D0D8;
+  --color-primary-soft: rgba(244, 237, 234, 0.10);
 
   /* ---- CREATIVE IDENTITY ---- */
-  --color-secondary: #BDB5D8;        /* Soft periwinkle */
-  --color-secondary-hover: #CEC7E4;
-  --color-secondary-soft: rgba(189, 181, 216, 0.15);
+  --color-secondary: #AF6384;        /* Raspberry accent */
+  --color-secondary-hover: #C77096;
+  --color-secondary-soft: rgba(175, 99, 132, 0.18);
 
   /* ---- HUMAN WARMTH ---- */
-  --color-accent: #D8A9BC;           /* Warm rose */
-  --color-accent-hover: #E0B8C9;
-  --color-accent-soft: rgba(216, 169, 188, 0.15);
+  --color-accent: #9A7FB0;           /* Lavender-violet */
+  --color-accent-hover: #B9A0CC;
+  --color-accent-soft: rgba(154, 127, 176, 0.18);
 
   /* ---- TECHNOLOGY / AI ---- */
-  --color-atmosphere: #A7C8CF;       /* Misty blue */
-  --color-atmosphere-soft: rgba(167, 200, 207, 0.15);
+  --color-atmosphere: #DCCAD9;       /* Soft lilac */
+  --color-atmosphere-soft: rgba(220, 202, 217, 0.18);
 
   /* ---- GALLERY LIGHT ---- */
-  --color-gallery-light: #F0D6B7;    /* Warm illumination */
+  --color-gallery-light: #F6EEF2;    /* Delicate highlight */
+  --color-gallery-light-soft: rgba(246, 238, 242, 0.34);
 
   /* ---- TYPOGRAPHY ---- */
-  --color-text: #F4F1EC;             /* Primary copy */
-  --color-text-secondary: #B5AFB8;   /* Supporting text */
-  --color-text-muted: #87818C;       /* Captions */
-  --color-text-inverse: #181726;     /* Text on light surfaces */
+  --color-text: #F5F7FB;             /* Primary copy */
+  --color-text-secondary: #D3DDEB;   /* Supporting text */
+  --color-text-muted: #9DAFC7;       /* Captions */
+  --color-text-inverse: #0B1626;     /* Text on light surfaces */
 
   /* ---- BORDERS ---- */
-  --color-border: #34324A;
-  --color-border-strong: #4A485F;
+  --color-border: #2C4468;
+  --color-border-strong: #8CA5C7;
 
   /* ---- SHADOWS ---- */
-  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 48px 120px rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 10px 24px rgba(5, 10, 18, 0.35);
+  --shadow-md: 0 18px 44px rgba(5, 10, 18, 0.42);
+  --shadow-lg: 0 28px 72px rgba(5, 10, 18, 0.5);
+  --shadow-xl: 0 42px 110px rgba(5, 10, 18, 0.58);
 
   /* ---- LINKS ---- */
-  --color-link: #BDB5D8;
-  --color-link-hover: #CEC7E4;
+  --color-link: #D2C1E3;
+  --color-link-hover: #EDC9D9;
 
   /* ---- STATUS ---- */
-  --color-success: #5A7A5A;
-  --color-success-soft: rgba(90, 122, 90, 0.15);
+  --color-success: #A9BDD5;
+  --color-success-soft: rgba(169, 189, 213, 0.15);
 
   /* ---- SECTION BACKGROUNDS ---- */
-  --section-hero: #181726;
-  --section-about: #222132;
-  --section-experience: #2C2B40;
-  --section-skills: #181726;
-  --section-projects: #2C2B40;
-  --section-gallery: #ECE8E2;
-  --section-contact: #181726;
-  --section-footer: #0D0C17;
+  --section-hero: var(--color-background);
+  --section-about: #12263A;
+  --section-experience: #1A2E49;
+  --section-skills: #0B1626;
+  --section-projects: #2A1C34;
+  --section-gallery: #101B2B;
+  --section-contact: #0B1626;
+  --section-footer: #0A1423;
 
   /* ---- GRADIENTS ---- */
-  --gradient-subtle: linear-gradient(180deg, #222132 0%, #181726 50%, #12101E 100%);
-  --gradient-warm: linear-gradient(135deg, #222132 0%, #2C2B40 50%, #181726 100%);
-  --gradient-gallery: linear-gradient(135deg, #ECE8E2 0%, #DED4CB 100%);
+  --gradient-subtle: linear-gradient(180deg, var(--color-background) 0%, var(--color-surface-alt) 55%, #101B2B 100%);
+  --gradient-warm: linear-gradient(135deg, #13273A 0%, #1F3555 45%, var(--color-accent-soft) 100%);
+  --gradient-gallery: linear-gradient(135deg, #0B1626 0%, var(--color-accent) 50%, #AF6384 100%);
 
   /* ---- GLASS ---- */
-  --glass-bg: rgba(24, 23, 38, 0.88);
-  --glass-border: rgba(52, 50, 74, 0.5);
+  --glass-bg: rgba(11, 22, 38, 0.72);
+  --glass-border: rgba(140, 165, 199, 0.28);
 
   /* ---- TRANSITIONS (inherit) ---- */
 }
