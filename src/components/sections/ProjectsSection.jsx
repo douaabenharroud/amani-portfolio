@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 const projects = [
@@ -67,6 +67,218 @@ const projects = [
     year: "2025",
   },
 ];
+
+function FloatingParticles({ colors, isMobile }) {
+  const particles = Array.from({ length: isMobile ? 12 : 24 }, (_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * (isMobile ? 3 : 5) + 1,
+    duration: Math.random() * 20 + 15,
+    delay: Math.random() * 5,
+    opacity: Math.random() * 0.3 + 0.1,
+  }));
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 3,
+      }}
+    >
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          style={{
+            position: "absolute",
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            borderRadius: "50%",
+            background: colors.accent,
+            opacity: p.opacity,
+          }}
+          animate={{
+            y: [0, -30, 0, 20, 0],
+            x: [0, 15, -10, 5, 0],
+            opacity: [p.opacity, p.opacity * 2, p.opacity, p.opacity * 1.5, p.opacity],
+          }}
+          transition={{
+            duration: p.duration,
+            repeat: Infinity,
+            delay: p.delay,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function OrbitRings({ colors, isMobile }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        pointerEvents: "none",
+        zIndex: 0,
+      }}
+    >
+      {[1, 2, 3].map((ring) => (
+        <motion.div
+          key={ring}
+          style={{
+            position: "absolute",
+            width: isMobile ? `${40 + ring * 25}vw` : `${30 + ring * 20}vw`,
+            height: isMobile ? `${40 + ring * 25}vw` : `${30 + ring * 20}vw`,
+            borderRadius: "50%",
+            border: `1px solid ${colors.accent}${ring === 1 ? "18" : ring === 2 ? "10" : "06"}`,
+          }}
+          animate={{
+            rotate: ring % 2 === 0 ? [0, 360] : [360, 0],
+            scale: [1, 1.02, 1],
+          }}
+          transition={{
+            rotate: {
+              duration: 60 + ring * 20,
+              repeat: Infinity,
+              ease: "linear",
+            },
+            scale: {
+              duration: 8 + ring * 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            },
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function GridLines({ colors }) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        overflow: "hidden",
+        pointerEvents: "none",
+        zIndex: 0,
+        opacity: 0.15,
+      }}
+    >
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={`h-${i}`}
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: `${(i + 1) * 14}%`,
+            height: "1px",
+            background: `linear-gradient(to right, transparent, ${colors.accent}, transparent)`,
+          }}
+          animate={{ opacity: [0.1, 0.4, 0.1] }}
+          transition={{ duration: 5 + i, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={`v-${i}`}
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: `${(i + 1) * 14}%`,
+            width: "1px",
+            background: `linear-gradient(to bottom, transparent, ${colors.highlight}, transparent)`,
+          }}
+          animate={{ opacity: [0.05, 0.25, 0.05] }}
+          transition={{ duration: 6 + i, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CornerOrnaments({ colors, isMobile }) {
+  const size = isMobile ? 40 : 80;
+  const stroke = isMobile ? 1.5 : 2;
+  const corners = [
+    { pos: { top: isMobile ? 8 : 24, left: isMobile ? 8 : 24 }, rotate: 0 },
+    { pos: { top: isMobile ? 8 : 24, right: isMobile ? 8 : 24 }, rotate: 90 },
+    { pos: { bottom: isMobile ? 8 : 24, right: isMobile ? 8 : 24 }, rotate: 180 },
+    { pos: { bottom: isMobile ? 8 : 24, left: isMobile ? 8 : 24 }, rotate: 270 },
+  ];
+
+  return (
+    <>
+      {corners.map((c, i) => (
+        <motion.svg
+          key={i}
+          width={size}
+          height={size}
+          viewBox="0 0 80 80"
+          style={{
+            position: "absolute",
+            ...c.pos,
+            transform: `rotate(${c.rotate}deg)`,
+            pointerEvents: "none",
+            zIndex: 4,
+            opacity: 0.25,
+          }}
+          animate={{ opacity: [0.15, 0.35, 0.15] }}
+          transition={{ duration: 4 + i, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <path
+            d="M 4 40 L 4 4 L 40 4"
+            fill="none"
+            stroke={colors.accent}
+            strokeWidth={stroke}
+            strokeLinecap="round"
+          />
+          <circle cx="12" cy="12" r="3" fill={colors.highlight} opacity="0.5" />
+          <path
+            d="M 20 4 L 20 12 M 4 20 L 12 20"
+            stroke={colors.accent}
+            strokeWidth={stroke * 0.75}
+            strokeLinecap="round"
+            opacity="0.5"
+          />
+        </motion.svg>
+      ))}
+    </>
+  );
+}
+
+function ArchGlow({ colors, isMobile }) {
+  return (
+    <motion.div
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: isMobile ? "120vw" : "90vw",
+        height: isMobile ? "50vh" : "60vh",
+        background: `radial-gradient(ellipse at bottom center, ${colors.accent}22 0%, ${colors.highlight}11 30%, transparent 70%)`,
+        pointerEvents: "none",
+        zIndex: 2,
+      }}
+      animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+    />
+  );
+}
 
 function MuseumFrame({
   project,
@@ -138,6 +350,8 @@ function MuseumFrame({
       onClick={onClick}
       onMouseEnter={() => !isMobile && setHoveredProjectId(project.id)}
       onMouseLeave={() => !isMobile && setHoveredProjectId(null)}
+      whileHover={!isMobile ? { y: -10 } : {}}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
       <motion.div
         style={{
@@ -228,7 +442,7 @@ function MuseumFrame({
                     ? "clamp(1rem, 1.8vw, 1.5rem)"
                     : "clamp(1.25rem, 2vw, 1.75rem)",
                   fontWeight: 600,
-                  color: "white",
+                  color: colors.textPrimary,
                   marginBottom: isMobile ? "1px" : "6px",
                 }}
               >
@@ -265,8 +479,91 @@ function MuseumFrame({
               )}
             </div>
           </div>
+
+          {!isMobile && (
+            <>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  left: 8,
+                  width: 20,
+                  height: 20,
+                  borderTop: `2px solid ${colors.accent}66`,
+                  borderLeft: `2px solid ${colors.accent}66`,
+                  borderRadius: "4px 0 0 0",
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 8,
+                  right: 8,
+                  width: 20,
+                  height: 20,
+                  borderBottom: `2px solid ${colors.accent}66`,
+                  borderRight: `2px solid ${colors.accent}66`,
+                  borderRadius: "0 0 4px 0",
+                  pointerEvents: "none",
+                }}
+              />
+            </>
+          )}
         </div>
       </div>
+
+      <div
+        style={{
+          position: "absolute",
+          top: isMobile ? "-6px" : "-10px",
+          left: isMobile ? "4px" : "10px",
+          zIndex: 5,
+          fontFamily: "var(--font-heading)",
+          fontSize: isMobile ? "10px" : "12px",
+          fontWeight: 600,
+          color: colors.accent,
+          background: colors.surface,
+          border: `1px solid ${colors.accent}44`,
+          borderRadius: "9999px",
+          padding: isMobile ? "2px 8px" : "3px 10px",
+          letterSpacing: "0.05em",
+          boxShadow: `0 2px 8px ${colors.accent}22`,
+        }}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </div>
+    </motion.div>
+  );
+}
+
+function ScrollIndicator({ colors, isMobile }) {
+  return (
+    <motion.div
+      style={{
+        position: "absolute",
+        bottom: isMobile ? "6px" : "10px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "2px",
+        zIndex: 20,
+        pointerEvents: "none",
+      }}
+      animate={{ opacity: [0.3, 0.8, 0.3] }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <motion.div
+        style={{
+          width: "1px",
+          height: isMobile ? "10px" : "14px",
+          background: `linear-gradient(to bottom, ${colors.accent}, transparent)`,
+        }}
+        animate={{ scaleY: [1, 0.4, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      />
     </motion.div>
   );
 }
@@ -281,6 +578,7 @@ export default function ProjectsSection() {
   const [viewportWidth, setViewportWidth] = useState(0);
   const [frameWidth, setFrameWidth] = useState(0);
   const [gap, setGap] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const pinRef = useRef(null);
 
   useEffect(() => {
@@ -335,11 +633,11 @@ export default function ProjectsSection() {
     isMobile ? [0.9, 1.4, 1.9, 3] : [0.8, 1.4, 2.0, 2.6]
   );
 
-const contentOpacity = useTransform(
-  scrollYProgress,
-  [0, 0.25, 0.5, 0.85, 0.95, 1],
-  [0, 0.5, 1, 1, 1, 1]
-);
+  const contentOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.25, 0.5, 0.85, 0.95, 1],
+    [0, 0.5, 1, 1, 1, 1]
+  );
 
   const contentCounterScale = useTransform(archScale, (v) => 1 / v);
 
@@ -373,6 +671,19 @@ const contentOpacity = useTransform(
     [0, -maxTravel]
   );
 
+  useEffect(() => {
+    const unsubscribe = wallX.on("change", (x) => {
+      if (frameWidth === 0) return;
+      const centerOffset = -x + viewportWidth / 2;
+      const idx = Math.round(
+        (centerOffset - paddingSide - frameWidth / 2) / (frameWidth + gap)
+      );
+      const clamped = Math.max(0, Math.min(projects.length - 1, idx));
+      setActiveIndex(clamped);
+    });
+    return () => unsubscribe();
+  }, [wallX, frameWidth, gap, paddingSide, viewportWidth]);
+
   const handleProjectClick = (project) => {
     setSelectedProject(project);
     setIsModalOpen(true);
@@ -403,6 +714,9 @@ const contentOpacity = useTransform(
     focus: "var(--color-focus)",
   };
 
+  // Navbar-safe top padding
+  const topPadding = isMobile ? "170px" : "200px";
+
   return (
     <div
       ref={pinRef}
@@ -417,6 +731,25 @@ const contentOpacity = useTransform(
           id="projects"
           style={{ width: "100vw", height: "100dvh", position: "relative", overflow: "hidden" }}
         >
+          <GridLines colors={colors} />
+          <OrbitRings colors={colors} isMobile={isMobile} />
+          <FloatingParticles colors={colors} isMobile={isMobile} />
+
+          <motion.div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "2px",
+              background: `linear-gradient(to right, ${colors.accent}, ${colors.highlight})`,
+              transformOrigin: "left",
+              scaleX: scrollYProgress,
+              zIndex: 20,
+              opacity: 0.6,
+            }}
+          />
+
           <div
             style={{
               position: "absolute",
@@ -445,6 +778,7 @@ const contentOpacity = useTransform(
                 justifyContent: "center",
               }}
             >
+              <ArchGlow colors={colors} isMobile={isMobile} />
 
               <div
                 style={{
@@ -496,8 +830,8 @@ const contentOpacity = useTransform(
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "center",
-                  paddingTop: isMobile ? "calc(24px + 60px)" : "calc(48px + 120px)",
+                  justifyContent: "flex-start",
+                  paddingTop: topPadding,
                   paddingBottom: "0px",
                   opacity: contentOpacity,
                   scale: contentCounterScale,
@@ -508,13 +842,12 @@ const contentOpacity = useTransform(
                 <motion.div
                   style={{
                     textAlign: "center",
-                    marginBottom: isMobile ? "20px" : "24px",
+                    marginBottom: isMobile ? "12px" : "20px",
                     opacity: headerOpacity,
                     y: headerY,
                     willChange: "opacity, transform",
                     paddingLeft: isMobile ? "8px" : "0",
                     paddingRight: isMobile ? "8px" : "0",
-                    marginTop: isMobile ? "12px" : "50px",
                   }}
                 >
                   <span
@@ -525,7 +858,7 @@ const contentOpacity = useTransform(
                       fontWeight: 500,
                       letterSpacing: "0.2em",
                       textTransform: "uppercase",
-                      marginBottom: "4px",
+                      marginBottom: "2px",
                       color: colors.highlight,
                     }}
                   >
@@ -538,31 +871,43 @@ const contentOpacity = useTransform(
                       fontWeight: 600,
                       lineHeight: 1.2,
                       color: colors.textPrimary,
-                      marginBottom: isMobile ? "4px" : "8px",
+                      marginBottom: "0px",
                     }}
                   >
                     Featured Works
                   </h2>
-                  {!isMobile && (
-                    <p
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
-                        maxWidth: "640px",
-                        margin: "8px auto 0",
-                        color: colors.textSecondary,
-                      }}
-                    >
-                      A curated selection of projects exploring the intersection of design, technology, and art
-                    </p>
-                  )}
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: isMobile ? "4px" : "6px",
+                      marginTop: isMobile ? "6px" : "10px",
+                    }}
+                  >
+                    {projects.map((_, i) => (
+                      <motion.div
+                        key={i}
+                        style={{
+                          width: activeIndex === i ? (isMobile ? 20 : 28) : (isMobile ? 5 : 6),
+                          height: isMobile ? 3 : 4,
+                          borderRadius: "9999px",
+                          background: activeIndex === i ? colors.accent : `${colors.border}`,
+                          transition: "all 0.3s ease",
+                        }}
+                        animate={{
+                          opacity: activeIndex === i ? 1 : 0.4,
+                        }}
+                      />
+                    ))}
+                  </div>
                 </motion.div>
 
                 <div
                   style={{
                     position: "relative",
                     width: "100%",
-                    maxHeight: isMobile ? "44vh" : isTablet ? "55vh" : "63vh",
+                    maxHeight: isMobile ? "40vh" : isTablet ? "50vh" : "58vh",
                     overflow: "hidden",
                     perspective: "1600px",
                   }}
@@ -601,182 +946,269 @@ const contentOpacity = useTransform(
                     </motion.div>
                   )}
                 </div>
+
+                <motion.div
+                  style={{
+                    marginTop: isMobile ? "10px" : "16px",
+                    textAlign: "center",
+                    opacity: headerOpacity,
+                    paddingLeft: isMobile ? "20px" : "0",
+                    paddingRight: isMobile ? "20px" : "0",
+                    maxWidth: isMobile ? "90vw" : "600px",
+                  }}
+                >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeIndex}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <h3
+                        style={{
+                          fontFamily: "var(--font-heading)",
+                          fontSize: isMobile ? "0.85rem" : "clamp(0.95rem, 1.4vw, 1.15rem)",
+                          fontWeight: 600,
+                          color: colors.textPrimary,
+                          marginBottom: "2px",
+                        }}
+                      >
+                        {projects[activeIndex]?.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: isMobile ? "9px" : "11px",
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          color: colors.textSecondary,
+                          opacity: 0.7,
+                        }}
+                      >
+                        {projects[activeIndex]?.category}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.div>
               </motion.div>
             </motion.div>
           </div>
+
+          <CornerOrnaments colors={colors} isMobile={isMobile} />
+          <ScrollIndicator colors={colors} isMobile={isMobile} />
+
+          {!isMobile && (
+            <>
+              <div
+                style={{
+                  position: "absolute",
+                  left: "24px",
+                  top: "50%",
+                  transform: "translateY(-50%) rotate(-90deg)",
+                  transformOrigin: "center",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "10px",
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  color: colors.textSecondary,
+                  opacity: 0.4,
+                  zIndex: 15,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Portfolio · 2024–2026
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  right: "24px",
+                  top: "50%",
+                  transform: "translateY(-50%) rotate(90deg)",
+                  transformOrigin: "center",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "10px",
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  color: colors.textSecondary,
+                  opacity: 0.4,
+                  zIndex: 15,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Gallery No. 06
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {isModalOpen && selectedProject && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: isMobile ? "8px" : "16px",
-            background: "var(--color-primary-soft)",
-            backdropFilter: "blur(12px)",
-            animation: "modalFadeIn 0.3s ease-out",
-          }}
-          onClick={handleCloseModal}
-        >
-          <div
+      <AnimatePresence>
+        {isModalOpen && selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             style={{
-              position: "relative",
-              maxWidth: isMobile ? "100%" : "896px",
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              borderRadius: isMobile ? "12px" : "16px",
-              background: colors.surface,
-              boxShadow: `0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px ${colors.accent}44`,
-              margin: isMobile ? "8px" : "0",
+              position: "fixed",
+              inset: 0,
+              zIndex: 50,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: isMobile ? "8px" : "16px",
+              background: "var(--color-primary-soft)",
+              backdropFilter: "blur(12px)",
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleCloseModal}
           >
-            <button
-              onClick={handleCloseModal}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
               style={{
-                position: "absolute",
-                top: isMobile ? "12px" : "16px",
-                right: isMobile ? "12px" : "16px",
-                zIndex: 10,
-                padding: isMobile ? "6px" : "8px",
-                borderRadius: "9999px",
-                background: colors.cardBg,
-                color: colors.textPrimary,
-                border: `1px solid ${colors.border}`,
-                cursor: "pointer",
-                transition: "all 0.3s",
+                position: "relative",
+                maxWidth: isMobile ? "100%" : "896px",
+                width: "100%",
+                maxHeight: "90vh",
+                overflowY: "auto",
+                borderRadius: isMobile ? "12px" : "16px",
+                background: colors.surface,
+                boxShadow: `0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px ${colors.accent}44`,
+                margin: isMobile ? "8px" : "0",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onClick={(e) => e.stopPropagation()}
             >
-              <X size={isMobile ? 16 : 20} />
-            </button>
-
-            <div style={{ padding: isMobile ? "16px" : "24px" }}>
-              <div
+              <button
+                onClick={handleCloseModal}
                 style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  marginBottom: isMobile ? "12px" : "16px",
-                  flexDirection: isMobile ? "column" : "row",
-                  gap: isMobile ? "8px" : "0",
+                  position: "absolute",
+                  top: isMobile ? "12px" : "16px",
+                  right: isMobile ? "12px" : "16px",
+                  zIndex: 10,
+                  padding: isMobile ? "6px" : "8px",
+                  borderRadius: "9999px",
+                  background: colors.cardBg,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
+                  cursor: "pointer",
+                  transition: "all 0.3s",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               >
-                <div>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: isMobile ? "2px 10px" : "4px 12px",
-                      borderRadius: "9999px",
-                      fontSize: isMobile ? "10px" : "12px",
-                      fontWeight: 500,
-                      marginBottom: isMobile ? "8px" : "12px",
-                      background: `${colors.accent}33`,
-                      color: colors.accent,
-                    }}
-                  >
-                    {selectedProject.category}
-                  </span>
-                  <h2
-                    style={{
-                      fontFamily: "var(--font-heading)",
-                      fontSize: isMobile ? "clamp(1.2rem, 4vw, 2rem)" : "clamp(1.5rem, 3vw, 3rem)",
-                      fontWeight: 600,
-                      color: colors.textPrimary,
-                    }}
-                  >
-                    {selectedProject.title}
-                  </h2>
-                </div>
-                <span
+                <X size={isMobile ? 16 : 20} />
+              </button>
+
+              <div style={{ padding: isMobile ? "16px" : "24px" }}>
+                <div
                   style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: isMobile ? "12px" : "14px",
-                    color: colors.textSecondary,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    marginBottom: isMobile ? "12px" : "16px",
+                    flexDirection: isMobile ? "column" : "row",
+                    gap: isMobile ? "8px" : "0",
                   }}
                 >
-                  {selectedProject.year}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  width: "100%",
-                  aspectRatio: "16/9",
-                  borderRadius: isMobile ? "8px" : "12px",
-                  marginBottom: isMobile ? "16px" : "24px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <Image
-                  src={selectedProject.image}
-                  alt={selectedProject.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  style={{ objectFit: "cover" }}
-                />
-              </div>
-
-              <p
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: isMobile ? "clamp(0.875rem, 2vw, 1rem)" : "clamp(1rem, 1.2vw, 1.125rem)",
-                  lineHeight: isMobile ? 1.6 : 1.7,
-                  marginBottom: isMobile ? "16px" : "24px",
-                  color: colors.textPrimary,
-                  opacity: 0.85,
-                }}
-              >
-                {selectedProject.description}
-              </p>
-
-              <div style={{ display: "flex", flexWrap: "wrap", gap: isMobile ? "6px" : "8px" }}>
-                {selectedProject.tags.map((tag, index) => (
+                  <div>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: isMobile ? "2px 10px" : "4px 12px",
+                        borderRadius: "9999px",
+                        fontSize: isMobile ? "10px" : "12px",
+                        fontWeight: 500,
+                        marginBottom: isMobile ? "8px" : "12px",
+                        background: `${colors.accent}33`,
+                        color: colors.accent,
+                      }}
+                    >
+                      {selectedProject.category}
+                    </span>
+                    <h2
+                      style={{
+                        fontFamily: "var(--font-heading)",
+                        fontSize: isMobile ? "clamp(1.2rem, 4vw, 2rem)" : "clamp(1.5rem, 3vw, 3rem)",
+                        fontWeight: 600,
+                        color: colors.textPrimary,
+                      }}
+                    >
+                      {selectedProject.title}
+                    </h2>
+                  </div>
                   <span
-                    key={index}
                     style={{
-                      padding: isMobile ? "2px 10px" : "4px 12px",
-                      borderRadius: "9999px",
-                      fontSize: isMobile ? "10px" : "12px",
-                      fontWeight: 500,
-                      background: `${colors.accent}20`,
+                      fontFamily: "var(--font-body)",
+                      fontSize: isMobile ? "12px" : "14px",
                       color: colors.textSecondary,
-                      border: `1px solid ${colors.border}`,
                     }}
                   >
-                    {tag}
+                    {selectedProject.year}
                   </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+                </div>
 
-      <style jsx>{`
-        @keyframes modalFadeIn {
-          0% {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-      `}</style>
+                <div
+                  style={{
+                    width: "100%",
+                    aspectRatio: "16/9",
+                    borderRadius: isMobile ? "8px" : "12px",
+                    marginBottom: isMobile ? "16px" : "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Image
+                    src={selectedProject.image}
+                    alt={selectedProject.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: isMobile ? "clamp(0.875rem, 2vw, 1rem)" : "clamp(1rem, 1.2vw, 1.125rem)",
+                    lineHeight: isMobile ? 1.6 : 1.7,
+                    marginBottom: isMobile ? "16px" : "24px",
+                    color: colors.textPrimary,
+                    opacity: 0.85,
+                  }}
+                >
+                  {selectedProject.description}
+                </p>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: isMobile ? "6px" : "8px" }}>
+                  {selectedProject.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      style={{
+                        padding: isMobile ? "2px 10px" : "4px 12px",
+                        borderRadius: "9999px",
+                        fontSize: isMobile ? "10px" : "12px",
+                        fontWeight: 500,
+                        background: `${colors.accent}20`,
+                        color: colors.textSecondary,
+                        border: `1px solid ${colors.border}`,
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
