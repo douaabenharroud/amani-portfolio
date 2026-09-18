@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   BrainCircuit,
   Code2,
@@ -18,43 +18,76 @@ const skillGroups = [
     title: "AI & Data",
     accent: UNIFIED_ACCENT,
     mainIcon: BrainCircuit,
-    items: ["Machine Learning", "Data Science", "Computer Vision", "NLP", "LLM", "Deep Learning"],
+    items: ["Machine Learning", "Deep Learning", "Computer Vision", "NLP", "LLMs", "Data Science"],
   },
   {
-    title: "Engineering",
+    title: "Software Engineering",
     accent: UNIFIED_ACCENT,
     mainIcon: Code2,
     items: ["Python", "FastAPI", "Django", "Flask", "React", "Next.js"],
   },
   {
-    title: "Infrastructure",
+    title: "Data & Systems",
     accent: UNIFIED_ACCENT,
     mainIcon: Database,
-    items: ["SQL", "MySQL", "MongoDB", "Firebase", "IoT", "ESP32"],
+    items: ["SQL", "MySQL", "MongoDB", "Firebase", "REST APIs"],
   },
   {
     title: "Product & UX",
     accent: UNIFIED_ACCENT,
     mainIcon: Palette,
-    items: ["Design", "Product Thinking", "UX Strategy", "Prototyping", "AI Products", "Automation"],
+    items: ["Product Thinking", "UX Strategy", "Prototyping", "UI Design", "AI Product Design"],
   },
   {
-    title: "ML Tools",
+    title: "Tools & Frameworks",
     accent: UNIFIED_ACCENT,
     mainIcon: Layers3,
-    items: ["TensorFlow", "PyTorch", "OpenCV", "XGBoost", "LightGBM", "MediaPipe"],
+    items: ["PyTorch", "TensorFlow", "OpenCV", "XGBoost", "LightGBM", "MediaPipe"],
+  },
+  {
+    title: "IoT & Embedded",
+    accent: UNIFIED_ACCENT,
+    mainIcon: Layers3,
+    items: ["ESP32", "IoT", "Sensors", "Edge AI"],
   },
 ];
 
 export default function SkillsSection() {
   const [openIndex, setOpenIndex] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
 
   const toggle = (index) => {
     setOpenIndex((prev) => (prev === index ? null : index));
   };
 
+  // IntersectionObserver for fade-in on scroll
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="skills" className="skills-gallery-section">
+    <section
+      id="skills"
+      ref={sectionRef}
+      className={`skills-gallery-section ${isVisible ? "is-visible" : ""}`}
+    >
       {/* Top hairline divider with center diamond — echoes the header ornament */}
       <div className="skills-top-divider" aria-hidden="true">
         <span className="skills-top-divider-line" />
@@ -67,8 +100,8 @@ export default function SkillsSection() {
           <div className="skills-ornament" aria-hidden="true">
            
           </div>
-          <span className="skills-eyebrow">Exhibition Catalogue · Skill Set</span>
-          <h2 className="skills-title">Capabilities on Display</h2>
+          <span className="skills-eyebrow">Exhibition Catalogue · Skills & Tools</span>
+          <h2 className="skills-title">Skills & Tools</h2>
         </div>
 
         {/* Desktop / tablet gallery */}
@@ -80,7 +113,10 @@ export default function SkillsSection() {
               <div
                 key={group.title}
                 className="skills-card"
-                style={{ "--accent": group.accent }}
+                style={{
+                  "--accent": group.accent,
+                  "--delay": `${groupIndex * 90}ms`,
+                }}
               >
                 <span className="skills-corner skills-corner--tl" aria-hidden="true" />
                 <span className="skills-corner skills-corner--tr" aria-hidden="true" />
@@ -124,7 +160,10 @@ export default function SkillsSection() {
               <div
                 key={group.title}
                 className="skills-drawer"
-                style={{ "--accent": group.accent }}
+                style={{
+                  "--accent": group.accent,
+                  "--delay": `${index * 70}ms`,
+                }}
               >
                 <button
                   type="button"
@@ -221,6 +260,11 @@ export default function SkillsSection() {
           gap: 12px;
           z-index: 1;
           pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.8s ease 0.15s;
+        }
+
+        .skills-gallery-section.is-visible .skills-top-divider {
           opacity: 0.75;
         }
 
@@ -258,6 +302,14 @@ export default function SkillsSection() {
           text-align: center;
           max-width: 640px;
           margin: 0 auto 3.5rem;
+          opacity: 0;
+          transform: translateY(18px);
+          transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .skills-gallery-section.is-visible .skills-header {
+          opacity: 1;
+          transform: translateY(0);
         }
 
         .skills-ornament {
@@ -326,11 +378,12 @@ export default function SkillsSection() {
           margin: 1rem 0 0;
         }
 
-        /* ---------- Desktop gallery ---------- */
+        /* ---------- Desktop gallery (2 rows) ---------- */
 
         .skills-grid {
           display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
+          /* 3 columns × 2 rows = 6 cards, evenly split into two rows */
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 1.1rem;
         }
 
@@ -353,7 +406,21 @@ export default function SkillsSection() {
           transition:
             transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
             box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-            border-color 0.4s ease;
+            border-color 0.4s ease,
+            opacity 0.7s ease,
+            filter 0.7s ease;
+
+          /* Fade-in animation start state */
+          opacity: 0;
+          transform: translateY(28px);
+          filter: blur(4px);
+        }
+
+        .skills-gallery-section.is-visible .skills-card {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+          transition-delay: var(--delay, 0ms);
         }
 
         .skills-card::after {
@@ -577,7 +644,20 @@ export default function SkillsSection() {
             0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent) inset,
             0 6px 18px -14px color-mix(in srgb, var(--color-text) 55%, transparent);
           margin-bottom: 0.75rem;
-          transition: border-color 0.3s ease;
+          transition:
+            border-color 0.3s ease,
+            opacity 0.6s ease,
+            transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+          /* Fade-in start state */
+          opacity: 0;
+          transform: translateY(18px);
+        }
+
+        .skills-gallery-section.is-visible .skills-drawer {
+          opacity: 1;
+          transform: translateY(0);
+          transition-delay: var(--delay, 0ms);
         }
 
         .skills-drawer::after {
@@ -614,7 +694,21 @@ export default function SkillsSection() {
 
         .skills-tags--mobile {
           justify-content: flex-start;
-          padding: 0 1rem 1.1rem;
+          padding: 1rem 1rem 1.1rem;
+        }
+
+        /* ---------- Reduced motion ---------- */
+
+        @media (prefers-reduced-motion: reduce) {
+          .skills-header,
+          .skills-top-divider,
+          .skills-card,
+          .skills-drawer {
+            transition: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+            filter: none !important;
+          }
         }
 
         /* ---------- Responsive ---------- */
@@ -624,6 +718,7 @@ export default function SkillsSection() {
         }
 
         @media (max-width: 820px) {
+          /* 2 columns × 3 rows on tablet */
           .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 

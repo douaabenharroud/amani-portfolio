@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 
 export default function AboutSection() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => (
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  ));
   const [particles, setParticles] = useState([]);
   const [isLightOn, setIsLightOn] = useState(false);
   const [hasBeenHovered, setHasBeenHovered] = useState(false);
@@ -16,7 +18,6 @@ export default function AboutSection() {
   const contentRef = useRef(null);
   const hasAnimatedRef = useRef(false);
   const particlesGeneratedRef = useRef(false);
-  const wasInViewRef = useRef(false);
 
   const INITIAL_POSITIONS = [
     { top: 75, left: 83 },
@@ -34,8 +35,6 @@ export default function AboutSection() {
   ];
 
   useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains('dark'));
     });
@@ -320,7 +319,7 @@ export default function AboutSection() {
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-5">
         {particles.map((particle) => {
           const target = particleTargets[particle.id] || { top: particle.top, left: particle.left };
-          const transitionDuration = 3.5 + Math.random() * 2.5;
+          const transitionDuration = 3.5 + ((particle.id % 5) * 0.4);
           return (
             <div
               key={particle.id}
@@ -767,7 +766,7 @@ export default function AboutSection() {
                 fontFamily: 'Symphony, serif',
               }}
             >
-              Building products where AI, data, and design work together.
+              Building intelligent products where AI, data, and software work together.
             </p>
 
             <div className="space-y-0.5 sm:space-y-1 md:space-y-1.5">
@@ -777,7 +776,7 @@ export default function AboutSection() {
                   color: isDark ? 'rgba(243,242,239,0.85)' : 'rgba(31,44,46,0.82)',
                 }}
               >
-                I'm a Data Scientist and Product Designer who transforms complex problems into simple, practical solutions. I combine AI, software engineering, and design to create digital experiences that are intelligent, intuitive, and built with purpose.
+                I work across AI, data, and software engineering to turn ideas into usable digital products. My background in software engineering and data science helps me move from model development to application building and product thinking.
               </p>
               <p
                 className="font-body text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed"
@@ -785,7 +784,7 @@ export default function AboutSection() {
                   color: isDark ? 'rgba(243,242,239,0.85)' : 'rgba(31,44,46,0.82)',
                 }}
               >
-                I care about products that don't just look good—they solve real problems, improve how people work, and make technology feel effortless. Every decision, from strategy to implementation, is driven by clarity, usability, and measurable impact.
+                I&apos;m particularly interested in systems that create practical human impact — from AI-enabled tools to data-driven experiences that make everyday processes clearer, smarter, and easier to use.
               </p>
             </div>
 

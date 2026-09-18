@@ -290,6 +290,7 @@ function MuseumFrame({
   viewportWidth,
   isMobile,
   isTablet,
+  isDark,
   colors,
   hoveredProjectId,
   setHoveredProjectId,
@@ -334,6 +335,27 @@ function MuseumFrame({
 
   const isHovered = hoveredProjectId === project.id;
 
+  // Local hover state for immediate visual feedback
+  const [localHover, setLocalHover] = useState(false);
+
+  useEffect(() => {
+    setLocalHover(isHovered);
+  }, [isHovered]);
+
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      setHoveredProjectId(project.id);
+      setLocalHover(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setHoveredProjectId(null);
+      setLocalHover(false);
+    }
+  };
+
   return (
     <motion.div
       style={{
@@ -348,10 +370,8 @@ function MuseumFrame({
         transformStyle: "preserve-3d",
       }}
       onClick={onClick}
-      onMouseEnter={() => !isMobile && setHoveredProjectId(project.id)}
-      onMouseLeave={() => !isMobile && setHoveredProjectId(null)}
-      whileHover={!isMobile ? { y: -10 } : {}}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <motion.div
         style={{
@@ -395,6 +415,7 @@ function MuseumFrame({
             overflow: "hidden",
             borderRadius: isMobile ? "8px" : "12px",
             background: `linear-gradient(135deg, ${colors.surfaceAlt}, ${colors.accent}22)`,
+            boxShadow: `inset 0 0 0 1px ${colors.border}33, 0 4px 20px ${colors.accent}11`,
           }}
         >
           <Image
@@ -405,80 +426,45 @@ function MuseumFrame({
             style={{ objectFit: "cover" }}
           />
 
-          <div
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: isMobile ? "10%" : 0,
-              top: isMobile ? "auto" : 0,
-              height: isMobile ? "34%" : "100%",
-              opacity: isMobile ? 1 : isHovered ? 1 : 0,
-              display: "flex",
-              alignItems: isMobile ? "flex-end" : "center",
-              justifyContent: isMobile ? "flex-start" : "center",
-              background: isMobile
-                ? `linear-gradient(to top, ${colors.accent}EE 0%, ${colors.accent}99 55%, transparent 100%)`
-                : `linear-gradient(135deg, ${colors.accent}77, ${colors.accent}99)`,
-              backdropFilter: isMobile ? "none" : "blur(4px)",
-              transition: "opacity 0.3s",
-              zIndex: 1,
-              pointerEvents: "none",
-            }}
-          >
+          {/* Desktop-only hover overlay — just the button, no text */}
+          {!isMobile && (
             <div
               style={{
-                textAlign: isMobile ? "left" : "center",
-                padding: isMobile ? "10px 24px" : "20px",
-                width: "100%",
+                position: "absolute",
+                inset: 0,
+                opacity: localHover ? 1 : 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: `linear-gradient(135deg, ${colors.accent}55, ${colors.accent}77)`,
+                backdropFilter: "blur(4px)",
+                transition: "opacity 0.3s",
+                zIndex: 1,
+                pointerEvents: "none",
               }}
             >
-              <h3
+              <span
                 style={{
-                  fontFamily: "var(--font-heading)",
-                  fontSize: isMobile
-                    ? "clamp(0.75rem, 3vw, 1rem)"
-                    : isTablet
-                    ? "clamp(1rem, 1.8vw, 1.5rem)"
-                    : "clamp(1.25rem, 2vw, 1.75rem)",
-                  fontWeight: 600,
-                  color: colors.textPrimary,
-                  marginBottom: isMobile ? "1px" : "6px",
-                }}
-              >
-                {project.title}
-              </h3>
-              <p
-                style={{
+                  display: "inline-block",
                   fontFamily: "var(--font-body)",
-                  fontSize: isMobile
-                    ? "clamp(0.5rem, 1.5vw, 0.7rem)"
-                    : "clamp(0.75rem, 1vw, 0.95rem)",
-                  color: "rgba(255,255,255,0.8)",
+                  color: isDark ? "white" : "black",
+                  fontSize: "clamp(0.8rem, 1vw, 0.95rem)",
+                  fontWeight: isDark ? 500 : 600,
+                  padding: "10px 24px",
+                  borderRadius: "9999px",
+                  background: isDark
+                    ? "rgba(255,255,255,0.30)"
+                    : "rgba(255,255,255,0.40)",
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,0.25)"
+                    : "1px solid rgba(0,0,0,0.65)",
+                  letterSpacing: "0.05em",
                 }}
               >
-                {project.category}
-              </p>
-              {!isMobile && (
-                <span
-                  style={{
-                    display: "inline-block",
-                    marginTop: "12px",
-                    fontFamily: "var(--font-body)",
-                    color: "white",
-                    fontSize: "clamp(0.8rem, 1vw, 0.95rem)",
-                    fontWeight: 500,
-                    padding: "8px 20px",
-                    borderRadius: "9999px",
-                    background: "rgba(255,255,255,0.15)",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                  }}
-                >
-                  View Exhibition
-                </span>
-              )}
+                View Exhibition
+              </span>
             </div>
-          </div>
+          )}
 
           {!isMobile && (
             <>
@@ -512,27 +498,6 @@ function MuseumFrame({
           )}
         </div>
       </div>
-
-      <div
-        style={{
-          position: "absolute",
-          top: isMobile ? "-6px" : "-10px",
-          left: isMobile ? "4px" : "10px",
-          zIndex: 5,
-          fontFamily: "var(--font-heading)",
-          fontSize: isMobile ? "10px" : "12px",
-          fontWeight: 600,
-          color: colors.accent,
-          background: colors.surface,
-          border: `1px solid ${colors.accent}44`,
-          borderRadius: "9999px",
-          padding: isMobile ? "2px 8px" : "3px 10px",
-          letterSpacing: "0.05em",
-          boxShadow: `0 2px 8px ${colors.accent}22`,
-        }}
-      >
-        {String(index + 1).padStart(2, "0")}
-      </div>
     </motion.div>
   );
 }
@@ -565,6 +530,178 @@ function ScrollIndicator({ colors, isMobile }) {
         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       />
     </motion.div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile-only: museum plaque stack that sits BELOW the caption,       */
+/* inside the same content column — no layout restructuring.           */
+/* ------------------------------------------------------------------ */
+function MobileMuseumPlaque({ project, activeIndex, total, colors }) {
+  return (
+    <div
+      style={{
+        marginTop: "14px",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "10px",
+        paddingLeft: "20px",
+        paddingRight: "20px",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Divider / floor line */}
+      <div
+        style={{
+          width: "55%",
+          height: "1px",
+          background: `linear-gradient(to right, transparent, ${colors.accent}66, transparent)`,
+          marginBottom: "2px",
+        }}
+      />
+
+      {/* Plaque card */}
+      <motion.div
+        key={`plaque-${activeIndex}`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        style={{
+          width: "100%",
+          maxWidth: "340px",
+          padding: "12px 16px",
+          borderRadius: "10px",
+          background: `linear-gradient(180deg, ${colors.surface}, ${colors.surfaceAlt})`,
+          border: `1px solid ${colors.accent}33`,
+          boxShadow: `0 6px 20px ${colors.accent}15, inset 0 1px 0 ${colors.accent}11`,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "15%",
+            right: "15%",
+            height: "1px",
+            background: `linear-gradient(to right, transparent, ${colors.highlight}, transparent)`,
+            opacity: 0.6,
+          }}
+        />
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "6px",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "9px",
+              letterSpacing: "0.25em",
+              textTransform: "uppercase",
+              color: colors.highlight,
+              fontWeight: 600,
+            }}
+          >
+            Catalogue
+          </span>
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "9px",
+              letterSpacing: "0.2em",
+              color: colors.textSecondary,
+              opacity: 0.7,
+            }}
+          >
+            {String(activeIndex + 1).padStart(2, "0")} /{" "}
+            {String(total).padStart(2, "0")}
+          </span>
+        </div>
+
+        <h4
+          style={{
+            fontFamily: "var(--font-heading)",
+            fontSize: "clamp(0.9rem, 3.6vw, 1.05rem)",
+            fontWeight: 600,
+            color: colors.textPrimary,
+            lineHeight: 1.25,
+            marginBottom: "4px",
+          }}
+        >
+          {project?.title}
+        </h4>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontFamily: "var(--font-body)",
+            fontSize: "10px",
+            color: colors.textSecondary,
+            opacity: 0.75,
+          }}
+        >
+          <span
+            style={{
+              width: "14px",
+              height: "1px",
+              background: colors.accent,
+              opacity: 0.6,
+            }}
+          />
+          <span style={{ letterSpacing: "0.15em" }}>{project?.year}</span>
+        </div>
+      </motion.div>
+
+      {/* Pedestal dots */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          marginTop: "2px",
+        }}
+      >
+        {Array.from({ length: total }).map((_, i) => (
+          <motion.div
+            key={i}
+            style={{
+              width: i === activeIndex ? 18 : 5,
+              height: 3,
+              borderRadius: "9999px",
+              background: i === activeIndex ? colors.accent : `${colors.border}`,
+            }}
+            animate={{ opacity: i === activeIndex ? 1 : 0.4 }}
+            transition={{ duration: 0.3 }}
+          />
+        ))}
+      </div>
+
+      {/* Hint */}
+      <p
+        style={{
+          fontFamily: "var(--font-body)",
+          fontSize: "9px",
+          letterSpacing: "0.2em",
+          textTransform: "uppercase",
+          color: colors.textSecondary,
+          opacity: 0.45,
+          margin: 0,
+        }}
+      >
+        Tap artwork to explore
+      </p>
+    </div>
   );
 }
 
@@ -665,11 +802,7 @@ export default function ProjectsSection() {
   const wallWidth = wallInnerWidth + paddingSide * 2;
   const maxTravel = Math.max(0, wallWidth - viewportWidth);
 
-  const wallX = useTransform(
-    scrollYProgress,
-    [0.5, 1],
-    [0, -maxTravel]
-  );
+  const wallX = useTransform(scrollYProgress, [0.5, 1], [0, -maxTravel]);
 
   useEffect(() => {
     const unsubscribe = wallX.on("change", (x) => {
@@ -714,8 +847,7 @@ export default function ProjectsSection() {
     focus: "var(--color-focus)",
   };
 
-  // Navbar-safe top padding
-  const topPadding = isMobile ? "170px" : "200px";
+  const topPadding = isMobile ? "300px" : "200px";
 
   return (
     <div
@@ -895,9 +1027,7 @@ export default function ProjectsSection() {
                           background: activeIndex === i ? colors.accent : `${colors.border}`,
                           transition: "all 0.3s ease",
                         }}
-                        animate={{
-                          opacity: activeIndex === i ? 1 : 0.4,
-                        }}
+                        animate={{ opacity: activeIndex === i ? 1 : 0.4 }}
                       />
                     ))}
                   </div>
@@ -937,6 +1067,7 @@ export default function ProjectsSection() {
                           viewportWidth={viewportWidth}
                           isMobile={isMobile}
                           isTablet={isTablet}
+                          isDark={isDark}
                           colors={colors}
                           hoveredProjectId={hoveredProjectId}
                           setHoveredProjectId={setHoveredProjectId}
@@ -947,6 +1078,7 @@ export default function ProjectsSection() {
                   )}
                 </div>
 
+                {/* Caption */}
                 <motion.div
                   style={{
                     marginTop: isMobile ? "10px" : "16px",
@@ -991,6 +1123,16 @@ export default function ProjectsSection() {
                     </motion.div>
                   </AnimatePresence>
                 </motion.div>
+
+                {/* Mobile-only museum plaque fill — sits inside the same column */}
+                {isMobile && (
+                  <MobileMuseumPlaque
+                    project={projects[activeIndex]}
+                    activeIndex={activeIndex}
+                    total={projects.length}
+                    colors={colors}
+                  />
+                )}
               </motion.div>
             </motion.div>
           </div>

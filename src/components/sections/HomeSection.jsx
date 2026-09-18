@@ -28,43 +28,35 @@ const MuseumButton = ({
   const variants = {
     primary: {
       background: isHovered ? 'var(--color-primary-hover)' : 'var(--color-primary)',
+      borderColor: isHovered ? 'var(--color-primary-hover)' : 'var(--color-primary)',
       color: 'var(--color-text-inverse)',
     },
     secondary: {
-      background: isHovered ? 'var(--color-secondary)' : 'transparent',
-      color: isHovered ? 'var(--color-text-inverse)' : 'var(--color-primary)',
-      border: '1px solid var(--color-primary)',
+      background: isHovered ? 'var(--color-primary-soft)' : 'transparent',
+      borderColor: 'var(--color-primary)',
+      color: isHovered ? 'var(--color-primary)' : 'var(--color-primary)',
     },
     accent: {
       background: isHovered ? 'var(--color-accent-hover)' : 'var(--color-accent)',
+      borderColor: isHovered ? 'var(--color-accent-hover)' : 'var(--color-accent)',
       color: 'var(--color-text-inverse)',
     },
     outline: {
       background: isHovered ? 'var(--color-primary-soft)' : 'transparent',
+      borderColor: isHovered ? 'var(--color-primary)' : 'var(--color-border)',
       color: isHovered ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-      border: '1px solid var(--color-border)',
     },
   };
-  
+
   const style = variants[variant] || variants.primary;
-  
+
   return (
     <button
-      className={`btn museum-btn ${className}`}
+      className={`museum-btn museum-btn-${variant} btn-${variant} ${className}`.trim()}
       style={{
         ...style,
-        transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+        transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
         boxShadow: isHovered ? 'var(--shadow-sm)' : 'none',
-        transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
-        fontFamily: 'var(--font-body)',
-        fontWeight: '500',
-        fontSize: '0.875rem',
-        letterSpacing: '0.02em',
-        padding: '0.75rem 2rem',
-        borderRadius: '9999px',
-        cursor: 'pointer',
-        outline: 'none',
-        border: style.border || '1px solid transparent',
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -671,7 +663,7 @@ function HomeSection() {
           rather than shifting tone.
       */}
       <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none z-[1]"
+        className="absolute bottom-0 left-0 right-0 pointer-events-none z-1"
         style={{
           height: '220px',
           background: 'linear-gradient(to bottom, transparent 0%, var(--color-background) 100%)',
@@ -699,7 +691,6 @@ function HomeSection() {
         const isScattered = scatteredLights.includes(index);
         const isResettingNow = isResetting && !isScattered;
         const isOffScreenNow = offScreenRef.current[index] || false;
-        const progress = departureProgressRef.current[index] || 0;
         
         let displayTop = light.top;
         if (isScattered && light.type === 'scroll') {
@@ -713,20 +704,20 @@ function HomeSection() {
         
         const color = 'var(--color-gallery-light)';
         const glowColor = 'var(--color-accent-soft)';
-        const glowIntensity = 0.6 + Math.random() * 0.3;
+        const glowIntensity = 0.72 + ((index % 3) * 0.1);
         
         const shouldPulse = isScattered || isResettingNow;
         const pulseDuration = '2s';
         
-        let size = 2 + Math.random() * 2;
+        let size = 2 + ((index % 3) * 0.7);
         if (isScattered || isResettingNow) {
-          size = 3 + Math.random() * 2.5;
+          size = 3.2 + ((index % 4) * 0.7);
         }
         
         return (
           <div 
             key={`light-${index}`}
-            className="absolute z-[25]"
+            className="absolute z-25"
             style={{
               top: `${displayTop}%`,
               left: `${light.left}%`,
@@ -777,7 +768,7 @@ function HomeSection() {
                     height: '1px',
                     backgroundColor: color,
                     opacity: 0.2,
-                    transform: `translate(${-5 + Math.random() * 10}px, ${-5 + Math.random() * 10}px)`,
+                    transform: `translate(${(-5 + ((index % 11) - 5))}px, ${(-5 + (((index * 7) % 11) - 5))}px)`,
                     filter: 'blur(2px)',
                     animation: 'twinkle 3s ease-in-out infinite',
                   }}
@@ -793,15 +784,15 @@ function HomeSection() {
         <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto text-center">
           
           {!isDark && (
-            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-secondary-soft)] to-[var(--color-accent-soft)] rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-linear-to-r from-(--color-accent-soft) via-(--color-secondary-soft) to-(--color-accent-soft) rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
           )}
           {isDark && (
-            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-secondary-soft)] to-[var(--color-accent-soft)] rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-linear-to-r from-(--color-accent-soft) via-(--color-secondary-soft) to-(--color-accent-soft) rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
           )}
           
           <div className="relative">
             <div 
-              className="w-12 h-[2px] mx-auto mb-6 md:mb-8"
+              className="w-12 h-0.5 mx-auto mb-6 md:mb-8"
               style={{
                 background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)',
               }}
@@ -818,7 +809,7 @@ function HomeSection() {
               className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider"
               style={textStyles.subtitle}
             >
-              AI Engineer · Software Engineer · Data Scientist
+              AI Engineer · Data Scientist · Software Engineer
             </p>
             
             <div 
@@ -830,13 +821,7 @@ function HomeSection() {
             />
          
 
-            <div className="mt-4 md:mt-5 flex flex-wrap justify-center gap-x-5 gap-y-1.5">
-              {['Machine Learning', 'Full Stack', 'Data Science', 'Computer Vision', 'FastAPI', 'React', 'Python'].map((tag) => (
-                <span key={tag} style={textStyles.tag} className="text-[0.6rem] md:text-[0.65rem] tracking-[0.08em]">
-                  {tag}
-                </span>
-              ))}
-            </div>
+           
             
             <div className="home-cta-group mt-4 md:mt-6 lg:mt-8 xl:mt-10 flex flex-wrap justify-center gap-3 md:gap-4">
               <MuseumButton
@@ -1195,7 +1180,7 @@ function AboutSection() {
           purely an opacity ramp, not a color shift.
       */}
       <div
-        className="absolute top-0 left-0 right-0 pointer-events-none z-[2]"
+        className="absolute top-0 left-0 right-0 pointer-events-none z-2"
         style={{
           height: '160px',
           background: 'linear-gradient(to top, transparent 0%, var(--color-background) 100%)',
@@ -1268,7 +1253,7 @@ function AboutSection() {
             onMouseEnter={handleLightToggle}
           >
             <div
-              className="about-portrait-frame relative w-full max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[280px] xl:max-w-[320px] mx-auto"
+              className="about-portrait-frame relative w-full max-w-35 sm:max-w-45 md:max-w-55 lg:max-w-70 xl:max-w-80 mx-auto"
               style={{ aspectRatio: '1 / 1' }}
             >
 
@@ -1649,7 +1634,7 @@ function AboutSection() {
                   color: isDark ? 'rgba(243,242,239,0.85)' : 'rgba(31,44,46,0.82)',
                 }}
               >
-                I'm a Data Scientist and Product Designer who transforms complex problems into simple, practical solutions. I combine AI, software engineering, and design to create digital experiences that are intelligent, intuitive, and built with purpose.
+                I work across AI, data, and software engineering to turn ideas into usable digital products. My background in software engineering and data science lets me move between building models, developing applications, and thinking about how people actually use them.
               </p>
               <p
                 className="font-body text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed"
@@ -1657,7 +1642,7 @@ function AboutSection() {
                   color: isDark ? 'rgba(243,242,239,0.85)' : 'rgba(31,44,46,0.82)',
                 }}
               >
-                I care about products that don't just look good—they solve real problems, improve how people work, and make technology feel effortless. Every decision, from strategy to implementation, is driven by clarity, usability, and measurable impact.
+                I'm particularly interested in products where technology has a practical human impact — from intelligent systems to tools that make everyday processes simpler.
               </p>
             </div>
 
@@ -1666,7 +1651,7 @@ function AboutSection() {
                 onClick={handleDownloadCV}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 md:px-5 lg:px-6 xl:px-8 py-1.5 sm:py-2 md:py-2.5 lg:py-3 text-xs sm:text-sm md:text-base lg:text-lg transition-all duration-300 font-medium"
+                className="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 sm:px-6 sm:py-3 md:px-7 md:py-3.5 lg:px-8 lg:py-4 text-sm sm:text-base md:text-lg transition-all duration-300 font-medium tracking-[0.08em]"
                 style={{
                   ...(isHovered ? {
                     backgroundColor: 'var(--color-secondary)',
@@ -1739,33 +1724,47 @@ function AboutSection() {
 
         @media (max-width: 767px) {
           .about-grid {
-            min-height: 100vh;
-            gap: 1rem;
-            padding-top: 1.25rem;
-            padding-bottom: 1.5rem;
+            min-height: calc(100vh - 5.5rem);
+            gap: 0.85rem;
+            padding-top: 1rem;
+            padding-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           }
 
           .about-portrait {
-            width: 80%;
-            margin-top: 10px;
+            width: 100%;
+            margin-top: 0;
+            display: flex;
+            justify-content: center;
           }
 
           .about-portrait-frame {
-            max-width: min(78vw, 280px);
-            width: min(78vw, 280px);
+            width: clamp(170px, 58vw, 220px);
+            max-width: 220px;
           }
 
           .about-copy {
             margin-top: 0;
+            max-width: 34rem;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           }
 
           .about-copy h2 {
-            font-size: clamp(1.5rem, 9vw, 3rem);
-            line-height: 1;
+            font-size: clamp(1.7rem, 8vw, 2.8rem);
+            line-height: 1.05;
+            margin-bottom: 0.35rem;
           }
 
           .about-copy p {
-            font-size: clamp(0.88rem, 3.7vw, 1.02rem);
+            font-size: clamp(0.8rem, 3.4vw, 1rem);
             line-height: 1.6;
           }
         }

@@ -7,7 +7,13 @@ import ContactSection from "@/components/sections/ContactSection";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[color:var(--color-background)] text-[color:var(--color-dark-text)]">
+    <div
+      className="min-h-screen"
+      style={{
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-dark-text)',
+      }}
+    >
       <Navbar />
 
       <main>
