@@ -663,7 +663,7 @@ function HomeSection() {
           rather than shifting tone.
       */}
       <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none z-1"
+        className="absolute bottom-0 left-0 right-0 pointer-events-none z-[1]"
         style={{
           height: '220px',
           background: 'linear-gradient(to bottom, transparent 0%, var(--color-background) 100%)',
@@ -691,6 +691,7 @@ function HomeSection() {
         const isScattered = scatteredLights.includes(index);
         const isResettingNow = isResetting && !isScattered;
         const isOffScreenNow = offScreenRef.current[index] || false;
+        const progress = departureProgressRef.current[index] || 0;
         
         let displayTop = light.top;
         if (isScattered && light.type === 'scroll') {
@@ -704,20 +705,20 @@ function HomeSection() {
         
         const color = 'var(--color-gallery-light)';
         const glowColor = 'var(--color-accent-soft)';
-        const glowIntensity = 0.72 + ((index % 3) * 0.1);
+        const glowIntensity = 0.6 + Math.random() * 0.3;
         
         const shouldPulse = isScattered || isResettingNow;
         const pulseDuration = '2s';
         
-        let size = 2 + ((index % 3) * 0.7);
+        let size = 2 + Math.random() * 2;
         if (isScattered || isResettingNow) {
-          size = 3.2 + ((index % 4) * 0.7);
+          size = 3 + Math.random() * 2.5;
         }
         
         return (
           <div 
             key={`light-${index}`}
-            className="absolute z-25"
+            className="absolute z-[25]"
             style={{
               top: `${displayTop}%`,
               left: `${light.left}%`,
@@ -768,7 +769,7 @@ function HomeSection() {
                     height: '1px',
                     backgroundColor: color,
                     opacity: 0.2,
-                    transform: `translate(${(-5 + ((index % 11) - 5))}px, ${(-5 + (((index * 7) % 11) - 5))}px)`,
+                    transform: `translate(${-5 + Math.random() * 10}px, ${-5 + Math.random() * 10}px)`,
                     filter: 'blur(2px)',
                     animation: 'twinkle 3s ease-in-out infinite',
                   }}
@@ -784,15 +785,15 @@ function HomeSection() {
         <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto text-center">
           
           {!isDark && (
-            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-linear-to-r from-(--color-accent-soft) via-(--color-secondary-soft) to-(--color-accent-soft) rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-secondary-soft)] to-[var(--color-accent-soft)] rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
           )}
           {isDark && (
-            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-linear-to-r from-(--color-accent-soft) via-(--color-secondary-soft) to-(--color-accent-soft) rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
+            <div className="absolute -inset-4 sm:-inset-6 md:-inset-8 lg:-inset-10 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[var(--color-accent-soft)] via-[var(--color-secondary-soft)] to-[var(--color-accent-soft)] rounded-2xl md:rounded-3xl blur-xl md:blur-2xl" />
           )}
           
           <div className="relative">
             <div 
-              className="w-12 h-0.5 mx-auto mb-6 md:mb-8"
+              className="w-12 h-[2px] mx-auto mb-6 md:mb-8"
               style={{
                 background: 'linear-gradient(90deg, transparent, var(--color-accent), transparent)',
               }}
@@ -809,7 +810,7 @@ function HomeSection() {
               className="mt-2 text-sm sm:text-base md:text-lg lg:text-xl tracking-wider"
               style={textStyles.subtitle}
             >
-              AI Engineer · Data Scientist · Software Engineer
+              AI · Data · Software · Product
             </p>
             
             <div 
@@ -1180,7 +1181,7 @@ function AboutSection() {
           purely an opacity ramp, not a color shift.
       */}
       <div
-        className="absolute top-0 left-0 right-0 pointer-events-none z-2"
+        className="absolute top-0 left-0 right-0 pointer-events-none z-[2]"
         style={{
           height: '160px',
           background: 'linear-gradient(to top, transparent 0%, var(--color-background) 100%)',
@@ -1253,7 +1254,7 @@ function AboutSection() {
             onMouseEnter={handleLightToggle}
           >
             <div
-              className="about-portrait-frame relative w-full max-w-35 sm:max-w-45 md:max-w-55 lg:max-w-70 xl:max-w-80 mx-auto"
+              className="about-portrait-frame relative w-full max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[280px] xl:max-w-[320px] mx-auto"
               style={{ aspectRatio: '1 / 1' }}
             >
 

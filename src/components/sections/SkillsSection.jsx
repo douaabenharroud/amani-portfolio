@@ -10,8 +10,95 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+// Official brand icons from react-icons (all verified to exist)
+import {
+  SiPython,
+  SiFastapi,
+  SiDjango,
+  SiFlask,
+  SiReact,
+  SiNextdotjs,
+  SiMysql,
+  SiMongodb,
+  SiFirebase,
+  SiPytorch,
+  SiTensorflow,
+  SiOpencv,
+  SiEspressif,
+  SiArduino,
+  SiRaspberrypi,
+} from "react-icons/si";
+
+import {
+  TbBrandOpenai,
+  TbSql,
+  TbApi,
+  TbCpu,
+  TbChartHistogram,
+  TbChartDots,
+  TbWaveSine,
+  TbAdjustments,
+  TbBulb,
+  TbBinaryTree,
+} from "react-icons/tb";
+
+import {
+  FaBrain,
+  FaDatabase,
+  FaPalette,
+  FaRobot,
+  FaProjectDiagram,
+} from "react-icons/fa";
+
 // Single unified accent color for all cards
 const UNIFIED_ACCENT = "#AF6384";
+
+// Map every skill string to an icon that actually exists
+const SKILL_ICONS = {
+  // AI & Data
+  "Machine Learning": FaBrain,
+  "Deep Learning": TbBinaryTree,
+  "Computer Vision": SiOpencv,
+  "NLP": TbBrandOpenai,
+  "LLMs": FaRobot,
+  "Data Science": FaDatabase,
+
+  // Software Engineering
+  "Python": SiPython,
+  "FastAPI": SiFastapi,
+  "Django": SiDjango,
+  "Flask": SiFlask,
+  "React": SiReact,
+  "Next.js": SiNextdotjs,
+
+  // Data & Systems
+  "SQL": TbSql,
+  "MySQL": SiMysql,
+  "MongoDB": SiMongodb,
+  "Firebase": SiFirebase,
+  "REST APIs": TbApi,
+
+  // Product & UX
+  "Product Thinking": TbBulb,
+  "UX Strategy": FaProjectDiagram,
+  "Prototyping": TbAdjustments,
+  "UI Design": FaPalette,
+  "AI Product Design": TbBrandOpenai,
+
+  // Tools & Frameworks
+  "PyTorch": SiPytorch,
+  "TensorFlow": SiTensorflow,
+  "OpenCV": SiOpencv,
+  "XGBoost": TbChartHistogram,
+  "LightGBM": TbChartDots,
+  "MediaPipe": TbWaveSine,
+
+  // IoT & Embedded
+  "ESP32": SiEspressif,
+  "IoT": SiArduino,
+  "Sensors": SiRaspberrypi,
+  "Edge AI": TbCpu,
+};
 
 const skillGroups = [
   {
@@ -61,7 +148,6 @@ export default function SkillsSection() {
     setOpenIndex((prev) => (prev === index ? null : index));
   };
 
-  // IntersectionObserver for fade-in on scroll
   useEffect(() => {
     const node = sectionRef.current;
     if (!node) return;
@@ -88,7 +174,6 @@ export default function SkillsSection() {
       ref={sectionRef}
       className={`skills-gallery-section ${isVisible ? "is-visible" : ""}`}
     >
-      {/* Top hairline divider with center diamond — echoes the header ornament */}
       <div className="skills-top-divider" aria-hidden="true">
         <span className="skills-top-divider-line" />
         <span className="skills-top-divider-diamond" />
@@ -98,7 +183,9 @@ export default function SkillsSection() {
       <div className="skills-wrap">
         <div className="skills-header">
           <div className="skills-ornament" aria-hidden="true">
-           
+            <span className="skills-ornament-line" />
+            <span className="skills-ornament-diamond" />
+            <span className="skills-ornament-line" />
           </div>
           <span className="skills-eyebrow">Exhibition Catalogue · Skills & Tools</span>
           <h2 className="skills-title">Skills & Tools</h2>
@@ -123,10 +210,11 @@ export default function SkillsSection() {
                 <span className="skills-corner skills-corner--bl" aria-hidden="true" />
                 <span className="skills-corner skills-corner--br" aria-hidden="true" />
 
-                <div className="skills-card-head">
+                {/* Front face */}
+                <div className="skills-card-front">
                   <div className="skills-medallion-glow">
                     <div className="skills-medallion">
-                      <MainIcon size={26} strokeWidth={1.5} />
+                      <MainIcon size={22} strokeWidth={1.5} />
                     </div>
                   </div>
                   <span className="skills-card-title">{group.title}</span>
@@ -138,12 +226,21 @@ export default function SkillsSection() {
                   </span>
                 </div>
 
-                <div className="skills-tags">
-                  {group.items.map((skill) => (
-                    <span key={skill} className="skills-tag">
-                      {skill}
-                    </span>
-                  ))}
+                {/* Back face — centered bubble grid, no title */}
+                <div className="skills-card-back">
+                  <div className="skills-bubbles">
+                    {group.items.map((skill) => {
+                      const SkillIcon = SKILL_ICONS[skill];
+                      return (
+                        <div key={skill} className="skills-bubble">
+                          <div className="skills-bubble-icon">
+                            {SkillIcon && <SkillIcon aria-hidden="true" />}
+                          </div>
+                          <span className="skills-bubble-label">{skill}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             );
@@ -190,12 +287,18 @@ export default function SkillsSection() {
                   className="skills-drawer-panel"
                   style={{ maxHeight: isOpen ? "480px" : "0px" }}
                 >
-                  <div className="skills-tags skills-tags--mobile">
-                    {group.items.map((skill) => (
-                      <span key={skill} className="skills-tag">
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="skills-bubbles skills-bubbles--mobile">
+                    {group.items.map((skill) => {
+                      const SkillIcon = SKILL_ICONS[skill];
+                      return (
+                        <div key={skill} className="skills-bubble">
+                          <div className="skills-bubble-icon">
+                            {SkillIcon && <SkillIcon aria-hidden="true" />}
+                          </div>
+                          <span className="skills-bubble-label">{skill}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -212,12 +315,9 @@ export default function SkillsSection() {
           width: 100%;
           overflow: hidden;
           padding: 7rem 1.5rem 8rem;
-
-          /* Inverted: darker base tone now */
           background: var(--color-background);
         }
 
-        /* Fades blend into the lighter surrounding surface-alt at the edges. */
         .skills-gallery-section::before,
         .skills-gallery-section::after {
           content: "";
@@ -249,7 +349,6 @@ export default function SkillsSection() {
           );
         }
 
-        /* Quiet hairline + diamond sitting in the top fade. */
         .skills-top-divider {
           position: absolute;
           top: 2.25rem;
@@ -295,8 +394,6 @@ export default function SkillsSection() {
           max-width: 1180px;
           margin: 0 auto;
         }
-
-        /* ---------- Header ---------- */
 
         .skills-header {
           text-align: center;
@@ -368,52 +465,25 @@ export default function SkillsSection() {
           .skills-title { white-space: normal; }
         }
 
-        .skills-subtitle {
-          font-family: var(--font-body);
-          font-weight: 300;
-          font-style: italic;
-          font-size: clamp(1rem, 1.4vw, 1.15rem);
-          color: var(--color-text-secondary);
-          line-height: 1.7;
-          margin: 1rem 0 0;
-        }
-
-        /* ---------- Desktop gallery (2 rows) ---------- */
-
         .skills-grid {
           display: grid;
-          /* 3 columns × 2 rows = 6 cards, evenly split into two rows */
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 1.1rem;
         }
 
         .skills-card {
           position: relative;
-          display: flex;
-          flex-direction: column;
-          min-height: 320px;
-
-          /* Inverted: cards now use surface-alt so they stand out against
-             the darker section background. */
-          background: var(--color-surface-alt);
-          border: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
-          border-radius: 6px;
-
-          padding: 1.85rem 1.15rem 1.5rem;
-          box-shadow:
-            0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent) inset,
-            0 6px 18px -14px color-mix(in srgb, var(--color-text) 55%, transparent);
-          transition:
-            transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-            box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-            border-color 0.4s ease,
-            opacity 0.7s ease,
-            filter 0.7s ease;
-
-          /* Fade-in animation start state */
+          /* ↑ Taller to fit bigger bubbles */
+          min-height: 290px;
+          perspective: 1200px;
+          cursor: pointer;
           opacity: 0;
           transform: translateY(28px);
           filter: blur(4px);
+          transition:
+            opacity 0.7s ease,
+            transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+            filter 0.7s ease;
         }
 
         .skills-gallery-section.is-visible .skills-card {
@@ -423,7 +493,59 @@ export default function SkillsSection() {
           transition-delay: var(--delay, 0ms);
         }
 
-        .skills-card::after {
+        .skills-card-front,
+        .skills-card-back {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          background: var(--color-surface-alt);
+          border: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+          border-radius: 6px;
+          padding: 1.2rem 1rem 1rem;
+          box-shadow:
+            0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent) inset,
+            0 6px 18px -14px color-mix(in srgb, var(--color-text) 55%, transparent);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          transition:
+            transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+            border-color 0.4s ease,
+            box-shadow 0.4s ease;
+        }
+
+        .skills-card-front {
+          transform: rotateY(0deg);
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        .skills-card-back {
+          transform: rotateY(180deg);
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .skills-card:hover .skills-card-front {
+          transform: rotateY(-180deg);
+        }
+
+        .skills-card:hover .skills-card-back {
+          transform: rotateY(0deg);
+        }
+
+        .skills-card:hover .skills-card-front,
+        .skills-card:hover .skills-card-back {
+          border-color: var(--accent);
+          box-shadow:
+            0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent) inset,
+            0 22px 44px -20px color-mix(in srgb, var(--accent) 55%, transparent);
+        }
+
+        .skills-card-front::after,
+        .skills-card-back::after {
           content: "";
           position: absolute;
           inset: 6px;
@@ -433,15 +555,8 @@ export default function SkillsSection() {
           transition: border-color 0.4s ease;
         }
 
-        .skills-card:hover {
-          transform: translateY(-6px);
-          border-color: var(--accent);
-          box-shadow:
-            0 1px 0 color-mix(in srgb, var(--color-text) 8%, transparent) inset,
-            0 22px 44px -20px color-mix(in srgb, var(--accent) 55%, transparent);
-        }
-
-        .skills-card:hover::after {
+        .skills-card:hover .skills-card-front::after,
+        .skills-card:hover .skills-card-back::after {
           border-color: color-mix(in srgb, var(--accent) 55%, transparent);
         }
 
@@ -452,6 +567,7 @@ export default function SkillsSection() {
           pointer-events: none;
           opacity: 0.85;
           transition: opacity 0.4s ease;
+          z-index: 2;
         }
         .skills-corner::before,
         .skills-corner::after {
@@ -472,14 +588,6 @@ export default function SkillsSection() {
         .skills-card:hover .skills-corner::before,
         .skills-card:hover .skills-corner::after {
           background: var(--accent);
-        }
-
-        .skills-card-head {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.65rem;
-          margin-bottom: 1.4rem;
         }
 
         .skills-medallion-glow {
@@ -507,15 +615,12 @@ export default function SkillsSection() {
 
         .skills-medallion {
           position: relative;
-          width: 60px;
-          height: 60px;
+          width: 48px;
+          height: 48px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-
-          /* Inverted: medallion interior now uses background (darker)
-             so it pops inside the lighter surface-alt card. */
           background: var(--color-background);
           border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--color-border));
           color: var(--accent);
@@ -531,15 +636,15 @@ export default function SkillsSection() {
         }
 
         .skills-medallion--sm {
-          width: 40px;
-          height: 40px;
+          width: 34px;
+          height: 34px;
           flex-shrink: 0;
         }
 
         .skills-card-title {
           font-family: var(--font-heading);
           font-weight: 600;
-          font-size: 1.05rem;
+          font-size: 0.92rem;
           color: var(--color-text);
           text-align: center;
           letter-spacing: 0.01em;
@@ -547,7 +652,7 @@ export default function SkillsSection() {
         }
 
         .skills-card-title--sm {
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           text-align: left;
           flex: 1;
           white-space: nowrap;
@@ -555,7 +660,7 @@ export default function SkillsSection() {
 
         .skills-card-rule {
           position: relative;
-          width: 64px;
+          width: 48px;
           height: 1px;
           background: linear-gradient(
             90deg,
@@ -593,7 +698,7 @@ export default function SkillsSection() {
 
         .skills-card-folio {
           font-family: var(--font-body);
-          font-size: 0.62rem;
+          font-size: 0.58rem;
           letter-spacing: 0.28em;
           text-transform: uppercase;
           color: var(--color-text-secondary);
@@ -601,32 +706,94 @@ export default function SkillsSection() {
           margin-top: 2px;
         }
 
-        .skills-tags {
+        /* ---------- Bubbles (BIGGER) ---------- */
+
+        .skills-bubbles {
           display: flex;
           flex-wrap: wrap;
           justify-content: center;
-          gap: 0.5rem;
-          flex: 1;
-          align-content: flex-start;
+          align-items: center;
+          gap: 0.85rem 0.7rem;
+          width: 100%;
         }
 
-        .skills-tag {
-          padding: 0.35rem 0.8rem;
-          border-radius: 3px;
+        .skills-bubble {
+          /* ↑ Wider slot for bigger bubbles */
+          flex: 0 0 72px;
+          width: 72px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.4rem;
+          text-align: center;
+        }
+
+        .skills-bubble-icon {
+          position: relative;
+          /* ↑ Bigger circle: 56px */
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          /* ↑ Bigger icon inside */
+          font-size: 1.7rem;
+          background: var(--color-background);
+          border: 2px solid color-mix(in srgb, var(--accent) 65%, var(--color-border));
+          color: var(--accent);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+          transition:
+            border-color 0.35s ease,
+            transform 0.35s ease,
+            box-shadow 0.35s ease;
+        }
+
+        .skills-bubble-icon::before {
+          content: "";
+          position: absolute;
+          inset: -30%;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            color-mix(in srgb, var(--accent) 35%, transparent) 0%,
+            transparent 70%
+          );
+          opacity: 0.5;
+          z-index: -1;
+          transition: opacity 0.35s ease;
+        }
+
+        .skills-card:hover .skills-bubble-icon::before {
+          opacity: 1;
+        }
+
+        .skills-card:hover .skills-bubble-icon {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+        }
+
+        .skills-bubble:hover .skills-bubble-icon {
+          transform: translateY(-2px) scale(1.06);
+          box-shadow:
+            0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent),
+            0 8px 16px -10px color-mix(in srgb, var(--accent) 75%, transparent);
+        }
+
+        .skills-bubble-label {
           font-family: var(--font-body);
-          font-size: 0.76rem;
+          /* ↑ Bigger label */
+          font-size: 0.72rem;
           font-weight: 500;
           letter-spacing: 0.02em;
+          line-height: 1.2;
           color: var(--color-text-secondary);
-          background: color-mix(in srgb, var(--color-text) 5%, transparent);
-          border: 1px solid color-mix(in srgb, var(--color-text) 30%, transparent);
-          white-space: nowrap;
-          transition: background 0.3s ease, border-color 0.3s ease;
+          transition: color 0.35s ease;
+          word-break: break-word;
         }
 
-        .skills-card:hover .skills-tag {
-          background: color-mix(in srgb, var(--accent) 14%, transparent);
-          border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+        .skills-bubble:hover .skills-bubble-label {
+          color: var(--color-text);
         }
 
         /* ---------- Mobile drawers ---------- */
@@ -635,7 +802,6 @@ export default function SkillsSection() {
 
         .skills-drawer {
           position: relative;
-          /* Inverted: drawer uses surface-alt to match cards. */
           background: var(--color-surface-alt);
           border: 2px solid color-mix(in srgb, var(--color-text) 35%, transparent);
           border-radius: 6px;
@@ -648,8 +814,6 @@ export default function SkillsSection() {
             border-color 0.3s ease,
             opacity 0.6s ease,
             transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-
-          /* Fade-in start state */
           opacity: 0;
           transform: translateY(18px);
         }
@@ -692,9 +856,14 @@ export default function SkillsSection() {
           transition: max-height 0.35s ease;
         }
 
-        .skills-tags--mobile {
-          justify-content: flex-start;
-          padding: 1rem 1rem 1.1rem;
+        .skills-bubbles--mobile {
+          padding: 1.1rem 1rem 1.3rem;
+          gap: 1rem 0.8rem;
+        }
+
+        .skills-bubbles--mobile .skills-bubble {
+          flex: 0 0 76px;
+          width: 76px;
         }
 
         /* ---------- Reduced motion ---------- */
@@ -709,6 +878,10 @@ export default function SkillsSection() {
             transform: none !important;
             filter: none !important;
           }
+          .skills-card-front,
+          .skills-card-back {
+            transition: none !important;
+          }
         }
 
         /* ---------- Responsive ---------- */
@@ -718,7 +891,6 @@ export default function SkillsSection() {
         }
 
         @media (max-width: 820px) {
-          /* 2 columns × 3 rows on tablet */
           .skills-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 

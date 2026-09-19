@@ -143,23 +143,43 @@ export default function Navbar() {
       if (isScrolling) return;
 
       const sections = navigation.map((item) => item.href.replace("#", ""));
+      const viewportMid = window.innerHeight / 2;
 
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section);
-            if (!userClickedContact || section !== "contact") {
-              setIsContactActive(section === "contact");
-            }
-            break;
-          }
+      // Collect each section's rect. For sticky sections, getBoundingClientRect
+      // returns the *visual* position, which is what we want for nav highlighting.
+      const sectionData = sections
+        .map((id) => {
+          const el = document.getElementById(id);
+          if (!el) return null;
+          const rect = el.getBoundingClientRect();
+          return { id, top: rect.top, bottom: rect.bottom };
+        })
+        .filter(Boolean);
+
+      // Pick the section that contains the viewport midpoint.
+      // Falls back to the nearest section above the midpoint if none contain it.
+      let current = sectionData.find(
+        (s) => s.top <= viewportMid && s.bottom > viewportMid
+      );
+
+      if (!current) {
+        // Nothing spans the midpoint (e.g. gap between sections) —
+        // choose the last section whose top is above the midpoint.
+        const above = sectionData
+          .filter((s) => s.top <= viewportMid)
+          .sort((a, b) => b.top - a.top);
+        current = above[0] || sectionData[0];
+      }
+
+      if (current && current.id !== activeSection) {
+        setActiveSection(current.id);
+        if (!userClickedContact || current.id !== "contact") {
+          setIsContactActive(current.id === "contact");
         }
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
     return () => {
@@ -168,7 +188,7 @@ export default function Navbar() {
         clearTimeout(scrollTimeout.current);
       }
     };
-  }, [isScrolling, userClickedContact]);
+  }, [isScrolling, userClickedContact, activeSection]);
 
   useEffect(() => {
     if (activeSection !== "contact") {
@@ -200,7 +220,7 @@ export default function Navbar() {
         setUserClickedContact(false);
       }
 
-      element.scrollIntoView({ behavior: "smooth" });
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
 
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
@@ -208,7 +228,7 @@ export default function Navbar() {
 
       scrollTimeout.current = setTimeout(() => {
         setIsScrolling(false);
-      }, 800);
+      }, 900);
 
       window.history.pushState(null, "", href);
       closeMenu();
