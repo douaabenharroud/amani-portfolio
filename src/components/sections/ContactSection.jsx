@@ -341,9 +341,11 @@ export default function ContactSection() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1fr) minmax(0, 1.05fr)",
+            gridTemplateColumns: isMobile
+              ? "1fr"
+              : "minmax(0, 1fr) minmax(0, 1.05fr)",
             gap: isMobile ? "40px" : "72px",
-            alignItems: "start",
+            alignItems: "start", // keeps both columns top-aligned
           }}
         >
           {/* ------------------- LEFT: info ------------------- */}
@@ -355,9 +357,10 @@ export default function ContactSection() {
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "32px",
+              gap: "24px", // reduced from 32px to tighten vertical rhythm
               textAlign: isMobile ? "center" : "left",
               alignItems: isMobile ? "center" : "flex-start",
+              alignSelf: "start", // prevents column from stretching
             }}
           >
             {/* Ornate framed statement */}
@@ -400,7 +403,7 @@ export default function ContactSection() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "14px",
+                gap: "12px", // slightly tighter
                 alignItems: isMobile ? "center" : "flex-start",
               }}
             >
@@ -447,7 +450,7 @@ export default function ContactSection() {
                 style={{
                   display: "flex",
                   gap: "20px",
-                  marginTop: "8px",
+                  marginTop: "4px", // reduced from 8px
                   fontFamily: "var(--font-body)",
                   fontSize: "0.9rem",
                 }}
@@ -637,24 +640,26 @@ export default function ContactSection() {
                     fontSize: "0.9rem",
                     fontWeight: 600,
                     letterSpacing: "0.05em",
-                    color: "#fff",
-                    background: "var(--color-primary)",
-                    border: "none",
+                    color: "var(--color-accent)",
+                    background: "transparent",
+                    border: "1px solid var(--color-accent)",
                     borderRadius: "9999px",
                     cursor: status === "sending" ? "wait" : "pointer",
                     opacity: status === "sending" ? 0.7 : 1,
                     transition:
-                      "opacity 0.25s ease, transform 0.25s ease",
+                      "background 0.25s ease, color 0.25s ease, opacity 0.25s ease, transform 0.25s ease",
                   }}
                   onMouseEnter={(e) => {
                     if (status !== "sending") {
-                      e.currentTarget.style.opacity = "0.9";
+                      e.currentTarget.style.background = "var(--color-accent)";
+                      e.currentTarget.style.color = "var(--color-surface)";
                       e.currentTarget.style.transform = "translateY(-1px)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (status !== "sending") {
-                      e.currentTarget.style.opacity = "1";
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--color-accent)";
                       e.currentTarget.style.transform = "translateY(0)";
                     }
                   }}
